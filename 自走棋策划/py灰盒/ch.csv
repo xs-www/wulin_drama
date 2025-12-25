@@ -1,0 +1,3 @@
+id, name, attack_power, health_points, speed, fetter, hate_value
+001, Ch1, 1, 3, 1, ["None"], 2
+002, Ch2, 2, 5, 2, [001], 3`

@@ -1,0 +1,46 @@
+{
+    "001": {
+        "id": "001",
+        "name": "Ch1",
+        "attack_power": 1,
+        "health_points": 20,
+        "avaliable_location": [],
+        "speed": 1,
+        "fetter": [],
+        "hate_value": 2,
+        "price": 1
+    },
+    "002": {
+        "id": "002",
+        "name": "Ch2",
+        "attack_power": 2,
+        "health_points": 12,
+        "avaliable_location": [],
+        "speed": 1,
+        "fetter": [],
+        "hate_value": 3,
+        "price": 1
+    },
+    "003": {
+        "id": "003",
+        "name": "Ch3",
+        "attack_power": 10,
+        "health_points": 3,
+        "avaliable_location": [],
+        "speed": 4,
+        "fetter": [],
+        "hate_value": 3,
+        "price": 1
+    },
+    "004": {
+        "id": "004",
+        "name": "Ch4",
+        "attack_power": 5,
+        "health_points": 8,
+        "avaliable_location": [],
+        "speed": 2,
+        "fetter": [],
+        "hate_value": 2,
+        "price": 1
+    }
+}
