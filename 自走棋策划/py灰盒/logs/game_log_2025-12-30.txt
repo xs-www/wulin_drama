@@ -1,0 +1,369 @@
+[2025/12/30-21:23:34] [INFO] --- Round 1 ---
+[2025/12/30-21:23:34] [INFO] Ch1 attacks Ch1 for 1 damage. Ch1 HP left: 19
+[2025/12/30-21:23:34] [INFO] Ch1 counterattacks Ch1 for 1 damage. Ch1 HP left: 19
+[2025/12/30-21:23:34] [INFO] Ch3 attacks Ch1 for 10 damage. Ch1 HP left: 9
+[2025/12/30-21:23:34] [INFO] Ch1 counterattacks Ch3 for 1 damage. Ch3 HP left: 2
+[2025/12/30-21:23:34] [INFO] Ch4 attacks Ch1 for 5 damage. Ch1 HP left: 4
+[2025/12/30-21:23:34] [INFO] Ch1 counterattacks Ch4 for 1 damage. Ch4 HP left: 7
+[2025/12/30-21:23:34] [INFO] Ch1 attacks Ch1 for 1 damage. Ch1 HP left: 18
+[2025/12/30-21:23:34] [INFO] Ch1 counterattacks Ch1 for 1 damage. Ch1 HP left: 3
+[2025/12/30-21:23:34] [INFO] Ch2 attacks Ch1 for 2 damage. Ch1 HP left: 16
+[2025/12/30-21:23:34] [INFO] Ch1 counterattacks Ch2 for 1 damage. Ch2 HP left: 11
+[2025/12/30-21:23:34] [INFO] --- Round 2 ---
+[2025/12/30-21:23:34] [INFO] Ch4 attacks Ch1 for 5 damage. Ch1 HP left: 0
+[2025/12/30-21:23:34] [INFO] Ch1 counterattacks Ch4 for 1 damage. Ch4 HP left: 6
+[2025/12/30-21:23:34] [INFO] Ch1 has been defeated!
+[2025/12/30-21:23:34] [INFO] Ch3 attacks Ch2 for 10 damage. Ch2 HP left: 1
+[2025/12/30-21:23:34] [INFO] Ch2 counterattacks Ch3 for 1 damage. Ch3 HP left: 1
+[2025/12/30-21:23:34] [INFO] Ch2 attacks Ch1 for 2 damage. Ch1 HP left: 14
+[2025/12/30-21:23:34] [INFO] Ch1 counterattacks Ch2 for 1 damage. Ch2 HP left: 0
+[2025/12/30-21:23:34] [INFO] Ch1 attacks Ch1 for 1 damage. Ch1 HP left: 0
+[2025/12/30-21:23:34] [INFO] Ch1 counterattacks Ch1 for 1 damage. Ch1 HP left: 13
+[2025/12/30-21:23:34] [INFO] Ch1 has been defeated!
+[2025/12/30-21:23:34] [INFO] Battle Over!
+[2025/12/30-21:23:50] [INFO] --- Round 1 ---
+[2025/12/30-21:23:50] [INFO] Ch3 attacks Ch1 for 10 damage. Ch1 HP left: 10
+[2025/12/30-21:23:50] [INFO] Ch1 counterattacks Ch3 for 1 damage. Ch3 HP left: 2
+[2025/12/30-21:23:50] [INFO] Ch4 attacks Ch1 for 5 damage. Ch1 HP left: 5
+[2025/12/30-21:23:50] [INFO] Ch1 counterattacks Ch4 for 1 damage. Ch4 HP left: 7
+[2025/12/30-21:23:50] [INFO] Ch2 attacks Ch1 for 2 damage. Ch1 HP left: 18
+[2025/12/30-21:23:50] [INFO] Ch1 counterattacks Ch2 for 1 damage. Ch2 HP left: 11
+[2025/12/30-21:23:50] [INFO] Ch1 attacks Ch1 for 1 damage. Ch1 HP left: 17
+[2025/12/30-21:23:50] [INFO] Ch1 counterattacks Ch1 for 1 damage. Ch1 HP left: 4
+[2025/12/30-21:23:50] [INFO] Ch1 attacks Ch1 for 1 damage. Ch1 HP left: 3
+[2025/12/30-21:23:50] [INFO] Ch1 counterattacks Ch1 for 1 damage. Ch1 HP left: 16
+[2025/12/30-21:23:50] [INFO] --- Round 2 ---
+[2025/12/30-21:23:50] [INFO] Ch3 attacks Ch1 for 10 damage. Ch1 HP left: 0
+[2025/12/30-21:23:50] [INFO] Ch1 counterattacks Ch3 for 1 damage. Ch3 HP left: 1
+[2025/12/30-21:23:50] [INFO] Ch1 has been defeated!
+[2025/12/30-21:23:50] [INFO] Ch4 attacks Ch2 for 5 damage. Ch2 HP left: 6
+[2025/12/30-21:23:50] [INFO] Ch2 counterattacks Ch4 for 1 damage. Ch4 HP left: 6
+[2025/12/30-21:23:50] [INFO] Ch1 attacks Ch2 for 1 damage. Ch2 HP left: 5
+[2025/12/30-21:23:50] [INFO] Ch2 counterattacks Ch1 for 1 damage. Ch1 HP left: 15
+[2025/12/30-21:23:50] [INFO] Ch2 attacks Ch1 for 2 damage. Ch1 HP left: 13
+[2025/12/30-21:23:50] [INFO] Ch1 counterattacks Ch2 for 1 damage. Ch2 HP left: 4
+[2025/12/30-21:23:51] [INFO] --- Round 3 ---
+[2025/12/30-21:23:51] [INFO] Ch3 attacks Ch2 for 10 damage. Ch2 HP left: 0
+[2025/12/30-21:23:51] [INFO] Ch2 counterattacks Ch3 for 1 damage. Ch3 HP left: 0
+[2025/12/30-21:23:51] [INFO] Ch2 has been defeated!
+[2025/12/30-21:23:51] [INFO] Ch1 attacks Ch1 for 1 damage. Ch1 HP left: 0
+[2025/12/30-21:23:51] [INFO] Ch1 counterattacks Ch1 for 1 damage. Ch1 HP left: 12
+[2025/12/30-21:23:51] [INFO] Ch1 has been defeated!
+[2025/12/30-21:23:51] [INFO] Ch4 attacks Ch1 for 5 damage. Ch1 HP left: 0
+[2025/12/30-21:23:51] [INFO] Ch1 counterattacks Ch4 for 1 damage. Ch4 HP left: 5
+[2025/12/30-21:23:51] [INFO] Ch1 has been defeated!
+[2025/12/30-21:23:51] [INFO] Battle Over!
+[2025/12/30-21:40:20] [INFO] --- Round 1 ---
+[2025/12/30-21:40:20] [INFO] Ch3 attacks Ch1 for 10 damage. Ch1 HP left: 10
+[2025/12/30-21:40:20] [INFO] Ch1 counterattacks Ch3 for 1 damage. Ch3 HP left: 2
+[2025/12/30-21:40:20] [INFO] Ch2 attacks Ch1 for 2 damage. Ch1 HP left: 18
+[2025/12/30-21:40:20] [INFO] Ch1 counterattacks Ch2 for 1 damage. Ch2 HP left: 11
+[2025/12/30-21:40:20] [INFO] Ch1 attacks Ch1 for 1 damage. Ch1 HP left: 9
+[2025/12/30-21:40:20] [INFO] Ch1 counterattacks Ch1 for 1 damage. Ch1 HP left: 17
+[2025/12/30-21:40:20] [INFO] Ch1 attacks Ch1 for 1 damage. Ch1 HP left: 16
+[2025/12/30-21:40:20] [INFO] Ch1 counterattacks Ch1 for 1 damage. Ch1 HP left: 8
+[2025/12/30-21:40:20] [INFO] Ch4 attacks Ch1 for 5 damage. Ch1 HP left: 3
+[2025/12/30-21:40:20] [INFO] Ch1 counterattacks Ch4 for 1 damage. Ch4 HP left: 7
+[2025/12/30-21:40:21] [INFO] --- Round 2 ---
+[2025/12/30-21:40:21] [INFO] Ch3 attacks Ch1 for 10 damage. Ch1 HP left: 0
+[2025/12/30-21:40:21] [INFO] Ch1 counterattacks Ch3 for 1 damage. Ch3 HP left: 1
+[2025/12/30-21:40:21] [INFO] Ch1 has been defeated!
+[2025/12/30-21:40:21] [INFO] Ch2 attacks Ch1 for 2 damage. Ch1 HP left: 14
+[2025/12/30-21:40:21] [INFO] Ch1 counterattacks Ch2 for 1 damage. Ch2 HP left: 10
+[2025/12/30-21:40:21] [INFO] Ch4 attacks Ch2 for 5 damage. Ch2 HP left: 5
+[2025/12/30-21:40:21] [INFO] Ch2 counterattacks Ch4 for 1 damage. Ch4 HP left: 6
+[2025/12/30-21:40:21] [INFO] Ch1 attacks Ch2 for 1 damage. Ch2 HP left: 4
+[2025/12/30-21:40:21] [INFO] Ch2 counterattacks Ch1 for 1 damage. Ch1 HP left: 13
+[2025/12/30-21:40:21] [INFO] --- Round 3 ---
+[2025/12/30-21:40:21] [INFO] Ch3 attacks Ch2 for 10 damage. Ch2 HP left: 0
+[2025/12/30-21:40:21] [INFO] Ch2 counterattacks Ch3 for 1 damage. Ch3 HP left: 0
+[2025/12/30-21:40:21] [INFO] Ch2 has been defeated!
+[2025/12/30-21:40:21] [INFO] Ch4 attacks Ch1 for 5 damage. Ch1 HP left: 0
+[2025/12/30-21:40:21] [INFO] Ch1 counterattacks Ch4 for 1 damage. Ch4 HP left: 5
+[2025/12/30-21:40:21] [INFO] Ch1 has been defeated!
+[2025/12/30-21:40:21] [INFO] Ch1 attacks Ch1 for 1 damage. Ch1 HP left: 0
+[2025/12/30-21:40:21] [INFO] Ch1 counterattacks Ch1 for 1 damage. Ch1 HP left: 12
+[2025/12/30-21:40:21] [INFO] Ch1 has been defeated!
+[2025/12/30-21:40:21] [INFO] Battle Over!
+[2025/12/30-21:43:08] [INFO] --- Round 1 ---
+[2025/12/30-21:43:08] [INFO] Ch1 attacks Ch1 for 1 damage. Ch1 HP left: 19
+[2025/12/30-21:43:08] [INFO] Ch1 counterattacks Ch1 for 1 damage. Ch1 HP left: 19
+[2025/12/30-21:43:08] [INFO] Ch3 attacks Ch1 for 10 damage. Ch1 HP left: 9
+[2025/12/30-21:43:08] [INFO] Ch1 counterattacks Ch3 for 1 damage. Ch3 HP left: 2
+[2025/12/30-21:43:08] [INFO] Ch4 attacks Ch1 for 5 damage. Ch1 HP left: 4
+[2025/12/30-21:43:08] [INFO] Ch1 counterattacks Ch4 for 1 damage. Ch4 HP left: 7
+[2025/12/30-21:43:08] [INFO] Ch1 attacks Ch1 for 1 damage. Ch1 HP left: 3
+[2025/12/30-21:43:08] [INFO] Ch1 counterattacks Ch1 for 1 damage. Ch1 HP left: 18
+[2025/12/30-21:43:08] [INFO] Ch2 attacks Ch1 for 2 damage. Ch1 HP left: 16
+[2025/12/30-21:43:08] [INFO] Ch1 counterattacks Ch2 for 1 damage. Ch2 HP left: 11
+[2025/12/30-21:43:08] [INFO] --- Round 2 ---
+[2025/12/30-21:43:08] [INFO] Ch3 attacks Ch1 for 10 damage. Ch1 HP left: 0
+[2025/12/30-21:43:08] [INFO] Ch1 counterattacks Ch3 for 1 damage. Ch3 HP left: 1
+[2025/12/30-21:43:08] [INFO] Ch1 has been defeated!
+[2025/12/30-21:43:08] [INFO] Ch1 attacks Ch2 for 1 damage. Ch2 HP left: 10
+[2025/12/30-21:43:08] [INFO] Ch2 counterattacks Ch1 for 1 damage. Ch1 HP left: 15
+[2025/12/30-21:43:08] [INFO] Ch2 attacks Ch1 for 2 damage. Ch1 HP left: 13
+[2025/12/30-21:43:08] [INFO] Ch1 counterattacks Ch2 for 1 damage. Ch2 HP left: 9
+[2025/12/30-21:43:08] [INFO] Ch4 attacks Ch2 for 5 damage. Ch2 HP left: 4
+[2025/12/30-21:43:08] [INFO] Ch2 counterattacks Ch4 for 1 damage. Ch4 HP left: 6
+[2025/12/30-21:43:09] [INFO] --- Round 3 ---
+[2025/12/30-21:43:09] [INFO] Ch2 attacks Ch1 for 2 damage. Ch1 HP left: 11
+[2025/12/30-21:43:09] [INFO] Ch1 counterattacks Ch2 for 1 damage. Ch2 HP left: 3
+[2025/12/30-21:43:09] [INFO] Ch4 attacks Ch2 for 5 damage. Ch2 HP left: 0
+[2025/12/30-21:43:09] [INFO] Ch2 counterattacks Ch4 for 1 damage. Ch4 HP left: 5
+[2025/12/30-21:43:09] [INFO] Ch2 has been defeated!
+[2025/12/30-21:43:09] [INFO] Ch3 attacks Ch1 for 10 damage. Ch1 HP left: 0
+[2025/12/30-21:43:09] [INFO] Ch1 counterattacks Ch3 for 1 damage. Ch3 HP left: 0
+[2025/12/30-21:43:09] [INFO] Ch1 has been defeated!
+[2025/12/30-21:43:09] [INFO] Ch1 attacks Ch1 for 1 damage. Ch1 HP left: 0
+[2025/12/30-21:43:09] [INFO] Ch1 counterattacks Ch1 for 1 damage. Ch1 HP left: 10
+[2025/12/30-21:43:09] [INFO] Ch1 has been defeated!
+[2025/12/30-21:43:09] [INFO] Battle Over!
+[2025/12/30-21:53:09] [INFO] --- Round 1 ---
+[2025/12/30-21:53:09] [INFO] [blue]Ch1(1/20)[/blue] attacks [red]Ch1(1/19)[/red] for 1 damage.
+[2025/12/30-21:53:09] [INFO] [red]Ch1(1/19)[/red] counterattacks [blue]Ch1(1/19)[/blue] for 1 damage.
+[2025/12/30-21:53:09] [INFO] [blue]Ch3(10/3)[/blue] attacks [red]Ch1(1/9)[/red] for 10 damage.
+[2025/12/30-21:53:09] [INFO] [red]Ch1(1/9)[/red] counterattacks [blue]Ch3(10/2)[/blue] for 1 damage.
+[2025/12/30-21:53:09] [INFO] [red]Ch1(1/9)[/red] attacks [blue]Ch1(1/18)[/blue] for 1 damage.
+[2025/12/30-21:53:09] [INFO] [blue]Ch1(1/18)[/blue] counterattacks [red]Ch1(1/8)[/red] for 1 damage.
+[2025/12/30-21:53:09] [INFO] [red]Ch2(2/12)[/red] attacks [blue]Ch1(1/16)[/blue] for 2 damage.
+[2025/12/30-21:53:09] [INFO] [blue]Ch1(1/16)[/blue] counterattacks [red]Ch2(2/11)[/red] for 1 damage.
+[2025/12/30-21:53:09] [INFO] [blue]Ch4(5/8)[/blue] attacks [red]Ch1(1/3)[/red] for 5 damage.
+[2025/12/30-21:53:09] [INFO] [red]Ch1(1/3)[/red] counterattacks [blue]Ch4(5/7)[/blue] for 1 damage.
+[2025/12/30-21:53:10] [INFO] --- Round 2 ---
+[2025/12/30-21:53:10] [INFO] [blue]Ch3(10/2)[/blue] attacks [red]Ch1(1/0)[/red] for 10 damage.
+[2025/12/30-21:53:10] [INFO] [red]Ch1(1/0)[/red] counterattacks [blue]Ch3(10/1)[/blue] for 1 damage.
+[2025/12/30-21:53:10] [INFO] Ch1 has been defeated!
+[2025/12/30-21:53:10] [INFO] [blue]Ch4(5/7)[/blue] attacks [red]Ch2(2/6)[/red] for 5 damage.
+[2025/12/30-21:53:10] [INFO] [red]Ch2(2/6)[/red] counterattacks [blue]Ch4(5/6)[/blue] for 1 damage.
+[2025/12/30-21:53:10] [INFO] [red]Ch2(2/6)[/red] attacks [blue]Ch1(1/14)[/blue] for 2 damage.
+[2025/12/30-21:53:10] [INFO] [blue]Ch1(1/14)[/blue] counterattacks [red]Ch2(2/5)[/red] for 1 damage.
+[2025/12/30-21:53:10] [INFO] [blue]Ch1(1/14)[/blue] attacks [red]Ch2(2/4)[/red] for 1 damage.
+[2025/12/30-21:53:10] [INFO] [red]Ch2(2/4)[/red] counterattacks [blue]Ch1(1/13)[/blue] for 1 damage.
+[2025/12/30-21:53:10] [INFO] --- Round 3 ---
+[2025/12/30-21:53:10] [INFO] [blue]Ch4(5/6)[/blue] attacks [red]Ch2(2/0)[/red] for 5 damage.
+[2025/12/30-21:53:10] [INFO] [red]Ch2(2/0)[/red] counterattacks [blue]Ch4(5/5)[/blue] for 1 damage.
+[2025/12/30-21:53:10] [INFO] Ch2 has been defeated!
+[2025/12/30-21:53:10] [INFO] [blue]Ch3(10/1)[/blue] attacks [red]Ch1(1/0)[/red] for 10 damage.
+[2025/12/30-21:53:10] [INFO] [red]Ch1(1/0)[/red] counterattacks [blue]Ch3(10/0)[/blue] for 1 damage.
+[2025/12/30-21:53:10] [INFO] Ch1 has been defeated!
+[2025/12/30-21:53:10] [INFO] [blue]Ch1(1/13)[/blue] attacks [red]Ch1(1/0)[/red] for 1 damage.
+[2025/12/30-21:53:10] [INFO] [red]Ch1(1/0)[/red] counterattacks [blue]Ch1(1/12)[/blue] for 1 damage.
+[2025/12/30-21:53:10] [INFO] Ch1 has been defeated!
+[2025/12/30-21:53:10] [INFO] Battle Over!
+[2025/12/30-21:55:06] [INFO] --- Round 1 ---
+[2025/12/30-21:55:06] [INFO] [blue]Ch3(10/3)[/blue] attacks [red]Ch1(1/10)[/red] for 10 damage.
+[2025/12/30-21:55:06] [INFO] [red]Ch1 current health: 10/20[/red]
+[2025/12/30-21:55:06] [INFO] [red]Ch1(1/10)[/red] counterattacks [blue]Ch3(10/2)[/blue] for 1 damage.
+[2025/12/30-21:55:06] [INFO] [blue]Ch3 current health: 2/3[/blue]
+[2025/12/30-21:55:06] [INFO] [blue]Ch4(5/8)[/blue] attacks [red]Ch1(1/5)[/red] for 5 damage.
+[2025/12/30-21:55:06] [INFO] [red]Ch1 current health: 5/20[/red]
+[2025/12/30-21:55:06] [INFO] [red]Ch1(1/5)[/red] counterattacks [blue]Ch4(5/7)[/blue] for 1 damage.
+[2025/12/30-21:55:06] [INFO] [blue]Ch4 current health: 7/8[/blue]
+[2025/12/30-21:55:06] [INFO] [red]Ch2(2/12)[/red] attacks [blue]Ch1(1/18)[/blue] for 2 damage.
+[2025/12/30-21:55:06] [INFO] [blue]Ch1 current health: 18/20[/blue]
+[2025/12/30-21:55:06] [INFO] [blue]Ch1(1/18)[/blue] counterattacks [red]Ch2(2/11)[/red] for 1 damage.
+[2025/12/30-21:55:06] [INFO] [red]Ch2 current health: 11/12[/red]
+[2025/12/30-21:55:06] [INFO] [blue]Ch1(1/18)[/blue] attacks [red]Ch1(1/4)[/red] for 1 damage.
+[2025/12/30-21:55:06] [INFO] [red]Ch1 current health: 4/20[/red]
+[2025/12/30-21:55:06] [INFO] [red]Ch1(1/4)[/red] counterattacks [blue]Ch1(1/17)[/blue] for 1 damage.
+[2025/12/30-21:55:06] [INFO] [blue]Ch1 current health: 17/20[/blue]
+[2025/12/30-21:55:06] [INFO] [red]Ch1(1/4)[/red] attacks [blue]Ch1(1/16)[/blue] for 1 damage.
+[2025/12/30-21:55:06] [INFO] [blue]Ch1 current health: 16/20[/blue]
+[2025/12/30-21:55:06] [INFO] [blue]Ch1(1/16)[/blue] counterattacks [red]Ch1(1/3)[/red] for 1 damage.
+[2025/12/30-21:55:06] [INFO] [red]Ch1 current health: 3/20[/red]
+[2025/12/30-21:55:06] [INFO] --- Round 2 ---
+[2025/12/30-21:55:06] [INFO] [red]Ch1(1/3)[/red] attacks [blue]Ch1(1/15)[/blue] for 1 damage.
+[2025/12/30-21:55:06] [INFO] [blue]Ch1 current health: 15/20[/blue]
+[2025/12/30-21:55:06] [INFO] [blue]Ch1(1/15)[/blue] counterattacks [red]Ch1(1/2)[/red] for 1 damage.
+[2025/12/30-21:55:06] [INFO] [red]Ch1 current health: 2/20[/red]
+[2025/12/30-21:55:06] [INFO] [red]Ch2(2/11)[/red] attacks [blue]Ch1(1/13)[/blue] for 2 damage.
+[2025/12/30-21:55:06] [INFO] [blue]Ch1 current health: 13/20[/blue]
+[2025/12/30-21:55:06] [INFO] [blue]Ch1(1/13)[/blue] counterattacks [red]Ch2(2/10)[/red] for 1 damage.
+[2025/12/30-21:55:06] [INFO] [red]Ch2 current health: 10/12[/red]
+[2025/12/30-21:55:06] [INFO] [blue]Ch3(10/2)[/blue] attacks [red]Ch1(1/0)[/red] for 10 damage.
+[2025/12/30-21:55:06] [INFO] [red]Ch1 current health: 0/20[/red]
+[2025/12/30-21:55:06] [INFO] [red]Ch1(1/0)[/red] counterattacks [blue]Ch3(10/1)[/blue] for 1 damage.
+[2025/12/30-21:55:06] [INFO] [blue]Ch3 current health: 1/3[/blue]
+[2025/12/30-21:55:06] [INFO] Ch1 has been defeated!
+[2025/12/30-21:55:06] [INFO] [blue]Ch1(1/13)[/blue] attacks [red]Ch2(2/9)[/red] for 1 damage.
+[2025/12/30-21:55:06] [INFO] [red]Ch2 current health: 9/12[/red]
+[2025/12/30-21:55:06] [INFO] [red]Ch2(2/9)[/red] counterattacks [blue]Ch1(1/12)[/blue] for 1 damage.
+[2025/12/30-21:55:06] [INFO] [blue]Ch1 current health: 12/20[/blue]
+[2025/12/30-21:55:06] [INFO] [blue]Ch4(5/7)[/blue] attacks [red]Ch2(2/4)[/red] for 5 damage.
+[2025/12/30-21:55:06] [INFO] [red]Ch2 current health: 4/12[/red]
+[2025/12/30-21:55:06] [INFO] [red]Ch2(2/4)[/red] counterattacks [blue]Ch4(5/6)[/blue] for 1 damage.
+[2025/12/30-21:55:07] [INFO] [blue]Ch4 current health: 6/8[/blue]
+[2025/12/30-21:55:07] [INFO] --- Round 3 ---
+[2025/12/30-21:55:07] [INFO] [blue]Ch3(10/1)[/blue] attacks [red]Ch2(2/0)[/red] for 10 damage.
+[2025/12/30-21:55:07] [INFO] [red]Ch2 current health: 0/12[/red]
+[2025/12/30-21:55:07] [INFO] [red]Ch2(2/0)[/red] counterattacks [blue]Ch3(10/0)[/blue] for 1 damage.
+[2025/12/30-21:55:07] [INFO] [blue]Ch3 current health: 0/3[/blue]
+[2025/12/30-21:55:07] [INFO] Ch2 has been defeated!
+[2025/12/30-21:55:07] [INFO] [blue]Ch4(5/6)[/blue] attacks [red]Ch1(1/0)[/red] for 5 damage.
+[2025/12/30-21:55:07] [INFO] [red]Ch1 current health: 0/20[/red]
+[2025/12/30-21:55:07] [INFO] [red]Ch1(1/0)[/red] counterattacks [blue]Ch4(5/5)[/blue] for 1 damage.
+[2025/12/30-21:55:07] [INFO] [blue]Ch4 current health: 5/8[/blue]
+[2025/12/30-21:55:07] [INFO] Ch1 has been defeated!
+[2025/12/30-21:55:07] [INFO] [blue]Ch1(1/12)[/blue] attacks [red]Ch1(1/0)[/red] for 1 damage.
+[2025/12/30-21:55:07] [INFO] [red]Ch1 current health: 0/20[/red]
+[2025/12/30-21:55:07] [INFO] [red]Ch1(1/0)[/red] counterattacks [blue]Ch1(1/11)[/blue] for 1 damage.
+[2025/12/30-21:55:07] [INFO] [blue]Ch1 current health: 11/20[/blue]
+[2025/12/30-21:55:07] [INFO] Ch1 has been defeated!
+[2025/12/30-21:55:07] [INFO] Battle Over!
+[2025/12/30-21:57:36] [INFO] --- Round 1 ---
+[2025/12/30-21:57:36] [INFO] [blue]Ch1(1/20)[/blue] attacks [red]Ch1(1/20)[/red] for 1 damage.
+[2025/12/30-21:57:36] [INFO] [red]Ch1 current state: 1/19[/red]
+[2025/12/30-21:57:36] [INFO] [red]Ch1(1/19)[/red] counterattacks [blue]Ch1(1/20)[/blue] for 1 damage.
+[2025/12/30-21:57:36] [INFO] [blue]Ch1 current state: 1/19[/blue]
+[2025/12/30-21:57:36] [INFO] [red]Ch1(1/19)[/red] attacks [blue]Ch1(1/19)[/blue] for 1 damage.
+[2025/12/30-21:57:36] [INFO] [blue]Ch1 current state: 1/18[/blue]
+[2025/12/30-21:57:36] [INFO] [blue]Ch1(1/18)[/blue] counterattacks [red]Ch1(1/19)[/red] for 1 damage.
+[2025/12/30-21:57:36] [INFO] [red]Ch1 current state: 1/18[/red]
+[2025/12/30-21:57:36] [INFO] [blue]Ch3(10/3)[/blue] attacks [red]Ch1(1/18)[/red] for 10 damage.
+[2025/12/30-21:57:36] [INFO] [red]Ch1 current state: 1/8[/red]
+[2025/12/30-21:57:36] [INFO] [red]Ch1(1/8)[/red] counterattacks [blue]Ch3(10/3)[/blue] for 1 damage.
+[2025/12/30-21:57:36] [INFO] [blue]Ch3 current state: 10/2[/blue]
+[2025/12/30-21:57:36] [INFO] [red]Ch2(2/12)[/red] attacks [blue]Ch1(1/18)[/blue] for 2 damage.
+[2025/12/30-21:57:36] [INFO] [blue]Ch1 current state: 1/16[/blue]
+[2025/12/30-21:57:36] [INFO] [blue]Ch1(1/16)[/blue] counterattacks [red]Ch2(2/12)[/red] for 1 damage.
+[2025/12/30-21:57:36] [INFO] [red]Ch2 current state: 2/11[/red]
+[2025/12/30-21:57:36] [INFO] [blue]Ch4(5/8)[/blue] attacks [red]Ch1(1/8)[/red] for 5 damage.
+[2025/12/30-21:57:36] [INFO] [red]Ch1 current state: 1/3[/red]
+[2025/12/30-21:57:36] [INFO] [red]Ch1(1/3)[/red] counterattacks [blue]Ch4(5/8)[/blue] for 1 damage.
+[2025/12/30-21:57:36] [INFO] [blue]Ch4 current state: 5/7[/blue]
+[2025/12/30-21:57:36] [INFO] --- Round 2 ---
+[2025/12/30-21:57:36] [INFO] [blue]Ch3(10/2)[/blue] attacks [red]Ch1(1/3)[/red] for 10 damage.
+[2025/12/30-21:57:36] [INFO] [red]Ch1 current state: 1/0[/red]
+[2025/12/30-21:57:36] [INFO] [red]Ch1(1/0)[/red] counterattacks [blue]Ch3(10/2)[/blue] for 1 damage.
+[2025/12/30-21:57:36] [INFO] [blue]Ch3 current state: 10/1[/blue]
+[2025/12/30-21:57:36] [INFO] Ch1 has been defeated!
+[2025/12/30-21:57:36] [INFO] [blue]Ch4(5/7)[/blue] attacks [red]Ch2(2/11)[/red] for 5 damage.
+[2025/12/30-21:57:36] [INFO] [red]Ch2 current state: 2/6[/red]
+[2025/12/30-21:57:36] [INFO] [red]Ch2(2/6)[/red] counterattacks [blue]Ch4(5/7)[/blue] for 1 damage.
+[2025/12/30-21:57:36] [INFO] [blue]Ch4 current state: 5/6[/blue]
+[2025/12/30-21:57:36] [INFO] [blue]Ch1(1/16)[/blue] attacks [red]Ch2(2/6)[/red] for 1 damage.
+[2025/12/30-21:57:36] [INFO] [red]Ch2 current state: 2/5[/red]
+[2025/12/30-21:57:36] [INFO] [red]Ch2(2/5)[/red] counterattacks [blue]Ch1(1/16)[/blue] for 1 damage.
+[2025/12/30-21:57:36] [INFO] [blue]Ch1 current state: 1/15[/blue]
+[2025/12/30-21:57:36] [INFO] [red]Ch2(2/5)[/red] attacks [blue]Ch1(1/15)[/blue] for 2 damage.
+[2025/12/30-21:57:36] [INFO] [blue]Ch1 current state: 1/13[/blue]
+[2025/12/30-21:57:36] [INFO] [blue]Ch1(1/13)[/blue] counterattacks [red]Ch2(2/5)[/red] for 1 damage.
+[2025/12/30-21:57:36] [INFO] [red]Ch2 current state: 2/4[/red]
+[2025/12/30-21:57:37] [INFO] --- Round 3 ---
+[2025/12/30-21:57:37] [INFO] [blue]Ch1(1/13)[/blue] attacks [red]Ch2(2/4)[/red] for 1 damage.
+[2025/12/30-21:57:37] [INFO] [red]Ch2 current state: 2/3[/red]
+[2025/12/30-21:57:37] [INFO] [red]Ch2(2/3)[/red] counterattacks [blue]Ch1(1/13)[/blue] for 1 damage.
+[2025/12/30-21:57:37] [INFO] [blue]Ch1 current state: 1/12[/blue]
+[2025/12/30-21:57:37] [INFO] [blue]Ch3(10/1)[/blue] attacks [red]Ch2(2/3)[/red] for 10 damage.
+[2025/12/30-21:57:37] [INFO] [red]Ch2 current state: 2/0[/red]
+[2025/12/30-21:57:37] [INFO] [red]Ch2(2/0)[/red] counterattacks [blue]Ch3(10/1)[/blue] for 1 damage.
+[2025/12/30-21:57:37] [INFO] [blue]Ch3 current state: 10/0[/blue]
+[2025/12/30-21:57:37] [INFO] Ch2 has been defeated!
+[2025/12/30-21:57:37] [INFO] [blue]Ch4(5/6)[/blue] attacks [red]Ch1(1/0)[/red] for 5 damage.
+[2025/12/30-21:57:37] [INFO] [red]Ch1 current state: 1/0[/red]
+[2025/12/30-21:57:37] [INFO] [red]Ch1(1/0)[/red] counterattacks [blue]Ch4(5/6)[/blue] for 1 damage.
+[2025/12/30-21:57:37] [INFO] [blue]Ch4 current state: 5/5[/blue]
+[2025/12/30-21:57:37] [INFO] Ch1 has been defeated!
+[2025/12/30-21:57:37] [INFO] Battle Over!
+[2025/12/30-21:58:52] [INFO] --- Round 1 ---
+[2025/12/30-21:58:52] [INFO] [red]Ch2(2/12)[/red] 攻击了 [blue]Ch1(1/20)[/blue] for 2 damage.
+[2025/12/30-21:58:52] [INFO] [blue]Ch1 当前状态： 1/18[/blue]
+[2025/12/30-21:58:52] [INFO] [blue]Ch1(1/18)[/blue] 反击了 [red]Ch2(2/12)[/red] for 1 damage.
+[2025/12/30-21:58:52] [INFO] [red]Ch2 当前状态： 2/11[/red]
+[2025/12/30-21:58:52] [INFO] [blue]Ch3(10/3)[/blue] 攻击了 [red]Ch1(1/20)[/red] for 10 damage.
+[2025/12/30-21:58:52] [INFO] [red]Ch1 当前状态： 1/10[/red]
+[2025/12/30-21:58:52] [INFO] [red]Ch1(1/10)[/red] 反击了 [blue]Ch3(10/3)[/blue] for 1 damage.
+[2025/12/30-21:58:52] [INFO] [blue]Ch3 当前状态： 10/2[/blue]
+[2025/12/30-21:58:52] [INFO] [red]Ch1(1/10)[/red] 攻击了 [blue]Ch1(1/18)[/blue] for 1 damage.
+[2025/12/30-21:58:52] [INFO] [blue]Ch1 当前状态： 1/17[/blue]
+[2025/12/30-21:58:52] [INFO] [blue]Ch1(1/17)[/blue] 反击了 [red]Ch1(1/10)[/red] for 1 damage.
+[2025/12/30-21:58:52] [INFO] [red]Ch1 当前状态： 1/9[/red]
+[2025/12/30-21:58:52] [INFO] [blue]Ch1(1/17)[/blue] 攻击了 [red]Ch1(1/9)[/red] for 1 damage.
+[2025/12/30-21:58:52] [INFO] [red]Ch1 当前状态： 1/8[/red]
+[2025/12/30-21:58:52] [INFO] [red]Ch1(1/8)[/red] 反击了 [blue]Ch1(1/17)[/blue] for 1 damage.
+[2025/12/30-21:58:52] [INFO] [blue]Ch1 当前状态： 1/16[/blue]
+[2025/12/30-21:58:52] [INFO] [blue]Ch4(5/8)[/blue] 攻击了 [red]Ch1(1/8)[/red] for 5 damage.
+[2025/12/30-21:58:52] [INFO] [red]Ch1 当前状态： 1/3[/red]
+[2025/12/30-21:58:52] [INFO] [red]Ch1(1/3)[/red] 反击了 [blue]Ch4(5/8)[/blue] for 1 damage.
+[2025/12/30-21:58:52] [INFO] [blue]Ch4 当前状态： 5/7[/blue]
+[2025/12/30-21:58:52] [INFO] --- Round 2 ---
+[2025/12/30-21:58:52] [INFO] [blue]Ch3(10/2)[/blue] 攻击了 [red]Ch1(1/3)[/red] for 10 damage.
+[2025/12/30-21:58:52] [INFO] [red]Ch1 当前状态： 1/0[/red]
+[2025/12/30-21:58:52] [INFO] [red]Ch1(1/0)[/red] 反击了 [blue]Ch3(10/2)[/blue] for 1 damage.
+[2025/12/30-21:58:52] [INFO] [blue]Ch3 当前状态： 10/1[/blue]
+[2025/12/30-21:58:52] [INFO] Ch1 has been defeated!
+[2025/12/30-21:58:52] [INFO] [red]Ch2(2/11)[/red] 攻击了 [blue]Ch1(1/16)[/blue] for 2 damage.
+[2025/12/30-21:58:52] [INFO] [blue]Ch1 当前状态： 1/14[/blue]
+[2025/12/30-21:58:52] [INFO] [blue]Ch1(1/14)[/blue] 反击了 [red]Ch2(2/11)[/red] for 1 damage.
+[2025/12/30-21:58:52] [INFO] [red]Ch2 当前状态： 2/10[/red]
+[2025/12/30-21:58:52] [INFO] [blue]Ch4(5/7)[/blue] 攻击了 [red]Ch2(2/10)[/red] for 5 damage.
+[2025/12/30-21:58:52] [INFO] [red]Ch2 当前状态： 2/5[/red]
+[2025/12/30-21:58:52] [INFO] [red]Ch2(2/5)[/red] 反击了 [blue]Ch4(5/7)[/blue] for 1 damage.
+[2025/12/30-21:58:52] [INFO] [blue]Ch4 当前状态： 5/6[/blue]
+[2025/12/30-21:58:52] [INFO] [blue]Ch1(1/14)[/blue] 攻击了 [red]Ch2(2/5)[/red] for 1 damage.
+[2025/12/30-21:58:52] [INFO] [red]Ch2 当前状态： 2/4[/red]
+[2025/12/30-21:58:52] [INFO] [red]Ch2(2/4)[/red] 反击了 [blue]Ch1(1/14)[/blue] for 1 damage.
+[2025/12/30-21:58:52] [INFO] [blue]Ch1 当前状态： 1/13[/blue]
+[2025/12/30-21:58:53] [INFO] --- Round 3 ---
+[2025/12/30-21:58:53] [INFO] [blue]Ch4(5/6)[/blue] 攻击了 [red]Ch2(2/4)[/red] for 5 damage.
+[2025/12/30-21:58:53] [INFO] [red]Ch2 当前状态： 2/0[/red]
+[2025/12/30-21:58:53] [INFO] [red]Ch2(2/0)[/red] 反击了 [blue]Ch4(5/6)[/blue] for 1 damage.
+[2025/12/30-21:58:53] [INFO] [blue]Ch4 当前状态： 5/5[/blue]
+[2025/12/30-21:58:53] [INFO] Ch2 has been defeated!
+[2025/12/30-21:58:53] [INFO] [blue]Ch3(10/1)[/blue] 攻击了 [red]Ch1(1/0)[/red] for 10 damage.
+[2025/12/30-21:58:53] [INFO] [red]Ch1 当前状态： 1/0[/red]
+[2025/12/30-21:58:53] [INFO] [red]Ch1(1/0)[/red] 反击了 [blue]Ch3(10/1)[/blue] for 1 damage.
+[2025/12/30-21:58:53] [INFO] [blue]Ch3 当前状态： 10/0[/blue]
+[2025/12/30-21:58:53] [INFO] Ch1 has been defeated!
+[2025/12/30-21:58:53] [INFO] [blue]Ch1(1/13)[/blue] 攻击了 [red]Ch1(1/0)[/red] for 1 damage.
+[2025/12/30-21:58:53] [INFO] [red]Ch1 当前状态： 1/0[/red]
+[2025/12/30-21:58:53] [INFO] [red]Ch1(1/0)[/red] 反击了 [blue]Ch1(1/13)[/blue] for 1 damage.
+[2025/12/30-21:58:53] [INFO] [blue]Ch1 当前状态： 1/12[/blue]
+[2025/12/30-21:58:53] [INFO] Ch1 has been defeated!
+[2025/12/30-21:58:53] [INFO] Battle Over!
+[2025/12/30-21:59:37] [INFO] --- Round 1 ---
+[2025/12/30-21:59:37] [INFO] [blue]Ch3(10/3)[/blue] 攻击 [red]Ch1(1/20)[/red] 造成了 10 点伤害。
+[2025/12/30-21:59:37] [INFO] [red]Ch1 当前状态： 1/10[/red]
+[2025/12/30-21:59:37] [INFO] [red]Ch1(1/10)[/red] 反击了 [blue]Ch3(10/3)[/blue] 造成了 1 点伤害。
+[2025/12/30-21:59:37] [INFO] [blue]Ch3 当前状态： 10/2[/blue]
+[2025/12/30-21:59:37] [INFO] [red]Ch2(2/12)[/red] 攻击 [blue]Ch1(1/20)[/blue] 造成了 2 点伤害。
+[2025/12/30-21:59:38] [INFO] [blue]Ch1 当前状态： 1/18[/blue]
+[2025/12/30-21:59:38] [INFO] [blue]Ch1(1/18)[/blue] 反击了 [red]Ch2(2/12)[/red] 造成了 1 点伤害。
+[2025/12/30-21:59:38] [INFO] [red]Ch2 当前状态： 2/11[/red]
+[2025/12/30-21:59:38] [INFO] [blue]Ch1(1/18)[/blue] 攻击 [red]Ch1(1/10)[/red] 造成了 1 点伤害。
+[2025/12/30-21:59:38] [INFO] [red]Ch1 当前状态： 1/9[/red]
+[2025/12/30-21:59:38] [INFO] [red]Ch1(1/9)[/red] 反击了 [blue]Ch1(1/18)[/blue] 造成了 1 点伤害。
+[2025/12/30-21:59:38] [INFO] [blue]Ch1 当前状态： 1/17[/blue]
+[2025/12/30-21:59:38] [INFO] [blue]Ch4(5/8)[/blue] 攻击 [red]Ch1(1/9)[/red] 造成了 5 点伤害。
+[2025/12/30-21:59:38] [INFO] [red]Ch1 当前状态： 1/4[/red]
+[2025/12/30-21:59:38] [INFO] [red]Ch1(1/4)[/red] 反击了 [blue]Ch4(5/8)[/blue] 造成了 1 点伤害。
+[2025/12/30-21:59:38] [INFO] [blue]Ch4 当前状态： 5/7[/blue]
+[2025/12/30-21:59:38] [INFO] [red]Ch1(1/4)[/red] 攻击 [blue]Ch1(1/17)[/blue] 造成了 1 点伤害。
+[2025/12/30-21:59:38] [INFO] [blue]Ch1 当前状态： 1/16[/blue]
+[2025/12/30-21:59:38] [INFO] [blue]Ch1(1/16)[/blue] 反击了 [red]Ch1(1/4)[/red] 造成了 1 点伤害。
+[2025/12/30-21:59:38] [INFO] [red]Ch1 当前状态： 1/3[/red]
+[2025/12/30-21:59:38] [INFO] --- Round 2 ---
+[2025/12/30-21:59:38] [INFO] [red]Ch1(1/3)[/red] 攻击 [blue]Ch1(1/16)[/blue] 造成了 1 点伤害。
+[2025/12/30-21:59:38] [INFO] [blue]Ch1 当前状态： 1/15[/blue]
+[2025/12/30-21:59:38] [INFO] [blue]Ch1(1/15)[/blue] 反击了 [red]Ch1(1/3)[/red] 造成了 1 点伤害。
+[2025/12/30-21:59:38] [INFO] [red]Ch1 当前状态： 1/2[/red]
+[2025/12/30-21:59:38] [INFO] [blue]Ch4(5/7)[/blue] 攻击 [red]Ch1(1/2)[/red] 造成了 5 点伤害。
+[2025/12/30-21:59:38] [INFO] [red]Ch1 当前状态： 1/0[/red]
+[2025/12/30-21:59:38] [INFO] [red]Ch1(1/0)[/red] 反击了 [blue]Ch4(5/7)[/blue] 造成了 1 点伤害。
+[2025/12/30-21:59:38] [INFO] [blue]Ch4 当前状态： 5/6[/blue]
+[2025/12/30-21:59:38] [INFO] Ch1 has been defeated!
+[2025/12/30-21:59:38] [INFO] [red]Ch2(2/11)[/red] 攻击 [blue]Ch1(1/15)[/blue] 造成了 2 点伤害。
+[2025/12/30-21:59:38] [INFO] [blue]Ch1 当前状态： 1/13[/blue]
+[2025/12/30-21:59:38] [INFO] [blue]Ch1(1/13)[/blue] 反击了 [red]Ch2(2/11)[/red] 造成了 1 点伤害。
+[2025/12/30-21:59:38] [INFO] [red]Ch2 当前状态： 2/10[/red]
+[2025/12/30-21:59:38] [INFO] [blue]Ch1(1/13)[/blue] 攻击 [red]Ch2(2/10)[/red] 造成了 1 点伤害。
+[2025/12/30-21:59:38] [INFO] [red]Ch2 当前状态： 2/9[/red]
+[2025/12/30-21:59:38] [INFO] [red]Ch2(2/9)[/red] 反击了 [blue]Ch1(1/13)[/blue] 造成了 1 点伤害。
+[2025/12/30-21:59:38] [INFO] [blue]Ch1 当前状态： 1/12[/blue]
+[2025/12/30-21:59:38] [INFO] [blue]Ch3(10/2)[/blue] 攻击 [red]Ch2(2/9)[/red] 造成了 10 点伤害。
+[2025/12/30-21:59:38] [INFO] [red]Ch2 当前状态： 2/0[/red]
+[2025/12/30-21:59:38] [INFO] [red]Ch2(2/0)[/red] 反击了 [blue]Ch3(10/2)[/blue] 造成了 1 点伤害。
+[2025/12/30-21:59:38] [INFO] [blue]Ch3 当前状态： 10/1[/blue]
+[2025/12/30-21:59:38] [INFO] Ch2 has been defeated!
+[2025/12/30-21:59:38] [INFO] Battle Over!

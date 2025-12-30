@@ -1,7 +1,8 @@
 from character import Character
 from grid import GameGrid, GameBoard
 import pygame, sys
-from simulator import *
+from simulator import * 
+from util import log
 
 def main():
 
@@ -25,7 +26,8 @@ def main():
 
     game_board = GameBoard(r_game_grid, b_game_grid)
 
-    r_game_grid.draw("terminal")
+    attackSimulator(game_board)
+    log.saveLog()
 
     pygame.quit()
     sys.exit()

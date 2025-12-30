@@ -107,6 +107,12 @@ class GameGrid:
         for row_name in ["front", "middle", "back", "bench"]:
             game_row = self.grid[row_name]
             row_il = game_row.infoList()
+            for i in range(len(row_il)):
+                if i == 2:
+                    prefix = row_name.capitalize().ljust(8, ' ')
+                else:
+                    prefix = " " * 8
+                row_il[i] = prefix + row_il[i]
             if len(il) > 0:
                 il += row_il[1:]
             else:
@@ -115,6 +121,8 @@ class GameGrid:
 
     def draw(self, draw_type = "terminal", screen = None, position = (0, 0), reverse=False):
         il = self.infoList()
+        if reverse:
+            il.reverse()
         match draw_type:
             case "terminal":
                 for line in il:
@@ -192,7 +200,14 @@ class GameBoard:
         
     def isBattleOver(self) -> bool:
         return self.red_group.isAllDead() or self.blue_group.isAllDead()
-        
+    
+    def draw(self, draw_type="terminal", screen=None, position=(0, 0)):
+        self.blue_group.draw(draw_type, screen, position, reverse=True)
+        print("=" * 50)
+        print(" " * 8 + "↑ Team Blue   VS   Team Red ↓")
+        print("=" * 50)
+        self.red_group.draw(draw_type, screen, position)
+
 if __name__ == "__main__":
     red_group = GameGrid()
     blue_group = GameGrid()

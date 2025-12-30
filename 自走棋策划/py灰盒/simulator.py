@@ -4,14 +4,20 @@ from grid import GameGrid, GameBoard
 from character import BattleCharacter
 from util import *
 
-def attack(attacker: BattleCharacter, defender: BattleCharacter, skill = None, log : Log = None) -> int:
+def attack(attacker_info: tuple, defender_info: tuple, skill = None) -> int:
+    attacker, attacker_team = attacker_info
+    defender, defender_team = defender_info
+
     damage = attacker.getAttackPower()
+    log.console(f"[{attacker_team}]{attacker.name}({attacker.attack_power}/{attacker.current_health})[/{attacker_team}] 攻击 [{defender_team}]{defender.name}({defender.attack_power}/{defender.current_health})[/{defender_team}] 造成了 {damage} 点伤害。")
     defender.getHurt(damage)
-    log.consle(f"{attacker.name} attacks {defender.name} for {damage} damage. {defender.name} HP left: {defender.current_health}")
-    conter_attack_damage = max(1, defender.getAttackPower() // 2)
-    attacker.getHurt(conter_attack_damage)
-    log.consle(f"{defender.name} counterattacks {attacker.name} for {conter_attack_damage} damage. {attacker.name} HP left: {attacker.current_health}")
-    
+    log.console(f"[{defender_team}]{defender.name} 当前状态： {defender.attack_power}/{defender.current_health}[/{defender_team}]")
+
+    counter_attack_damage = max(1, defender.getAttackPower() // 2)
+    log.console(f"[{defender_team}]{defender.name}({defender.attack_power}/{defender.current_health})[/{defender_team}] 反击了 [{attacker_team}]{attacker.name}({attacker.attack_power}/{attacker.current_health})[/{attacker_team}] 造成了 {counter_attack_damage} 点伤害。")
+    attacker.getHurt(counter_attack_damage)
+    log.console(f"[{attacker_team}]{attacker.name} 当前状态： {attacker.attack_power}/{attacker.current_health}[/{attacker_team}]")
+
 
 def attackSelector(character: BattleCharacter, aimed_group: GameGrid) -> Entity | None:
 
@@ -39,19 +45,17 @@ def attackSelector(character: BattleCharacter, aimed_group: GameGrid) -> Entity 
     return aimed_entity
 
 
-def attackSimulator(game_board: GameBoard) -> Log:
-
+def attackSimulator(game_board: GameBoard):
     red_group = game_board.red_group
     blue_group = game_board.blue_group
 
-    log = Log()
     round_counter = 1
 
     import time
 
     while not game_board.isBattleOver():
         time.sleep(0.5)
-        log.consle(f"--- Round {round_counter} ---")
+        log.console(f"--- Round {round_counter} ---")
         round_counter += 1
         act_list = generateActionList(game_board)
         for char_info in act_list:
@@ -61,12 +65,11 @@ def attackSimulator(game_board: GameBoard) -> Log:
             aimed_group = blue_group if attacker.getTeamId() == red_group.team_id else red_group
             aimed_entity = attackSelector(attacker, aimed_group)
             if aimed_entity is not None and isinstance(aimed_entity, BattleCharacter):
-                attack(attacker, aimed_entity, log=log)
+                attack((attacker, game_board.getTeamById(attacker.getTeamId()).lower()), (aimed_entity, game_board.getTeamById(aimed_entity.getTeamId()).lower()))
                 if not aimed_entity.isAlive():
-                    log.consle(f"{aimed_entity.name} has been defeated!")
+                    log.console(f"{aimed_entity.name} has been defeated!")
 
-    log.consle("Battle Over!")
-    return log
+    log.console("Battle Over!")
 
 def generateActionList(game_board: GameBoard) -> list[BattleCharacter]:
 

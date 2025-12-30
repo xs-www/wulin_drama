@@ -15,6 +15,10 @@ EMPTY_CHARACTER_CONFIG = {
     ]
 }
 
+from rich.console import Console
+
+_term_console = Console() 
+
 class Entry:
     import datetime
 
@@ -24,31 +28,52 @@ class Entry:
         self.info_type = info_type
 
     def __str__(self):
-        if self.timestamp:
-            return f"[{self.timestamp}] [{self.info_type}] {self.content}"
-        else:
-            return f"[{self.info_type}] {self.content}"
+        """给文件用的纯文本"""
+        return f"[{self.timestamp}] [{self.info_type}] {self.content}"
+    
+    def rich_str(self):
+        """给终端用的富文本，带颜色标签"""
+        color_map = {"INFO": "cyan", "WARN": "yellow", "ERROR": "bold red", "OK": "bold green"}
+        color = color_map.get(self.info_type, "white")
+        return f"[{color}][{self.timestamp}] [{self.info_type}][/{color}] {self.content}"
 
 class Log:
     def __init__(self):
         self.entries: list[Entry] = []
 
-    def consle(self, content: str, info_type: str = "INFO") -> bool:
+    def console(self, content: str, info_type: str = "INFO") -> bool:
         entry = Entry(content, info_type)
-        print(entry)
-        self.addEntry(entry)
+        _term_console.print(entry.rich_str())   # ① 终端走 rich
+        self.addEntry(entry)                    # ② 文件走 __str__
         return True
+    
+    def clearLog(self):
+        self.entries = []
     
     def addEntry(self, entry: Entry):
         self.entries.append(entry)
+        if len(self.entries) > 1000:
+            self.saveLog()
+            self.clearLog()
+        return True
     
     def getLog(self) -> list:
         return self.entries
     
-    def saveLog(self, file_path: str = "battle_log.txt"):
-        with open(file_path, 'w', encoding='utf-8') as file:
+    # 追加日志到文件尾
+    def saveLog(self, file_path: str = None):
+        import os, datetime
+        if file_path is None:
+            file_path = f"logs/game_log_{datetime.datetime.now().strftime('%Y-%m-%d')}.txt"
+
+        if not os.path.exists(os.path.dirname(file_path)):
+            os.makedirs(os.path.dirname(file_path))
+        with open(file_path, 'a', encoding='utf-8') as file:
             for entry in self.entries:
-                file.write(str(entry) + '\n')
+                file.write(str(entry) + "\n")
+        self.clearLog()
+
+log = Log()
     
 class Damage:
 
