@@ -73,7 +73,7 @@ def generateActionList(game_board: GameBoard) -> list[BattleCharacter]:
     red_group = game_board.red_group
     blue_group = game_board.blue_group
     character_list : list[BattleCharacter] = red_group.getAliveCharacterList() + blue_group.getAliveCharacterList()
-    info_list = [(char, char.getSpeed() + roll(10), char.getTeamId()) for char in character_list]
+    info_list = [(char, char.getSpeed() + roll(10), game_board.getTeamById(char.getTeamId())) for char in character_list]
     info_list.sort(key=lambda x: x[1], reverse=True)
 
     return info_list

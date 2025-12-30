@@ -36,24 +36,23 @@ class Log:
     def consle(self, content: str, info_type: str = "INFO") -> bool:
         entry = Entry(content, info_type)
         print(entry)
-        self.add_entry(entry)
+        self.addEntry(entry)
         return True
     
-    def add_entry(self, entry: Entry):
+    def addEntry(self, entry: Entry):
         self.entries.append(entry)
     
-    def get_log(self) -> list:
+    def getLog(self) -> list:
         return self.entries
     
-    def save_log(self, file_path: str = "battle_log.txt"):
+    def saveLog(self, file_path: str = "battle_log.txt"):
         with open(file_path, 'w', encoding='utf-8') as file:
             for entry in self.entries:
                 file.write(str(entry) + '\n')
     
 class Damage:
 
-    def __call__(self, *args, **kwds):
-        pass
+    pass
 
 def load_json_config(file_path: str) -> dict:
     import json

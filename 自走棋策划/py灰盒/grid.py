@@ -1,5 +1,6 @@
 from character import Character, BattleCharacter
 import uuid
+import pygame
 
 class GameRow:
     def __init__(self, idx = 0, max_length=3):
@@ -52,6 +53,27 @@ class GameRow:
 
     def __str__(self):
         return f"GameRow(Entities: {[str(e) for e in self.entities]})"
+    
+    def infoList(self) -> list[str]:
+        il = []
+        for e in self.entities:
+            new_il = Character.infoList(e)
+            if len(il) > 0:
+                for i in range(len(il)):
+                    il[i] += new_il[i][1:]
+            else:
+                il = new_il
+        return il
+    
+    def draw(self, draw_type = "terminal", screen = None, position = (0, 0)):
+        
+        match draw_type:
+            case "terminal":
+                for line in self.infoList():
+                    print(line)
+            case "pygame":
+                pass
+        
 
 class GameGrid:
     def __init__(self, team_id=None):
@@ -79,6 +101,26 @@ class GameGrid:
                 else:
                     print(" " * 9, end=" ")
             print("|")
+
+    def infoList(self) -> list[str]:
+        il = []
+        for row_name in ["front", "middle", "back", "bench"]:
+            game_row = self.grid[row_name]
+            row_il = game_row.infoList()
+            if len(il) > 0:
+                il += row_il[1:]
+            else:
+                il = row_il
+        return il
+
+    def draw(self, draw_type = "terminal", screen = None, position = (0, 0), reverse=False):
+        il = self.infoList()
+        match draw_type:
+            case "terminal":
+                for line in il:
+                    print(line)
+            case "pygame":
+                pass
 
     def setCharacter(self, character: Character, row: str, idx: int = -1):
         if row in self.grid:

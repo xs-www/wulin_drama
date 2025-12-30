@@ -25,8 +25,7 @@ def main():
 
     game_board = GameBoard(r_game_grid, b_game_grid)
 
-    log : Log = attackSimulator(game_board)
-    log.save_log("battle_log.txt")
+    r_game_grid.draw("terminal")
 
     pygame.quit()
     sys.exit()

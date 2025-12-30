@@ -1,7 +1,7 @@
 import pygame
 from util import *
 
-class Character():
+class Character(pygame.sprite.Sprite):
     FONT = None          # 类级缓存，避免重复创建
     COLOR_BOX   = (50, 200, 50)
     COLOR_TEXT  = (0, 0, 0)
@@ -43,6 +43,33 @@ class Character():
             "middle": 1,
             "back": 0
         }[row_idx])
+    
+    @staticmethod
+    def infoList(char: "Character" = None) -> list[str]:
+        if isinstance(char, Character):
+            il = [
+                "+" + "-" * 11 + "+",
+                "|" + " " * 11 + "|",
+                "|" + " " * 11 + "|",
+                "|" + str(char.attack_power).rjust(4) + " / " + str(char.health_points).ljust(4) + "|",
+                "+" + "-" * 11 + "+"
+            ]
+        else:
+            il = [
+                "+" + "-" * 11 + "+",
+                "|" + " " * 11 + "|",
+                "|" + " " * 11 + "|",
+                "|" + " " * 11 + "|",
+                "+" + "-" * 11 + "+"
+            ]
+        return il
+    
+    def draw(self, type = "terminal", screen = None, position = (0, 0)):
+        if type == "terminal":
+            for line in Character.infoList(self):
+                print(line)
+        elif type == "pygame" and screen is not None:
+            pass
     
     def __str__(self):
         atk_str = f"{self.attack_power:4d}"
