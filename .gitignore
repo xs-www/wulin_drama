@@ -1,0 +1,8 @@
+# Python 字节码
+**/__pycache__/
+**/*.pyc
+**/*.pyo
+
+# 日志文件
+**/*.log
+**/logs/
