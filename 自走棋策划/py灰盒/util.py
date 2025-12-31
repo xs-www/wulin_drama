@@ -21,6 +21,11 @@ from datetime import datetime
 
 _term_console = Console()
 
+from pathlib import Path
+
+# 当前正在执行的 .py 文件绝对目录
+BASE_DIR = Path(__file__).resolve().parent
+
 def timestampDate():
     """
     获取当前时间戳，格式为 "YYYY/MM/DD"。
@@ -78,7 +83,7 @@ class Log:
     # 追加日志到文件尾
     def saveLog(self, file_path: str = None):
         if file_path is None:
-            file_path = f"logs/game_log_{timestampDate()}.txt"
+            file_path = f"{BASE_DIR}/logs/game_log_{timestampDate()}.txt"
 
         if not os.path.exists(os.path.dirname(file_path)):
             os.makedirs(os.path.dirname(file_path))
@@ -131,7 +136,7 @@ def loadJsonConfig(file_path: str) -> dict:
         return json.load(file)
 
 def loadCharacterAttrs(char_id: str) -> dict:
-    config = loadJsonConfig('character_config.json')
+    config = loadJsonConfig(BASE_DIR / 'character_config.json')
     return config.get(char_id, EMPTY_CHARACTER_CONFIG)
 
 def matrixMultiply(matA: list, matB: list) -> list:
