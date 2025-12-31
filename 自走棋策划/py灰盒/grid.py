@@ -66,7 +66,6 @@ class GameRow:
         return il
     
     def draw(self, draw_type = "terminal", screen = None, position = (0, 0)):
-        
         match draw_type:
             case "terminal":
                 for line in self.infoList():
@@ -84,23 +83,6 @@ class GameGrid:
             "back": GameRow(3),
             "bench": GameRow(4)
         }
-
-
-    def printGrid(self, reverse=False):
-        rows = list(self.grid.items())
-        if reverse:
-            rows.reverse()
-        for row_name, game_row in rows:
-            print(f"{row_name.capitalize().ljust(6, ' ')} Row:", end=" | ")
-            for entity_idx in range(game_row.max_length):
-                if entity_idx < len(game_row.entities):
-                    if game_row.entities[entity_idx]:
-                        print(game_row.entities[entity_idx], end=" ")
-                    else:
-                        print(" " * 9, end=" ")
-                else:
-                    print(" " * 9, end=" ")
-            print("|")
 
     def infoList(self) -> list[str]:
         il = []

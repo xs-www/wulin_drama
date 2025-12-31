@@ -24,7 +24,7 @@ def attackSelector(character: BattleCharacter, aimed_group: GameGrid) -> Entity 
     hate_values = aimed_group.getHateValue()
     hate_matrix = character.hate_matrix
 
-    weighted_hate = matrix_multiply(hate_matrix, hate_values)
+    weighted_hate = matrixMultiply(hate_matrix, hate_values)
 
     def find_max_hate_idx(weighted_hate: list) -> int:
         max_value = -1
@@ -80,3 +80,12 @@ def generateActionList(game_board: GameBoard) -> list[BattleCharacter]:
     info_list.sort(key=lambda x: x[1], reverse=True)
 
     return info_list
+
+# @todo
+class RoundManager:
+
+    def __init__(self):
+        self.current_round = 1
+
+    def nextRound(self):
+        self.current_round += 1

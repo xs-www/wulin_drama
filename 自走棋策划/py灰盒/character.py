@@ -82,7 +82,7 @@ class Character(pygame.sprite.Sprite):
     @classmethod
     def characterFromId(cls, char_id: chr) -> 'Character':
 
-        character_config = load_character_config(char_id)
+        character_config = loadCharacterAttrs(char_id)
         new_character = cls(
             name=character_config.get("name", "Unknown"),
             attack_power=character_config.get("attack_power", 4),

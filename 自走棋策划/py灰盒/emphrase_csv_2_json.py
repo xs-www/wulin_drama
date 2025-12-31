@@ -6,7 +6,7 @@ import sys
 from pathlib import Path
 
 CSV_FILE = Path('characters.CSV')     # 原始文件
-OUT_FILE = Path('roles.json')    # 输出文件
+OUT_FILE = Path('character_config.json')    # 输出文件
 
 def split_to_list(raw: str) -> list:
     """把 a;b;c 转成 ['a','b','c']，空串返回空列表。"""

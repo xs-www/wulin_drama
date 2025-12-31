@@ -1,46 +1,86 @@
 {
-    "001": {
-        "id": "001",
-        "name": "Ch1",
-        "attack_power": 1,
-        "health_points": 20,
-        "avaliable_location": [],
-        "speed": 1,
-        "fetter": [],
-        "hate_value": 2,
-        "price": 1
-    },
-    "002": {
-        "id": "002",
-        "name": "Ch2",
-        "attack_power": 2,
-        "health_points": 12,
-        "avaliable_location": [],
-        "speed": 1,
-        "fetter": [],
-        "hate_value": 3,
-        "price": 1
-    },
-    "003": {
-        "id": "003",
-        "name": "Ch3",
-        "attack_power": 10,
-        "health_points": 3,
-        "avaliable_location": [],
-        "speed": 4,
-        "fetter": [],
-        "hate_value": 3,
-        "price": 1
-    },
-    "004": {
-        "id": "004",
-        "name": "Ch4",
-        "attack_power": 5,
-        "health_points": 8,
-        "avaliable_location": [],
-        "speed": 2,
-        "fetter": [],
-        "hate_value": 2,
-        "price": 1
-    }
+  "0001": {
+    "id": "0001",
+    "name": "wooden_man",
+    "localization": "木头人",
+    "attack_power": 1,
+    "health_points": 1000,
+    "avaliable_location": [
+      "front",
+      "back"
+    ],
+    "speed": 5,
+    "hate_value": 1,
+    "price": 1,
+    "weapon": "fist",
+    "energy": 3,
+    "hate_matrix": [
+      [
+        1,
+        1,
+        1
+      ],
+      [
+        1,
+        1,
+        1
+      ],
+      [
+        1,
+        1,
+        1
+      ]
+    ]
+  },
+  "0002": {
+    "id": "0002",
+    "name": "Ch1",
+    "attack_power": 1,
+    "health_points": 20,
+    "speed": 1,
+    "hate_value": 2,
+    "price": 1
+  },
+  "0003": {
+    "id": "0003",
+    "name": "Ch2",
+    "attack_power": 2,
+    "health_points": 12,
+    "speed": 1,
+    "hate_value": 3,
+    "price": 1
+  },
+  "0004": {
+    "id": "0004",
+    "name": "Ch3",
+    "attack_power": 10,
+    "health_points": 3,
+    "speed": 4,
+    "hate_value": 3,
+    "price": 1
+  },
+  "0005": {
+    "id": "0005",
+    "name": "Ch4",
+    "attack_power": 5,
+    "health_points": 8,
+    "speed": 2,
+    "hate_value": 2,
+    "price": 1
+  },
+  "0006": {
+    "id": "0006"
+  },
+  "0007": {
+    "id": "0007"
+  },
+  "0008": {
+    "id": "0008"
+  },
+  "0009": {
+    "id": "0009"
+  },
+  "0010": {
+    "id": "0010"
+  }
 }

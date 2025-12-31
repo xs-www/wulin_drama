@@ -16,15 +16,30 @@ EMPTY_CHARACTER_CONFIG = {
 }
 
 from rich.console import Console
+import uuid, os
+from datetime import datetime
 
-_term_console = Console() 
+_term_console = Console()
+
+def timestampDate():
+    """
+    获取当前时间戳，格式为 "YYYY/MM/DD"。
+    :return: 当前时间戳字符串
+    """
+    return datetime.now().strftime("%Y/%m/%d")
+
+def timestampTime():
+    """
+    获取当前时间戳，格式为 "YYYY/MM/DD-HH:MM:SS"。
+    :return: 当前时间戳字符串
+    """
+    return datetime.now().strftime("%Y/%m/%d-%H:%M:%S")
 
 class Entry:
-    import datetime
 
     def __init__(self, content: str, info_type: str = "INFO", timestamp: str = None):
         self.content = content
-        self.timestamp = timestamp if timestamp is not None else self.datetime.datetime.now().strftime("%Y/%m/%d-%H:%M:%S")
+        self.timestamp = timestamp if timestamp is not None else timestampTime()
         self.info_type = info_type
 
     def __str__(self):
@@ -62,9 +77,8 @@ class Log:
     
     # 追加日志到文件尾
     def saveLog(self, file_path: str = None):
-        import os, datetime
         if file_path is None:
-            file_path = f"logs/game_log_{datetime.datetime.now().strftime('%Y-%m-%d')}.txt"
+            file_path = f"logs/game_log_{timestampDate()}.txt"
 
         if not os.path.exists(os.path.dirname(file_path)):
             os.makedirs(os.path.dirname(file_path))
@@ -74,21 +88,53 @@ class Log:
         self.clearLog()
 
 log = Log()
-    
+
+# @todo
 class Damage:
 
     pass
 
-def load_json_config(file_path: str) -> dict:
+# @todo
+class Skill:
+
+    pass
+
+class Buff:
+
+    def __init__(self, inflicator, bearer, name: str, duration: int, effect: dict):
+        
+        self.inflicator = inflicator
+        self.bearer = bearer
+
+        self.name = name
+        self.duration = duration  # 回合数
+        self.effect = effect      # 效果描述
+        self.buff_id = uuid.uuid4()
+
+    def isActive(self) -> bool:
+        return self.duration > 0
+    
+    def update(self):
+        if self.duration > 0:
+            self.duration -= 1
+
+class Effect:
+
+    def __init__(self, name: str, effect_type: str, value: float):
+        self.name = name
+        self.effect_type = effect_type
+        self.value = value
+
+def loadJsonConfig(file_path: str) -> dict:
     import json
     with open(file_path, 'r', encoding='utf-8') as file:
         return json.load(file)
 
-def load_character_config(char_id: int) -> dict:
-    config = load_json_config('character_config.json')
-    return config.get(str(char_id), EMPTY_CHARACTER_CONFIG)
+def loadCharacterAttrs(char_id: str) -> dict:
+    config = loadJsonConfig('character_config.json')
+    return config.get(char_id, EMPTY_CHARACTER_CONFIG)
 
-def matrix_multiply(matA: list, matB: list) -> list:
+def matrixMultiply(matA: list, matB: list) -> list:
     result = []
     for i in range(len(matA)):
         result_row = []
@@ -101,9 +147,64 @@ def roll(dice_sides: int) -> int:
     import random
     return random.randint(1, dice_sides)
 
+
+class EventManager:
+    def __init__(self):
+        # 事件监听器字典，结构：{事件名: [回调函数1, 回调函数2, ...]}
+        self.listeners = {}
+
+        log.console("EventManager initialized.", "INFO")
+
+    def register(self, event_name: str, callback):
+        """
+        注册事件监听器。
+        :param event_name: 事件名称（字符串）
+        :param callback:   回调函数，函数签名需匹配事件参数
+        """
+        if event_name not in self.listeners:
+            self.listeners[event_name] = []
+        self.listeners[event_name].append(callback)
+
+        log.console(f"Registered event '{event_name}' with callback {callback.__name__}.", "INFO")
+
+    def unregister(self, event_name: str, callback):
+        """
+        注销事件监听器。
+        :param event_name: 事件名称
+        :param callback:   需移除的回调函数
+        """
+        if event_name in self.listeners:
+            self.listeners[event_name].remove(callback)
+
+    def broadcast(self, event_name: str, **context):
+        """
+        广播（触发）事件，将 context 作为参数传递给所有监听器。
+        :param event_name: 事件名称
+        :param context:    任意关键字参数
+        """
+        log.console(f"{event_name} triggered with context {context}", "EVENT")
+
+        if event_name in self.listeners:
+            for callback in self.listeners[event_name]:
+                callback(**context)
+
+class Signal():
+    def __init__(self):
+        self._slots = []
+
+    def connect(self, slot):
+        self._slots.append(slot)
+
+    def disconnect(self, slot):
+        if slot in self._slots:
+            self._slots.remove(slot)
+
+    def emit(self, *args, **kwargs):
+        for slot in self._slots:
+            slot(*args, **kwargs)
+
+event_manager = EventManager()
+
 if __name__ == "__main__":
-    # Test matrix multiplication
-    matA = [[1, 2, 3], [4, 5, 6], [7, 8, 9]]
-    matB = [[9, 8, 7], [6, 5, 4], [3, 2, 1]]
-    multiplied = matrix_multiply(matA, matB)
-    print("Matrix Multiplication Result:", multiplied)
+    b = Buff('a', 'b', "Test Buff", 3, {"attack_power": +2})
+    print(b.name, b.duration, b.effect, b.buff_id)
