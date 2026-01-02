@@ -31,14 +31,14 @@ def timestampDate():
     获取当前时间戳，格式为 "YYYY/MM/DD"。
     :return: 当前时间戳字符串
     """
-    return datetime.now().strftime("%Y/%m/%d")
+    return datetime.now().strftime("%Y-%m-%d")
 
 def timestampTime():
     """
     获取当前时间戳，格式为 "YYYY/MM/DD-HH:MM:SS"。
     :return: 当前时间戳字符串
     """
-    return datetime.now().strftime("%Y/%m/%d-%H:%M:%S")
+    return datetime.now().strftime("%Y-%m-%d/%H:%M:%S")
 
 class Entry:
 
