@@ -1,6 +1,13 @@
 import pygame
 from util import *
 
+class Damage:
+
+    def __init__(self, source: "Character", amount: int, damage_type: str = "physical"):
+        self.source = source
+        self.amount = amount
+        self.damage_type = damage_type
+
 class Entity(pygame.sprite.Sprite):
 
     def __init__(self, attrs: dict):
@@ -33,7 +40,7 @@ class Entity(pygame.sprite.Sprite):
 class Character(pygame.sprite.Sprite):
 
     def __init__(self, attrs: dict):
-
+        super().__init__()
         self.attrs: dict = {
             "base_atk": attrs.get("attack_power", 1),
             "base_hp": attrs.get("health_points", 10),
@@ -49,7 +56,8 @@ class Character(pygame.sprite.Sprite):
 
         self.info: dict = {
             "position": ("None", -1),  # (row_name, index)
-            "team_id": None
+            "team_id": None,
+            "name": attrs.get("name", "Unknown")
         }
 
         self.buffs: list = []
@@ -97,9 +105,29 @@ class Character(pygame.sprite.Sprite):
             return self.in_game_attrs[key]
         else:
             raise KeyError(f"In-game attribute '{key}' not found")
+
+    def getAttackDamage(self) -> Damage:
+        damage_amount = self.getInGameAttr("atk")
+        return Damage(source=self, amount=damage_amount, damage_type="physical")
         
     def getHateValue(self) -> int:
         return self.getInGameAttr("hate_value")
+    
+    def addBuff(self, buff: "Buff"):
+        self.buffs.append(buff)
+
+    def isAlive(self) -> bool:
+        return self.getInGameAttr("current_hp") > 0
+    
+    @em.on('get_hurt')
+    def getHurt(self, damage: Damage):
+        #em.broadcast('before_get_hurt', target=self, damage=damage)
+        current_hp = self.getInGameAttr("current_hp")
+        current_hp -= damage.amount
+        if current_hp < 0:
+            current_hp = 0
+        self.in_game_attrs["current_hp"] = current_hp
+        #em.broadcast('after_get_hurt', target=self, damage=damage)
         
     @staticmethod
     def infoList(char: "Character" = None) -> list[str]:

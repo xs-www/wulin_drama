@@ -18,6 +18,7 @@ EMPTY_CHARACTER_CONFIG = {
 from rich.console import Console
 import uuid, os
 from datetime import datetime
+import weakref, inspect
 
 _term_console = Console()
 
@@ -94,10 +95,6 @@ class Log:
 
 log = Log()
 
-# @todo
-class Damage:
-
-    pass
 
 # @todo
 class Skill:
@@ -154,11 +151,22 @@ def roll(dice_sides: int) -> int:
 
 
 class EventManager:
+
     def __init__(self):
         # 事件监听器字典，结构：{事件名: [回调函数1, 回调函数2, ...]}
         self.listeners = {}
 
-        log.console("EventManager initialized.", "INFO")
+        log.console("事件管理器初始化成功。", "INFO")
+
+    def on(self, event_name: str):
+        """
+        装饰器方式注册事件监听器。
+        :param event_name: 事件名称（字符串）
+        """
+        def decorator(callback):
+            self.register(event_name, callback)
+            return callback
+        return decorator
 
     def register(self, event_name: str, callback):
         """
@@ -187,18 +195,24 @@ class EventManager:
         :param event_name: 事件名称
         :param context:    任意关键字参数
         """
-        log.console(f"{event_name} triggered with context {context}", "EVENT")
+        log.console(f"事件 {event_name} 触发了，内容：{context}", "EVENT")
 
         if event_name in self.listeners:
             for callback in self.listeners[event_name]:
                 callback(**context)
 
+    __call__ = broadcast
+
 class Signal():
     def __init__(self):
-        self._slots = []
+        self._slots = weakref.WeakSet()
 
     def connect(self, slot):
-        self._slots.append(slot)
+        # 如果是绑定方法，包装成弱引用
+        if inspect.ismethod(slot):
+            self._slots.add(weakref.WeakMethod(slot))
+        else:
+            self._slots.add(slot)
 
     def disconnect(self, slot):
         if slot in self._slots:
@@ -208,8 +222,8 @@ class Signal():
         for slot in self._slots:
             slot(*args, **kwargs)
 
-event_manager = EventManager()
+em = EventManager()
 
 if __name__ == "__main__":
-    b = Buff('a', 'b', "Test Buff", 3, {"attack_power": +2})
-    print(b.name, b.duration, b.effect, b.buff_id)
+
+    pass

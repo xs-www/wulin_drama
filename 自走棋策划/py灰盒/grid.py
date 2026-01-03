@@ -1,6 +1,8 @@
-from character import Character, BattleCharacter
+#from character import Character, BattleCharacter
 import uuid
 import pygame
+from util import em
+from entity import Character
 
 class GameRow:
     def __init__(self, idx = 0, max_length=3):
@@ -116,8 +118,8 @@ class GameGrid:
         if row in self.grid:
             if self.grid[row].setCharacter(character, idx):
                 position = (row, self.grid[row].getPosition(character)[1])
-                character.setPosition(position)
-                character.setTeamId(self.team_id)
+                character.setAttr("position", position)
+                character.setAttr("team_id", self.team_id)
                 return True
         else:
             raise ValueError("Invalid row name")
@@ -132,7 +134,7 @@ class GameGrid:
         alive_list = []
         for game_row in self.grid.values():
             for entity in game_row.getEntities():
-                if isinstance(entity, BattleCharacter) and entity.isAlive():
+                if isinstance(entity, Character) and entity.isAlive():
                     alive_list.append(entity)
         return alive_list
     
@@ -146,26 +148,18 @@ class GameGrid:
             return self.grid[row_name].getCharacterByPosition(pos_idx)
         else:
             return None
-        
-    def inBattleCopy(self) -> 'GameGrid':
-        new_grid = GameGrid(self.team_id)
-        for row_name, game_row in self.grid.items():
-            for entity in game_row.getEntities():
-                battle_Char = BattleCharacter(entity)
-                new_grid.setCharacter(battle_Char, row_name)
-        return new_grid
     
     def isAllDead(self) -> bool:
         for game_row in self.grid.values():
             for entity in game_row.getEntities():
-                if isinstance(entity, BattleCharacter) and entity.alive:
+                if isinstance(entity, Character) and entity.alive:
                     return False
         return True
     
 class GameBoard:
     def __init__(self, red_group: GameGrid, blue_group: GameGrid):
-        self.red_group = red_group.inBattleCopy()
-        self.blue_group = blue_group.inBattleCopy()
+        self.red_group = red_group
+        self.blue_group = blue_group
 
     def printBoard(self):
         self.blue_group.printGrid(reverse=True)
@@ -184,14 +178,23 @@ class GameBoard:
         return self.red_group.isAllDead() or self.blue_group.isAllDead()
     
     def draw(self, draw_type="terminal", screen=None, position=(0, 0)):
-        self.blue_group.draw(draw_type, screen, position, reverse=True)
-        print("=" * 50)
-        print(" " * 8 + "↑ Team Blue   VS   Team Red ↓")
-        print("=" * 50)
-        self.red_group.draw(draw_type, screen, position)
+        if draw_type == "terminal":
+            self.blue_group.draw(draw_type, screen, position, reverse=True)
+            print("=" * 50)
+            print(" " * 8 + "↑ Team Blue   VS   Team Red ↓")
+            print("=" * 50)
+            self.red_group.draw(draw_type, screen, position)
+
+    def getOtherTeam(self, char: Character) -> GameGrid | None:
+        if self.red_group.team_id == char.getAttr("team_id"):
+            return self.blue_group
+        elif self.blue_group.team_id == char.getAttr("team_id"):
+            return self.red_group
+        else:
+            return None
 
 if __name__ == "__main__":
     red_group = GameGrid()
     blue_group = GameGrid()
     board = GameBoard(red_group, blue_group)
-    board.printBoard()
+    board.draw()
