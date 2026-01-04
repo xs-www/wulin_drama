@@ -56,6 +56,12 @@ class GameRow:
     def __str__(self):
         return f"GameRow(Entities: {[str(e) for e in self.entities]})"
     
+    def isAllDead(self) -> bool:
+        for entity in self.entities:
+            if isinstance(entity, Character) and entity.isAlive():
+                return False
+        return True
+    
     def infoList(self) -> list[str]:
         il = []
         for e in self.entities:
@@ -151,9 +157,8 @@ class GameGrid:
     
     def isAllDead(self) -> bool:
         for game_row in self.grid.values():
-            for entity in game_row.getEntities():
-                if isinstance(entity, Character) and entity.alive:
-                    return False
+            if not game_row.isAllDead():
+                return False
         return True
     
 class GameBoard:

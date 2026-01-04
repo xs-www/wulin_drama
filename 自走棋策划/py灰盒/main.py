@@ -4,6 +4,7 @@ import pygame, sys
 from simulator import * 
 from util import log, em
 from entity import Damage, Character
+from effect import Effect, Buff
 
 from windows.main_menu import MainMenu
 

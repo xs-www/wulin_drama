@@ -1,5 +1,5 @@
 EMPTY_CHARACTER_CONFIG = {
-    "id": "000",
+    "id": "0000",
     "name": "Example Character",
     "attack_power": 4,
     "health_points": 8,
@@ -148,6 +148,13 @@ def matrixMultiply(matA: list, matB: list) -> list:
 def roll(dice_sides: int) -> int:
     import random
     return random.randint(1, dice_sides)
+
+def mergeDicts(dict_list: list) -> dict:
+    merged_dict = {}
+    for d in dict_list:
+        for key, value in d.items():
+            merged_dict[key] = merged_dict.get(key, 0) + value
+    return merged_dict
 
 
 class EventManager:

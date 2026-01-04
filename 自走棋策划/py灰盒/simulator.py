@@ -68,6 +68,7 @@ def attackSimulator(game_board: GameBoard):
                 attack((attacker, game_board.getTeamById(attacker.getAttr("team_id")).lower()), (aimed_entity, game_board.getTeamById(aimed_entity.getAttr("team_id")).lower()))
                 if not aimed_entity.isAlive():
                     log.console(f"{aimed_entity.getAttr('name')} has been defeated!")
+                game_board.draw()
 
     log.console("Battle Over!")
 
