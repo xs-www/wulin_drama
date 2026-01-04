@@ -3,6 +3,7 @@ from entity import Entity, Character, Damage
 from grid import GameGrid, GameBoard
 from character import BattleCharacter
 from util import *
+from typing import Optional
 
 def attack(attacker_info: tuple, defender_info: tuple, skill = None) -> int:
     attacker, attacker_team = attacker_info
@@ -45,18 +46,30 @@ def attackSelector(char: Character, aimed_group: GameGrid) -> Entity | None:
     return aimed_entity
 
 
-def attackSimulator(game_board: GameBoard):
+def attackSimulator(game_board: GameBoard, save_state: bool = False, battle_id: Optional[str] = None):
+    """
+    战斗模拟器
+    :param game_board: 游戏棋盘
+    :param save_state: 是否保存战斗状态
+    :param battle_id: 战斗ID（用于保存）
+    """
     red_group = game_board.red_group
     blue_group = game_board.blue_group
 
     round_counter = 1
+    battle_history = []  # 记录战斗历史
 
     import time
+
+    # 记录初始状态
+    if save_state:
+        initial_state = captureBattleState(game_board, round_counter, "start")
+        battle_history.append(initial_state)
 
     while not game_board.isBattleOver():
         time.sleep(0.5)
         log.console(f"--- Round {round_counter} ---")
-        round_counter += 1
+        
         act_list = generateActionList(game_board)
         for char_info in act_list:
             attacker : Character = char_info[0]
@@ -68,8 +81,21 @@ def attackSimulator(game_board: GameBoard):
                 attack((attacker, game_board.getTeamById(attacker.getAttr("team_id")).lower()), (aimed_entity, game_board.getTeamById(aimed_entity.getAttr("team_id")).lower()))
                 if not aimed_entity.isAlive():
                     log.console(f"{aimed_entity.getAttr('name')} has been defeated!")
+        
+        # 记录回合结束状态
+        if save_state:
+            round_state = captureBattleState(game_board, round_counter, "end")
+            battle_history.append(round_state)
+        
+        round_counter += 1
 
     log.console("Battle Over!")
+    
+    # 保存战斗状态
+    if save_state:
+        saveBattleHistory(battle_id or "default", battle_history)
+    
+    return battle_history if save_state else None
 
 def generateActionList(game_board: GameBoard) -> list[Character]:
 
@@ -89,3 +115,60 @@ class RoundManager:
 
     def nextRound(self):
         self.current_round += 1
+
+
+def captureBattleState(game_board: GameBoard, round_num: int, phase: str) -> dict:
+    """
+    捕获当前战斗状态
+    :param game_board: 游戏棋盘
+    :param round_num: 回合数
+    :param phase: 阶段 (start/end)
+    :return: 状态字典
+    """
+    def serializeCharacter(char: Character) -> dict:
+        """序列化角色信息"""
+        return {
+            "id": char.getAttr("team_id") + "_" + char.getAttr("name"),
+            "name": char.getAttr("name"),
+            "position": char.getAttr("position"),
+            "team_id": char.getAttr("team_id"),
+            "atk": char.getInGameAttr("atk"),
+            "current_hp": char.getInGameAttr("current_hp"),
+            "max_hp": char.getInGameAttr("max_hp"),
+            "speed": char.getInGameAttr("speed"),
+            "alive": char.isAlive()
+        }
+    
+    red_chars = [serializeCharacter(c) for c in game_board.red_group.getCharacterList()]
+    blue_chars = [serializeCharacter(c) for c in game_board.blue_group.getCharacterList()]
+    
+    return {
+        "round": round_num,
+        "phase": phase,
+        "timestamp": timestampTime(),
+        "red_team": red_chars,
+        "blue_team": blue_chars,
+        "battle_over": game_board.isBattleOver()
+    }
+
+
+def saveBattleHistory(battle_id: str, history: list):
+    """
+    保存战斗历史
+    :param battle_id: 战斗ID
+    :param history: 战斗历史列表
+    """
+    try:
+        from content_manager import BattleStateManager
+        manager = BattleStateManager()
+        
+        battle_data = {
+            "battle_id": battle_id,
+            "rounds": len(history),
+            "history": history
+        }
+        
+        filepath = manager.save_battle_state(battle_id, battle_data)
+        log.console(f"战斗状态已保存到: {filepath}", "OK")
+    except Exception as e:
+        log.console(f"保存战斗状态失败: {e}", "ERROR")

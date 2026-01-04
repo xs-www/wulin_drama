@@ -38,6 +38,11 @@
   - CSV/Excel 角色数据转 JSON 工具
   - 日志系统（控制台输出 + 文件保存）
   - 时间戳记录
+  - **内容管理系统**（新功能 ✨）
+    - 查看和编辑已生成的战斗日志
+    - 修改角色配置（支持实时更新）
+    - 保存和回放战斗状态
+    - 自动备份机制，确保数据安全
 
 #### 技术栈
 
@@ -99,6 +104,31 @@ cd 自走棋策划/py灰盒
 python emphrase_csv_2_json.py
 ```
 
+### 内容管理（新功能 ✨）
+
+使用内容编辑器管理已生成的游戏内容：
+
+```bash
+cd 自走棋策划/py灰盒
+
+# 查看所有日志文件
+python content_editor.py logs list
+
+# 查看日志内容（支持过滤）
+python content_editor.py logs view game_log_2025-12-30.txt --keyword "defeated"
+
+# 列出所有角色
+python content_editor.py character list
+
+# 修改角色属性
+python content_editor.py character modify 0002 --attack 15 --health 50
+
+# 查看战斗状态
+python content_editor.py battle list
+```
+
+详细使用指南请参阅：[内容管理系统使用指南](自走棋策划/py灰盒/CONTENT_MANAGEMENT_GUIDE.md)
+
 ## 项目结构
 
 ```
@@ -111,8 +141,11 @@ wulin_drama/
 │   │   ├── grid.py     # 游戏网格系统
 │   │   ├── simulator.py # 战斗模拟器
 │   │   ├── util.py     # 工具函数
+│   │   ├── content_manager.py # 内容管理器（新）
+│   │   ├── content_editor.py  # 内容编辑CLI工具（新）
 │   │   ├── *.json      # 角色配置文件
-│   │   └── logs/       # 游戏日志
+│   │   ├── logs/       # 游戏日志
+│   │   └── battle_states/ # 战斗状态保存（新）
 │   └── godot_demo/     # Godot 引擎演示
 ├── mjyl/               # 武侠故事文档
 │   ├── *.docx         # 各类传记文档
@@ -126,6 +159,7 @@ wulin_drama/
 - [x] 角色系统
 - [x] 网格系统
 - [x] 事件管理器
+- [x] 内容管理系统（新增）
 - [ ] UI 界面开发
 - [ ] 更多角色和技能
 - [ ] 羁绊系统完善
