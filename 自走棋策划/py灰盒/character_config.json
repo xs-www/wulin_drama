@@ -1,19 +1,19 @@
 {
   "0001": {
-    "id": "0001",
     "name": "wooden_man",
     "localization": "木头人",
     "attack_power": 1,
     "health_points": 1000,
-    "avaliable_location": [
-      "front",
-      "back"
-    ],
     "speed": 5,
     "hate_value": 1,
     "price": 1,
     "weapon": "fist",
     "energy": 3,
+    "avaliable_location": [
+      "front",
+      "back"
+    ],
+    "fetter": null,
     "hate_matrix": [
       [
         1,
@@ -30,7 +30,8 @@
         1,
         1
       ]
-    ]
+    ],
+    "id": "0001"
   },
   "0002": {
     "id": "0002",

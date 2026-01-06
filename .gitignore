@@ -6,6 +6,9 @@
 # 日志文件
 **/*.log
 **/logs/
+
+# 数据库文件
+**/*.db
 自走棋策划/py灰盒/__pycache__/character.cpython-310.pyc
 自走棋策划/py灰盒/__pycache__/entity.cpython-310.pyc
 自走棋策划/py灰盒/__pycache__/simulator.cpython-310.pyc
