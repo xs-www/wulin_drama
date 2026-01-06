@@ -1,6 +1,7 @@
 import pygame
 from util import *
 from effect import BuffList, Buff, Effect
+from keywords import keywordFactory
 
 class Damage:
     """
@@ -98,6 +99,9 @@ class Character(pygame.sprite.Sprite):
             "accessory": None
         }
 
+        self.keywords: list = []
+        self.keywords_dict = {}
+
     # @todo
     def updateInGameAttrs(self):
         effect_dict = self.getEffectDict()
@@ -175,15 +179,14 @@ class Character(pygame.sprite.Sprite):
     def isAlive(self) -> bool:
         return self.getInGameAttr("current_hp") > 0
     
-    #@em.on('get_hurt')
     def getHurt(self, damage: Damage):
-        #em.broadcast('before_get_hurt', target=self, damage=damage)
+        em.broadcast('before_get_hurt', target=self, damage=damage)
+        em.broadcast('onGetHurt', target=self, damage=damage)
         current_hp = self.getInGameAttr("current_hp")
-        current_hp -= damage.amount
-        if current_hp < 0:
-            current_hp = 0
-        self.in_game_attrs["current_hp"] = current_hp
-        #em.broadcast('after_get_hurt', target=self, damage=damage)
+        if damage.amount > 0:
+            log.console(f"{self.getAttr('name')} 受到 {damage.amount} 点{damage.damage_type}伤害！", "DAMAGE")
+            self.setInGameAttr("current_hp", max(0, current_hp - damage.amount))
+            em.broadcast('after_get_hurt', target=self, damage=damage)
         
     @staticmethod
     def infoList(char: "Character" = None) -> list[str]:
@@ -215,6 +218,17 @@ class Character(pygame.sprite.Sprite):
 
     def rollInitiative(self):
         self.setInGameAttr("initiative", roll(self.getInGameAttr("max_initiative")))
+
+    def addKeyword(self, keyword_name: str):
+        keyword = keywordFactory(keyword_name)(self)
+        self.keywords.append(keyword)
+        self.keywords_dict[keyword_name] = keyword
+
+    def removeKeyword(self, keyword_instance):
+        if keyword_instance in self.keywords:
+            self.keywords.remove(keyword_instance)
+            return True
+        return False
 
     @classmethod
     def byId(cls, char_id: str):
