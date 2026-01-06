@@ -95,12 +95,6 @@ class Log:
 
 log = Log()
 
-
-# @todo
-class Skill:
-
-    pass
-
 class Buff:
 
     def __init__(self, inflicator, bearer, name: str, duration: int, effect: dict):
@@ -150,6 +144,29 @@ def roll(dice_sides: int) -> int:
     return random.randint(1, dice_sides)
 
 def mergeDicts(dict_list: list) -> dict:
+    """
+    Merge a list of dictionaries by summing values for identical keys.
+
+    This function iterates over each dictionary in ``dict_list`` and combines
+    them into a single dictionary. For each key that appears in multiple
+    dictionaries, the corresponding values are added together. If a key does
+    not yet exist in the result, it is initialized with ``0`` before adding
+    the new value.
+
+    Parameters
+    ----------
+    dict_list : list[dict]
+        A list of dictionaries to merge. All dictionaries should use
+        hashable keys, and their values are expected to be numeric
+        (or otherwise support addition with an initial value of ``0``).
+
+    Returns
+    -------
+    dict
+        A new dictionary containing all keys from the input dictionaries,
+        where the value for each key is the sum of the values associated
+        with that key across all input dictionaries.
+    """
     merged_dict = {}
     for d in dict_list:
         for key, value in d.items():
