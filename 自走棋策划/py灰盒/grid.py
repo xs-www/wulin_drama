@@ -80,7 +80,12 @@ class GameRow:
                     print(line)
             case "pygame":
                 pass
-        
+    
+    @classmethod
+    def byList(cls, ls):
+        new_row = cls(max_length=len(ls))
+        new_row.entities = ls
+        return new_row
 
 class GameGrid:
     def __init__(self, team_id=None):
@@ -165,11 +170,6 @@ class GameBoard:
     def __init__(self, red_group: GameGrid, blue_group: GameGrid):
         self.red_group = red_group
         self.blue_group = blue_group
-
-    def printBoard(self):
-        self.blue_group.printGrid(reverse=True)
-        print("-" * 50)
-        self.red_group.printGrid()
     
     def getTeamById(self, team_id) -> GameGrid | None:
         if self.red_group.team_id == team_id:
@@ -178,6 +178,10 @@ class GameBoard:
             return "BLUE"
         else:
             return None
+        
+    def getCharacterList(self):
+        character_list = self.red_group.getCharacterList() + self.blue_group.getCharacterList()
+        return character_list
         
     def isBattleOver(self) -> bool:
         return self.red_group.isAllDead() or self.blue_group.isAllDead()

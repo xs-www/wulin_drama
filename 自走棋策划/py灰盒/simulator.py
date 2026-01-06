@@ -1,6 +1,6 @@
 import random
 from entity import Entity, Character, Damage
-from grid import GameGrid, GameBoard
+from grid import GameGrid, GameBoard, GameRow
 from character import BattleCharacter
 from util import *
 
@@ -58,8 +58,8 @@ def attackSimulator(game_board: GameBoard):
         log.console(f"--- Round {round_counter} ---")
         round_counter += 1
         act_list = generateActionList(game_board)
-        for char_info in act_list:
-            attacker : Character = char_info[0]
+        for char in act_list:
+            attacker: Character = char
             if not attacker.alive:
                 continue
             aimed_group = game_board.getOtherTeam(attacker)
@@ -74,13 +74,14 @@ def attackSimulator(game_board: GameBoard):
 
 def generateActionList(game_board: GameBoard) -> list[Character]:
 
-    red_group = game_board.red_group
-    blue_group = game_board.blue_group
-    character_list : list[Character] = red_group.getAliveCharacterList() + blue_group.getAliveCharacterList()
-    info_list = [(char, char.getInGameAttr("speed") + roll(10), game_board.getTeamById(char.getAttr("team_id")) ) for char in character_list]
-    info_list.sort(key=lambda x: x[1], reverse=True)
+    character_list: list[Character] = game_board.getCharacterList()
+    for char in character_list:
+        char.rollInitiative()
+    action_row = GameRow.byList(character_list)
+    action_row.draw()
+    character_list = sorted(character_list)
 
-    return info_list
+    return character_list
 
 # @todo
 class RoundManager:

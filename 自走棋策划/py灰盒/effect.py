@@ -3,30 +3,43 @@ effect.py - 实现效果(Effect)、增益/减益(Buff)和增益列表(BuffList)�
 """
 
 from typing import Tuple, List, Dict, Optional
+from types import SimpleNamespace
 
 
 class Effect:
     """
     效果类，表示单个属性修改效果
     """
-    
-    def __init__(self, attr: str, value: float, type: str):
+
+    TYPES = SimpleNamespace(
+        ADD="add",
+        MULTIPLY="multiply",
+        OVERRIDE="override"
+    )
+
+    ATTACK_POWER = "atk"
+    HEALTH_POINTS = "hp"
+    SPEED = "speed"
+    ENERGY = "energy"
+    HATE_VALUE = "hate_value"
+
+    def __init__(self, _attr: str, _value: float, _type: str = TYPES.ADD):
         """
         初始化效果
         :param attr: 属性名称 (例如: "atk", "hp", "speed")
         :param value: 效果值
         :param type: 效果类型 (例如: "add", "multiply", "override")
         """
-        self.attr = attr
-        self.value = value
-        self.type = type
-    
+        self.effect_attr = _attr
+        self.effect_value = _value
+        self.effect_type = _type
+
     def effectInfo(self) -> Tuple[str, float]:
         """
         返回效果信息
         :return: (属性名, 效果值) 元组
         """
-        return (self.attr, self.value)
+        return (f"{self.effect_type}-{self.effect_attr}", self.effect_value)
     
     @classmethod
     def byDict(cls, data: dict) -> "Effect":
@@ -36,9 +49,9 @@ class Effect:
         :return: Effect实例
         """
         return cls(
-            attr=data.get("attr", ""),
-            value=data.get("value", 0.0),
-            type=data.get("type", "add")
+            _attr=data.get("attr", ""),
+            _value=data.get("value", 0.0),
+            _type=data.get("type", "add")
         )
     
     @classmethod
@@ -49,18 +62,41 @@ class Effect:
         :return: Effect实例
         """
         if len(data) >= 3:
-            return cls(attr=data[0], value=data[1], type=data[2])
+            return cls(_attr=data[0], _value=data[1], _type=data[2])
         elif len(data) == 2:
-            return cls(attr=data[0], value=data[1], type="add")
+            return cls(_attr=data[0], _value=data[1], _type="add")
         else:
             raise ValueError("列表至少需要包含 attr 和 value")
     
     def __str__(self):
-        return f"Effect({self.attr}, {self.value}, {self.type})"
+        return f"Effect({self.effect_attr}, {self.effect_value}, {self.effect_type})"
     
     def __repr__(self):
         return self.__str__()
-
+    
+    def __eq__(self, other) -> bool:
+        """
+        判断两个Effect是否相同（通过属性名和类型判断）
+        :param other: 另一个Effect对象
+        :return: True表示相同，False表示不同
+        """
+        if not isinstance(other, Effect):
+            return False
+        return ((self.effect_attr == other.effect_attr and 
+                self.effect_type == other.effect_type))
+    
+class InstantEffect(Effect):
+    """
+    即时效果类，表示一次性应用的效果
+    """
+    def __init__(self, _attr: str, _value: float, _type: str = Effect.TYPES.ADD):
+        """
+        初始化即时效果
+        :param attr: 属性名称 (例如: "atk", "hp", "speed")
+        :param value: 效果值
+        :param type: 效果类型 (例如: "add", "multiply", "override")
+        """
+        super().__init__(_attr, _value, _type)
 
 class Buff:
     """
@@ -136,7 +172,7 @@ class Buff:
         """
         if not isinstance(other, Buff):
             return False
-        return self.name == other.name
+        return self.name == other.name and self.duration == other.duration
     
     def __str__(self):
         return f"Buff({self.name}, layer={self.layer}/{self.max_layer}, duration={self.duration})"
@@ -206,82 +242,5 @@ class BuffList:
 
 
 if __name__ == "__main__":
-    # 测试代码
-    print("=== 测试 Effect 类 ===")
     
-    # 通过构造函数创建
-    effect1 = Effect("atk", 10.0, "add")
-    print(f"effect1: {effect1}")
-    print(f"effect1.effectInfo(): {effect1.effectInfo()}")
-    
-    # 通过字典创建
-    effect2 = Effect.byDict({"attr": "hp", "value": 50.0, "type": "add"})
-    print(f"effect2: {effect2}")
-    
-    # 通过列表创建
-    effect3 = Effect.byList(["speed", 5.0, "multiply"])
-    print(f"effect3: {effect3}")
-    
-    print("\n=== 测试 Buff 类 ===")
-    
-    # 创建一个有两个效果的Buff
-    buff1 = Buff("力量祝福", [effect1, effect2], max_layer=3, layer=1, duration=5)
-    print(f"buff1: {buff1}")
-    print(f"buff1.getEffectDict(): {buff1.getEffectDict()}")
-    
-    # 增加层数
-    buff1.addLayer(2)
-    print(f"增加2层后: {buff1}")
-    print(f"buff1.getEffectDict(): {buff1.getEffectDict()}")
-    
-    # 更新状态
-    buff1.update()
-    print(f"更新一次后: {buff1}")
-    print(f"buff1.isAlive(): {buff1.isAlive()}")
-    
-    print("\n=== 测试 BuffList 类 ===")
-    
-    buff_list = BuffList()
-    print(f"初始: {buff_list}")
-    
-    # 添加第一个Buff
-    buff_list.addBuff(buff1)
-    print(f"添加buff1后: {buff_list}")
-    print(f"总效果: {buff_list.getEffectDict()}")
-    
-    # 添加同名Buff（应该叠加层数）
-    buff2 = Buff("力量祝福", [effect1, effect2], max_layer=3, layer=1, duration=5)
-    buff_list.addBuff(buff2)
-    print(f"添加同名buff后: {buff_list}")
-    print(f"总效果: {buff_list.getEffectDict()}")
-    
-    # 添加不同名的Buff
-    buff3 = Buff("速度祝福", [effect3], max_layer=1, layer=1, duration=3)
-    buff_list.addBuff(buff3)
-    print(f"添加buff3后: {buff_list}")
-    print(f"总效果: {buff_list.getEffectDict()}")
-    
-    # 更新BuffList（模拟回合结束）
-    print("\n=== 模拟3个回合 ===")
-    for i in range(3):
-        buff_list.update()
-        print(f"回合{i+1}结束后: {buff_list}")
-        print(f"总效果: {buff_list.getEffectDict()}")
-    
-    # 再更新2次，速度祝福应该消失
-    for i in range(2):
-        buff_list.update()
-        print(f"回合{i+4}结束后: {buff_list}")
-        print(f"总效果: {buff_list.getEffectDict()}")
-    
-    print("\n=== 测试永久Buff ===")
-    permanent_buff = Buff("永久力量", [Effect("atk", 100.0, "add")], max_layer=1, layer=1, duration=-1)
-    buff_list2 = BuffList()
-    buff_list2.addBuff(permanent_buff)
-    print(f"添加永久buff: {buff_list2}")
-    
-    for i in range(5):
-        buff_list2.update()
-        print(f"更新{i+1}次后: {buff_list2}")
-    
-    print("\n测试完成！")
+    pass

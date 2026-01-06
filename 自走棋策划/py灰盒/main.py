@@ -4,7 +4,7 @@ import pygame, sys
 from simulator import * 
 from util import log, em
 from entity import Damage, Character
-from effect import Effect, Buff
+
 
 from windows.main_menu import MainMenu
 
@@ -30,7 +30,7 @@ def main():
     b_game_grid.setCharacter(b_3, "back", 3)
 
     game_board = GameBoard(r_game_grid, b_game_grid)
-    attackSimulator(game_board)
+    generateActionList(game_board)
 
     #r_1.getHurt(Damage(amount=3, damage_type="physical", source=b_2))
     log.saveLog()  
