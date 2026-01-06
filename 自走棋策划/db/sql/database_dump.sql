@@ -15,10 +15,14 @@ CREATE TABLE character (
                 hate_matrix TEXT
             );
 INSERT INTO "character" VALUES('0001','wooden_man','木头人',1,1000,5,1,1,'fist',3,'["front", "back"]',NULL,'[[1, 1, 1], [1, 1, 1], [1, 1, 1]]');
-INSERT INTO "character" VALUES('0002','Ch1',NULL,1,20,1,2,1,NULL,0,NULL,NULL,NULL);
-INSERT INTO "character" VALUES('0003','Ch2',NULL,2,12,1,3,1,NULL,0,NULL,NULL,NULL);
-INSERT INTO "character" VALUES('0004','Ch3',NULL,10,4,4,3,1,NULL,0,NULL,NULL,NULL);
-INSERT INTO "character" VALUES('0005','Ch4',NULL,5,8,2,2,1,NULL,0,NULL,NULL,NULL);
-INSERT INTO "character" VALUES('0006','Sisi','思思',5,10,3,1,2,NULL,4,NULL,NULL,NULL);
-INSERT INTO "character" VALUES('0007','wuxie','张无邪',10,100,5,5,4,NULL,4,NULL,NULL,NULL);
+INSERT INTO "character" VALUES('0002','1up','一前',1,21,5,1,2,NULL,0,NULL,NULL,'[[1, 1, 1], [1, 1, 1], [1, 1, 1]]');
+INSERT INTO "character" VALUES('0003','1down','一后',3,7,5,1,2,NULL,0,NULL,NULL,'[[1, 1, 1], [1, 1, 1], [1, 1, 1]]');
+INSERT INTO "character" VALUES('0004','2up','二前',1,28,5,1,2,NULL,0,NULL,NULL,'[[1, 1, 1], [1, 1, 1], [1, 1, 1]]');
+INSERT INTO "character" VALUES('0005','2down','二后',3,10,5,1,2,NULL,0,NULL,NULL,'[[1, 1, 1], [1, 1, 1], [1, 1, 1]]');
+INSERT INTO "character" VALUES('0006','3up','三前',2,28,5,1,3,NULL,0,NULL,NULL,'[[1, 1, 1], [1, 1, 1], [1, 1, 1]]');
+INSERT INTO "character" VALUES('0007','3down','三后',4,13,5,1,3,NULL,0,NULL,NULL,'[[1, 1, 1], [1, 1, 1], [1, 1, 1]]');
+INSERT INTO "character" VALUES('0008','4up','四前',2,43,5,1,3,NULL,0,NULL,NULL,'[[1, 1, 1], [1, 1, 1], [1, 1, 1]]');
+INSERT INTO "character" VALUES('0009','4down','四后',4,19,5,1,3,NULL,0,NULL,NULL,'[[1, 1, 1], [1, 1, 1], [1, 1, 1]]');
+INSERT INTO "character" VALUES('0010','5up','五前',3,43,5,1,4,NULL,0,NULL,NULL,'[[1, 1, 1], [1, 1, 1], [1, 1, 1]]');
+INSERT INTO "character" VALUES('0011','5down','五后',5,25,5,1,4,NULL,0,NULL,NULL,'[[1, 1, 1], [1, 1, 1], [1, 1, 1]]');
 COMMIT;

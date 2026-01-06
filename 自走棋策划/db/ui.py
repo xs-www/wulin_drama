@@ -6,6 +6,7 @@ import tkinter as tk
 from tkinter import ttk, messagebox, scrolledtext
 import json
 from dao import CharacterDao, updateDb, dumpSql, dumpJson
+from init_database import import_from_json
 
 
 class CharacterManagerUI:
@@ -75,6 +76,7 @@ class CharacterManagerUI:
         ttk.Button(button_frame, text="编辑", command=self.edit_character).pack(side=tk.LEFT, padx=2)
         ttk.Button(button_frame, text="删除", command=self.delete_character).pack(side=tk.LEFT, padx=2)
         ttk.Button(button_frame, text="刷新", command=self.refresh_list).pack(side=tk.LEFT, padx=2)
+        ttk.Button(button_frame, text="导入 JSON", command=import_from_json).pack(side=tk.LEFT, padx=2)
         ttk.Button(button_frame, text="导出 JSON", command=self.export_json).pack(side=tk.LEFT, padx=2)
         
         # 右侧详情框架
