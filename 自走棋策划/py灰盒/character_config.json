@@ -67,7 +67,7 @@
     "name": "Ch3",
     "localization": null,
     "attack_power": 10,
-    "health_points": 3,
+    "health_points": 4,
     "speed": 4,
     "hate_value": 3,
     "price": 1,
@@ -92,5 +92,35 @@
     "fetter": null,
     "hate_matrix": null,
     "id": "0005"
+  },
+  "0006": {
+    "name": "Sisi",
+    "localization": "思思",
+    "attack_power": 5,
+    "health_points": 10,
+    "speed": 3,
+    "hate_value": 1,
+    "price": 2,
+    "weapon": null,
+    "energy": 4,
+    "avaliable_location": null,
+    "fetter": null,
+    "hate_matrix": null,
+    "id": "0006"
+  },
+  "0007": {
+    "name": "wuxie",
+    "localization": "张无邪",
+    "attack_power": 10,
+    "health_points": 100,
+    "speed": 5,
+    "hate_value": 5,
+    "price": 4,
+    "weapon": null,
+    "energy": 4,
+    "avaliable_location": null,
+    "fetter": null,
+    "hate_matrix": null,
+    "id": "0007"
   }
 }

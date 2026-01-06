@@ -95,6 +95,33 @@ class CharacterDao:
         conn.close()
         
         return rowcount
+
+    def get_next_id(self):
+        """
+        计算当前数据库中最大的数值型 id 并返回下一个 id（字符串形式）。
+        非数值 id 会被忽略。
+        如果表为空或没有数值 id，返回 '1'
+        """
+        conn = connect_database(self.db_path)
+        cursor = conn.cursor()
+
+        cursor.execute('SELECT id FROM character')
+        rows = cursor.fetchall()
+        conn.close()
+
+        max_id = 0
+        for row in rows:
+            try:
+                # sqlite3.Row 可通过索引或键访问
+                val = row['id'] if isinstance(row, sqlite3.Row) else row[0]
+                val_int = int(val)
+                if val_int > max_id:
+                    max_id = val_int
+            except Exception:
+                # 忽略无法转换为整数的 id
+                continue
+
+        return str(max_id + 1)
     
     def read(self, character_id):
         """

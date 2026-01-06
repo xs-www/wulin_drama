@@ -109,7 +109,7 @@ class CharacterManagerUI:
         selection = self.tree.selection()
         if selection:
             item = self.tree.item(selection[0])
-            char_id = item['values'][0]
+            char_id = str(item['values'][0]).rjust(4, '0')
             
             # 获取完整数据
             char = self.dao.read(char_id)
@@ -120,7 +120,9 @@ class CharacterManagerUI:
     
     def create_character(self):
         """创建新 character"""
-        dialog = CharacterDialog(self.root, "新建 Character")
+        # 获取下一个可用的自增 ID 并传入对话框以便预填充
+        next_id = self.dao.get_next_id()
+        dialog = CharacterDialog(self.root, "新建 Character", default_id=next_id)
         if dialog.result:
             try:
                 self.dao.create(dialog.result)
@@ -137,10 +139,11 @@ class CharacterManagerUI:
             return
         
         item = self.tree.item(selection[0])
-        char_id = item['values'][0]
+        char_id = str(item['values'][0]).rjust(4, '0')
         
         # 获取完整数据
         char = self.dao.read(char_id)
+        print("编辑 Character:", char)
         if char:
             dialog = CharacterDialog(self.root, "编辑 Character", char)
             if dialog.result:
@@ -187,7 +190,7 @@ class CharacterManagerUI:
 class CharacterDialog:
     """Character 编辑对话框"""
     
-    def __init__(self, parent, title, character=None):
+    def __init__(self, parent, title, character=None, default_id=None):
         self.result = None
         
         # 创建对话框窗口
@@ -217,18 +220,18 @@ class CharacterDialog:
         # 字段定义
         fields = [
             ('id', 'ID', 'entry'),
-            ('name', 'Name', 'entry'),
-            ('localization', 'Localization', 'entry'),
-            ('attack_power', 'Attack Power', 'entry'),
-            ('health_points', 'Health Points', 'entry'),
-            ('speed', 'Speed', 'entry'),
-            ('hate_value', 'Hate Value', 'entry'),
-            ('price', 'Price', 'entry'),
-            ('weapon', 'Weapon', 'entry'),
-            ('energy', 'Energy', 'entry'),
-            ('avaliable_location', 'Available Location (JSON)', 'text'),
-            ('fetter', 'Fetter (JSON)', 'text'),
-            ('hate_matrix', 'Hate Matrix (JSON)', 'text'),
+            ('name', '名称 Name', 'entry'),
+            ('localization', '本地化 Localization', 'entry'),
+            ('attack_power', '攻击力 Attack Power', 'entry'),
+            ('health_points', '生命值 Health Points', 'entry'),
+            ('speed', '速度 Speed', 'entry'),
+            ('hate_value', '仇恨值 Hate Value', 'entry'),
+            ('price', '价格 Price', 'entry'),
+            ('weapon', '武器 Weapon', 'entry'),
+            ('energy', '能量 Energy', 'entry'),
+            ('avaliable_location', '可用位置 Available Location (JSON)', 'text'),
+            ('fetter', '羁绊 Fetter (JSON)', 'text'),
+            ('hate_matrix', '仇恨矩阵 Hate Matrix (JSON)', 'text'),
         ]
         
         self.entries = {}
@@ -246,6 +249,16 @@ class CharacterDialog:
                     value = character[field_name]
                     if value is not None:
                         entry.insert(0, str(value))
+                    # 如果是编辑模式且为 id 字段，设置为只读，避免修改主键
+                    if field_name == 'id':
+                        try:
+                            entry.state(['readonly'])
+                        except Exception:
+                            # 退回到通用方式
+                            entry.config(state='readonly')
+                # 如果是新建模式，且提供了默认 id，则预填充 id 字段
+                elif (not character) and field_name == 'id' and default_id is not None:
+                    entry.insert(0, str(default_id).rjust(4, '0'))
                 
                 self.entries[field_name] = entry
             
