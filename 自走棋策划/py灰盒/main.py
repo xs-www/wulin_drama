@@ -17,17 +17,15 @@ def main():
 
 
     r_1 = Character.byId('0002')
-    r_2 = Character.byId('0003')
-    b_1 = Character.byId('0003')
-    b_2 = Character.byId('0005')
-    b_3 = Character.byId('0004')
+    r_2 = Character.byId('0002')
+    b_1 = Character.byId('0002')
+    b_2 = Character.byId('0003')
+   
+    r_game_grid.setCharacter(r_1, "front", 1)
+    r_game_grid.setCharacter(r_2, "front", 2)
 
-    r_game_grid.setCharacter(r_1, "front", 2)
-    r_game_grid.setCharacter(r_2, "middle", 2)
-
-    b_game_grid.setCharacter(b_1, "back", 1)
-    b_game_grid.setCharacter(b_2, "front", 2)
-    b_game_grid.setCharacter(b_3, "back", 3)
+    b_game_grid.setCharacter(b_1, "front", 1)
+    b_game_grid.setCharacter(b_2, "middle", 1)
 
     game_board = GameBoard(r_game_grid, b_game_grid)
     generateActionList(game_board)
