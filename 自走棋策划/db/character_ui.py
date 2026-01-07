@@ -15,7 +15,7 @@ class CharacterManagerUI:
     def __init__(self, root):
         self.root = root
         self.root.title("Character 数据库管理")
-        self.root.geometry("1000x700")
+        self.root.geometry("1400x800")
         
         # 初始化数据访问对象
         self.dao = CharacterDao()
@@ -73,6 +73,7 @@ class CharacterManagerUI:
         button_frame.grid(row=0, column=1, sticky=(tk.W, tk.E, tk.N), pady=(0, 5))
         
         ttk.Button(button_frame, text="新建", command=self.create_character).pack(side=tk.LEFT, padx=2)
+        ttk.Button(button_frame, text="新增列", command=self.add_column).pack(side=tk.LEFT, padx=2)
         ttk.Button(button_frame, text="编辑", command=self.edit_character).pack(side=tk.LEFT, padx=2)
         ttk.Button(button_frame, text="删除", command=self.delete_character).pack(side=tk.LEFT, padx=2)
         ttk.Button(button_frame, text="刷新", command=self.refresh_list).pack(side=tk.LEFT, padx=2)
@@ -119,12 +120,25 @@ class CharacterManagerUI:
                 # 显示详情
                 self.detail_text.delete(1.0, tk.END)
                 self.detail_text.insert(1.0, json.dumps(char, ensure_ascii=False, indent=2))
+
+    def add_column(self):
+        d = ColumnDialog(self.root, '新增 Character 列')
+        if d.result:
+            col_id = d.result.get('col_id')
+            label = d.result.get('label')
+            default = d.result.get('default')
+            try:
+                self.dao.add_character_column(col_id, default_value=default, label=label)
+                self.refresh_list()
+                messagebox.showinfo('成功', f'新增列 {col_id} 成功')
+            except Exception as e:
+                messagebox.showerror('错误', f'新增列失败：{e}')
     
     def create_character(self):
         """创建新 character"""
         # 获取下一个可用的自增 ID 并传入对话框以便预填充
         next_id = self.dao.get_next_id()
-        dialog = CharacterDialog(self.root, "新建 Character", default_id=next_id)
+        dialog = CharacterDialog(self.root, "新建 Character", default_id=next_id, dao=self.dao)
         if dialog.result:
             try:
                 self.dao.create(dialog.result)
@@ -147,7 +161,7 @@ class CharacterManagerUI:
         char = self.dao.read(char_id)
         print("编辑 Character:", char)
         if char:
-            dialog = CharacterDialog(self.root, "编辑 Character", char)
+            dialog = CharacterDialog(self.root, "编辑 Character", char, dao=self.dao)
             if dialog.result:
                 try:
                     # 移除 id 字段，因为 update 方法中 id 是作为参数传入的
@@ -192,7 +206,7 @@ class CharacterManagerUI:
 class CharacterDialog:
     """Character 编辑对话框"""
     
-    def __init__(self, parent, title, character=None, default_id=None):
+    def __init__(self, parent, title, character=None, default_id=None, dao=None):
         self.result = None
         
         # 创建对话框窗口
@@ -219,8 +233,8 @@ class CharacterDialog:
         canvas.create_window((0, 0), window=scrollable_frame, anchor="nw")
         canvas.configure(yscrollcommand=scrollbar.set)
         
-        # 字段定义
-        fields = [
+        # 字段定义（静态字段）
+        static_fields = [
             ('id', 'ID', 'entry'),
             ('name', '名称 Name', 'entry'),
             ('localization', '本地化 Localization', 'entry'),
@@ -235,6 +249,17 @@ class CharacterDialog:
             ('fetter', '羁绊 Fetter (JSON)', 'text'),
             ('hate_matrix', '仇恨矩阵 Hate Matrix (JSON)', 'text'),
         ]
+
+        # 追加动态字段（来自 DAO 的元数据表）
+        extra_fields = []
+        try:
+            if dao:
+                extra_fields = dao.get_character_extra_fields()
+        except Exception:
+            extra_fields = []
+
+        # 将动态字段追加到字段列表中
+        fields = static_fields + [(ef['col_id'], ef.get('label') or ef['col_id'], 'entry') for ef in extra_fields]
         
         self.entries = {}
         
@@ -346,29 +371,47 @@ class CharacterDialog:
         self.dialog.destroy()
 
 
-def main():
-    """主函数"""
-    # 启动前更新数据库
-    print("正在从 SQL 文件更新数据库...")
-    updateDb()
-    print("数据库更新完成。")
-    
-    # 创建主窗口
-    root = tk.Tk()
-    app = CharacterManagerUI(root)
-    
-    # 关闭窗口时导出 SQL
-    def on_closing():
-        print("正在导出数据库到 SQL 文件...")
-        dumpSql()
-        print("SQL 导出完成。")
-        root.destroy()
-    
-    root.protocol("WM_DELETE_WINDOW", on_closing)
-    
-    # 运行主循环
-    root.mainloop()
+class ColumnDialog:
+    """用于输入新列信息的对话框"""
+    def __init__(self, parent, title):
+        self.result = None
+        self.dialog = tk.Toplevel(parent)
+        self.dialog.title(title)
+        self.dialog.transient(parent)
+        self.dialog.grab_set()
 
+        frame = ttk.Frame(self.dialog, padding=10)
+        frame.pack(fill=tk.BOTH, expand=True)
 
-if __name__ == '__main__':
-    main()
+        ttk.Label(frame, text='列名 (col_id, 英文):').grid(row=0, column=0, sticky=tk.W)
+        self.col_entry = ttk.Entry(frame, width=40)
+        self.col_entry.grid(row=0, column=1, sticky=(tk.W, tk.E))
+
+        ttk.Label(frame, text='中文标签 (label):').grid(row=1, column=0, sticky=tk.W)
+        self.label_entry = ttk.Entry(frame, width=40)
+        self.label_entry.grid(row=1, column=1, sticky=(tk.W, tk.E))
+
+        ttk.Label(frame, text='默认值 (default, 可选):').grid(row=2, column=0, sticky=tk.W)
+        self.default_entry = ttk.Entry(frame, width=40)
+        self.default_entry.grid(row=2, column=1, sticky=(tk.W, tk.E))
+
+        btn_frame = ttk.Frame(self.dialog)
+        btn_frame.pack(fill=tk.X)
+        ttk.Button(btn_frame, text='确定', command=self.on_ok).pack(side=tk.RIGHT, padx=5)
+        ttk.Button(btn_frame, text='取消', command=self.on_cancel).pack(side=tk.RIGHT)
+
+        self.dialog.wait_window()
+
+    def on_ok(self):
+        col = self.col_entry.get().strip()
+        label = self.label_entry.get().strip()
+        default = self.default_entry.get().strip()
+        if not col:
+            messagebox.showerror('错误', '列名不能为空')
+            return
+        self.result = {'col_id': col, 'label': label or col, 'default': default or None}
+        self.dialog.destroy()
+
+    def on_cancel(self):
+        self.dialog.destroy()
+

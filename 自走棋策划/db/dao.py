@@ -237,6 +237,335 @@ class CharacterDao:
         
         return rowcount
 
+    # --- character 动态列支持 ---
+    def get_character_columns(self):
+        """返回 character 表的列名列表"""
+        conn = connect_database(self.db_path)
+        cursor = conn.cursor()
+        cursor.execute("PRAGMA table_info('character')")
+        rows = cursor.fetchall()
+        conn.close()
+        cols = [row['name'] if isinstance(row, sqlite3.Row) else row[1] for row in rows]
+        return cols
+
+    def add_character_column(self, col_id, default_value=None, label=None):
+        """
+        向 character 表添加新列，并为已有行填充默认值；同时将列元数据写入 character_extra_fields
+        :param col_id: 列名（仅允许字母、数字、下划线，且以字母开头）
+        :param default_value: 默认值（将以文本形式存储）
+        :param label: 中文标签，存入元数据表
+        """
+        # 简单验证列名
+        import re
+        if not re.match(r'^[A-Za-z][A-Za-z0-9_]*$', col_id):
+            raise ValueError('col_id 必须以字母开头，只能包含字母、数字和下划线')
+
+        conn = connect_database(self.db_path)
+        cursor = conn.cursor()
+
+        # 添加列（作为 TEXT）
+        sql = f'ALTER TABLE character ADD COLUMN "{col_id}" TEXT'
+        try:
+            cursor.execute(sql)
+        except Exception as e:
+            conn.close()
+            raise
+
+        # 为已有行填充默认值（如果提供）
+        if default_value is not None:
+            try:
+                cursor.execute(f'UPDATE character SET "{col_id}" = ? WHERE "{col_id}" IS NULL', (str(default_value),))
+            except Exception:
+                pass
+
+        # 将元数据写入 character_extra_fields
+        try:
+            cursor.execute('INSERT OR REPLACE INTO character_extra_fields (col_id, label) VALUES (?, ?)', (col_id, label))
+        except Exception:
+            pass
+
+        conn.commit()
+        conn.close()
+
+    def get_character_extra_fields(self):
+        """返回 character_extra_fields 表中的所有记录，格式为 [{'col_id':..,'label':..}, ...]"""
+        conn = connect_database(self.db_path)
+        cursor = conn.cursor()
+        try:
+            cursor.execute('SELECT col_id, label FROM character_extra_fields')
+            rows = cursor.fetchall()
+        except Exception:
+            rows = []
+        conn.close()
+        out = []
+        for r in rows:
+            if isinstance(r, sqlite3.Row):
+                out.append({'col_id': r['col_id'], 'label': r['label']})
+            else:
+                out.append({'col_id': r[0], 'label': r[1]})
+        return out
+
+
+class KeywordDao:
+    """
+    关键词注册表的数据访问对象
+    表结构: id TEXT PRIMARY KEY, name TEXT, description TEXT, type TEXT, trigger TEXT, condition TEXT(JSON), effects TEXT(JSON list)
+    """
+    def __init__(self, db_path=None):
+        self.db_path = db_path if db_path else DB_PATH
+        self._ensure_table_exists()
+
+    def _ensure_table_exists(self):
+        """确保 keyword 表存在"""
+        conn = connect_database(self.db_path)
+        cursor = conn.cursor()
+
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS keyword (
+                id TEXT PRIMARY KEY,
+                name TEXT,
+                description TEXT,
+                type TEXT,
+                trigger TEXT,
+                condition TEXT,
+                effects TEXT
+            )
+        ''')
+
+        conn.commit()
+        conn.close()
+
+    def create(self, kw_dict):
+        conn = connect_database(self.db_path)
+        cursor = conn.cursor()
+        data = kw_dict.copy()
+        # JSON fields
+        if 'condition' in data and isinstance(data['condition'], (dict, list)):
+            data['condition'] = json.dumps(data['condition'], ensure_ascii=False)
+        if 'effects' in data and isinstance(data['effects'], (list, dict)):
+            data['effects'] = json.dumps(data['effects'], ensure_ascii=False)
+
+        columns = ', '.join(data.keys())
+        placeholders = ', '.join(['?' for _ in data])
+        query = f'INSERT INTO keyword ({columns}) VALUES ({placeholders})'
+
+        cursor.execute(query, list(data.values()))
+        conn.commit()
+        rowcount = cursor.rowcount
+        conn.close()
+        return rowcount
+
+    def read(self, kw_id):
+        conn = connect_database(self.db_path)
+        cursor = conn.cursor()
+        cursor.execute('SELECT * FROM keyword WHERE id = ?', (kw_id,))
+        row = cursor.fetchone()
+        conn.close()
+        if row:
+            d = dict(row)
+            if d.get('condition'):
+                try:
+                    d['condition'] = json.loads(d['condition'])
+                except:
+                    pass
+            if d.get('effects'):
+                try:
+                    d['effects'] = json.loads(d['effects'])
+                except:
+                    pass
+            return d
+        return None
+
+    def read_all(self):
+        conn = connect_database(self.db_path)
+        cursor = conn.cursor()
+        cursor.execute('SELECT * FROM keyword ORDER BY id')
+        rows = cursor.fetchall()
+        conn.close()
+        out = []
+        for row in rows:
+            d = dict(row)
+            if d.get('condition'):
+                try:
+                    d['condition'] = json.loads(d['condition'])
+                except:
+                    pass
+            if d.get('effects'):
+                try:
+                    d['effects'] = json.loads(d['effects'])
+                except:
+                    pass
+            out.append(d)
+        return out
+
+
+class EventDao:
+    """事件（event）数据访问对象
+    表结构: id(TEXT PK), name(TEXT), context(TEXT as JSON dict)
+    """
+    def __init__(self, db_path=None):
+        self.db_path = db_path if db_path else DB_PATH
+        self._ensure_table_exists()
+
+    def _ensure_table_exists(self):
+        conn = connect_database(self.db_path)
+        cursor = conn.cursor()
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS event (
+                id TEXT PRIMARY KEY,
+                name TEXT,
+                context TEXT
+            )
+        ''')
+        conn.commit()
+        conn.close()
+
+    def create(self, event_dict):
+        conn = connect_database(self.db_path)
+        cursor = conn.cursor()
+        data = event_dict.copy()
+        if 'context' in data and isinstance(data['context'], (dict, list)):
+            data['context'] = json.dumps(data['context'], ensure_ascii=False)
+
+        columns = ', '.join(data.keys())
+        placeholders = ', '.join(['?' for _ in data])
+        query = f'INSERT INTO event ({columns}) VALUES ({placeholders})'
+        cursor.execute(query, list(data.values()))
+        conn.commit()
+        rowcount = cursor.rowcount
+        conn.close()
+        return rowcount
+
+    def read(self, event_id):
+        conn = connect_database(self.db_path)
+        cursor = conn.cursor()
+        cursor.execute('SELECT * FROM event WHERE id = ?', (event_id,))
+        row = cursor.fetchone()
+        conn.close()
+        if row:
+            d = dict(row)
+            if d.get('context'):
+                try:
+                    d['context'] = json.loads(d['context'])
+                except:
+                    pass
+            return d
+        return None
+
+    def read_all(self):
+        conn = connect_database(self.db_path)
+        cursor = conn.cursor()
+        cursor.execute('SELECT * FROM event ORDER BY id')
+        rows = cursor.fetchall()
+        conn.close()
+        out = []
+        for row in rows:
+            d = dict(row)
+            if d.get('context'):
+                try:
+                    d['context'] = json.loads(d['context'])
+                except:
+                    pass
+            out.append(d)
+        return out
+
+    def update(self, event_id, event_dict):
+        conn = connect_database(self.db_path)
+        cursor = conn.cursor()
+        data = event_dict.copy()
+        if 'context' in data and isinstance(data['context'], (dict, list)):
+            data['context'] = json.dumps(data['context'], ensure_ascii=False)
+        set_clause = ', '.join([f'{k} = ?' for k in data.keys()])
+        query = f'UPDATE event SET {set_clause} WHERE id = ?'
+        cursor.execute(query, list(data.values()) + [event_id])
+        conn.commit()
+        rowcount = cursor.rowcount
+        conn.close()
+        return rowcount
+
+    def delete(self, event_id):
+        conn = connect_database(self.db_path)
+        cursor = conn.cursor()
+        cursor.execute('DELETE FROM event WHERE id = ?', (event_id,))
+        conn.commit()
+        rowcount = cursor.rowcount
+        conn.close()
+        return rowcount
+
+    def init_from_doc(self, doc_path=None):
+        """从文档规范/事件文档.md 读取基础事件并写入表（不会删除已有不同 id 的记录）"""
+        if doc_path is None:
+            doc_path = BASE_DIR.parent / '文档规范' / '事件文档.md'
+        try:
+            with open(doc_path, 'r', encoding='utf-8') as f:
+                lines = [ln.rstrip() for ln in f]
+        except Exception:
+            return False
+
+        events = []
+        current = None
+        for ln in lines:
+            ln = ln.strip()
+            if not ln:
+                continue
+            # top-level event line starting with on...
+            if ln.startswith('on'):
+                # split by -> if present
+                parts = ln.split('->')
+                left = parts[0].strip()
+                desc = parts[1].strip() if len(parts) > 1 else ''
+                # left may be like onAttack(source: Character, target: Character)
+                sig = left
+                eid = sig.split('(')[0]
+                name = desc or eid
+                current = {'id': eid, 'name': name, 'context': {'signature': sig, 'description': desc, 'subevents': []}}
+                events.append(current)
+            elif ln.startswith('-') and current is not None:
+                sub = ln.lstrip('-').strip()
+                current['context']['subevents'].append(sub)
+
+        # insert events if not exists
+        conn = connect_database(self.db_path)
+        cursor = conn.cursor()
+        for ev in events:
+            try:
+                cursor.execute('SELECT id FROM event WHERE id = ?', (ev['id'],))
+                if cursor.fetchone():
+                    continue
+                cursor.execute('INSERT INTO event (id, name, context) VALUES (?, ?, ?)', (ev['id'], ev['name'], json.dumps(ev['context'], ensure_ascii=False)))
+            except Exception:
+                pass
+        conn.commit()
+        conn.close()
+        return True
+
+    def update(self, kw_id, kw_dict):
+        conn = connect_database(self.db_path)
+        cursor = conn.cursor()
+        data = kw_dict.copy()
+        if 'condition' in data and isinstance(data['condition'], (dict, list)):
+            data['condition'] = json.dumps(data['condition'], ensure_ascii=False)
+        if 'effects' in data and isinstance(data['effects'], (list, dict)):
+            data['effects'] = json.dumps(data['effects'], ensure_ascii=False)
+
+        set_clause = ', '.join([f'{k} = ?' for k in data.keys()])
+        query = f'UPDATE keyword SET {set_clause} WHERE id = ?'
+        cursor.execute(query, list(data.values()) + [kw_id])
+        conn.commit()
+        rowcount = cursor.rowcount
+        conn.close()
+        return rowcount
+
+    def delete(self, kw_id):
+        conn = connect_database(self.db_path)
+        cursor = conn.cursor()
+        cursor.execute('DELETE FROM keyword WHERE id = ?', (kw_id,))
+        conn.commit()
+        rowcount = cursor.rowcount
+        conn.close()
+        return rowcount
+
+
 
 def dumpJson(output_path=None, db_path=None):
     """
@@ -302,6 +631,25 @@ def updateDb(db_path=None):
                 avaliable_location TEXT,
                 fetter TEXT,
                 hate_matrix TEXT
+            )
+        ''')
+        # 关键字注册表，用于可视化管理常用关键词
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS keyword (
+                id TEXT PRIMARY KEY,
+                name TEXT,
+                description TEXT,
+                type TEXT,
+                trigger TEXT,
+                condition TEXT,
+                effects TEXT
+            )
+        ''')
+        # character 额外字段元数据表：记录动态添加到 character 表中的列及其中文标签
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS character_extra_fields (
+                col_id TEXT PRIMARY KEY,
+                label TEXT
             )
         ''')
     else:

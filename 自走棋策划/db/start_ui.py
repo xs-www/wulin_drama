@@ -2,13 +2,13 @@
 """
 快速启动 Character 数据库管理 UI
 """
-import sys
+import sys, os
 from pathlib import Path
 
 # 添加当前目录到路径
-sys.path.insert(0, str(Path(__file__).resolve().parent))
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from ui import main
+from editor_launcher import main
 
 if __name__ == '__main__':
     print("正在启动 Character 数据库管理界面...")
