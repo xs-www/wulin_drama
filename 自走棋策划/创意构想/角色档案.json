@@ -1,0 +1,13 @@
+/*木头人*/
+{
+"id"："0000",
+"name":"wooden_man",
+"atk":1,
+"hp":1000,
+"energy":3,
+"speed":5,
+"price":1,
+"weapon":fist,
+"fetter":["None"],
+"hate":["None"]
+}
