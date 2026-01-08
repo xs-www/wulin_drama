@@ -1,0 +1,15 @@
+{
+  "table": "fetter",
+  "primary_key": ["id","people_count"],
+  "columns": [
+    {"name":"id","sql_type":"TEXT","nullable":false,"pk":true,"python_type":"str"},
+    {"name":"people_count","sql_type":"INTEGER","nullable":false,"pk":true,"python_type":"int"},
+    {"name":"info","sql_type":"TEXT","nullable":true,"pk":false,"python_type":"str"}
+  ],
+  "ddl": "CREATE TABLE IF NOT EXISTS fetter (\n    id TEXT NOT NULL,\n    people_count INTEGER NOT NULL,\n    info TEXT,\n    PRIMARY KEY (id, people_count)\n);",
+  "templates": {
+    "select_by_id_and_count": "SELECT * FROM fetter WHERE id = ? AND people_count = ?",
+    "delete_by_id_and_count": "DELETE FROM fetter WHERE id = ? AND people_count = ?",
+    "insert_template": "自动生成（基于 columns）"
+  }
+}

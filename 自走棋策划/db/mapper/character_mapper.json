@@ -1,0 +1,26 @@
+{
+  "table": "character",
+  "primary_key": ["id"],
+  "columns": [
+    {"name":"id","sql_type":"TEXT","nullable":false,"pk":true,"python_type":"str"},
+    {"name":"name","sql_type":"TEXT","nullable":false,"pk":false,"python_type":"str"},
+    {"name":"localization","sql_type":"TEXT","nullable":true,"pk":false,"python_type":"str"},
+    {"name":"attack_power","sql_type":"INTEGER","nullable":false,"default":4,"pk":false,"python_type":"int"},
+    {"name":"health_points","sql_type":"INTEGER","nullable":false,"default":8,"pk":false,"python_type":"int"},
+    {"name":"speed","sql_type":"INTEGER","nullable":false,"default":2,"pk":false,"python_type":"int"},
+    {"name":"hate_value","sql_type":"INTEGER","nullable":false,"default":1,"pk":false,"python_type":"int"},
+    {"name":"price","sql_type":"INTEGER","nullable":false,"default":1,"pk":false,"python_type":"int"},
+    {"name":"weapon","sql_type":"TEXT","nullable":true,"pk":false,"python_type":"str"},
+    {"name":"energy","sql_type":"INTEGER","nullable":false,"default":0,"pk":false,"python_type":"int"},
+    {"name":"avaliable_location","sql_type":"TEXT","nullable":true,"pk":false,"python_type":"str"},
+    {"name":"hate_matrix","sql_type":"TEXT","nullable":true,"pk":false,"python_type":"list"},
+    {"name":"max_initiative","sql_type":"TEXT","nullable":true,"pk":false,"python_type":"str"}
+  ],
+  "ddl": "CREATE TABLE IF NOT EXISTS character (\n    id TEXT PRIMARY KEY,\n    name TEXT NOT NULL,\n    localization TEXT,\n    attack_power INTEGER DEFAULT 4,\n    health_points INTEGER DEFAULT 8,\n    speed INTEGER DEFAULT 2,\n    hate_value INTEGER DEFAULT 1,\n    price INTEGER DEFAULT 1,\n    weapon TEXT,\n    energy INTEGER DEFAULT 0,\n    avaliable_location TEXT,\n    hate_matrix TEXT,\n    \"max_initiative\" TEXT\n);",
+  "templates": {
+    "select_by_id": "SELECT * FROM character WHERE id = ?",
+    "delete_by_id": "DELETE FROM character WHERE id = ?",
+    "insert_template": "自动生成（基于 columns）",
+    "update_template": "自动生成（基于 columns 与主键）"
+  }
+}
