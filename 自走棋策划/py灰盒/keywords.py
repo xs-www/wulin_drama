@@ -7,6 +7,35 @@ def keywordFactory(keyword_name: str):
     }
     return keyword_classes.get(keyword_name, None)
 
+
+sheild = {
+    "id": "sheild",
+    "name": "护盾",
+    "description": "抵消一次受到的伤害",
+    "type": "pessive",
+    "trigger": "onGetHurt",
+    "condition": [
+        {
+            "type": "has_statu",
+            "param": "sheild"
+        }
+    ],
+    "effects": [
+        {
+            "type": "modify_attr",
+            "param": "DMG=0",
+            "mode": "damage"
+        },
+        {
+            "type": "remove_statu",
+            "param": "sheild",
+            "mode": "self"
+        }
+    ]
+}
+
+
+
 class Sheild:
 
     uuid_dict = {}

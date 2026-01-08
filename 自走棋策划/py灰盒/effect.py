@@ -4,9 +4,113 @@ effect.py - 实现效果(Effect)、增益/减益(Buff)和增益列表(BuffList)�
 
 from typing import Tuple, List, Dict, Optional
 from types import SimpleNamespace
+import re
 
+class Condition:
 
+    TYPE = SimpleNamespace(
+        ALWAYS="always",
+        CONSUNRG="consume_energy",
+        CONSUHP="consume_hp",
+        HASSTATU="has_statu"
+    )
+    """
+    条件类，表示触发效果的条件
+    """
+    def __init__(self, condi_type: str, param: Dict):
+        """
+        初始化条件
+        :param condition_type: 条件类型 (例如: "on_attack", "on_damage")
+        :param parameters: 条件参数字典
+        """
+        self.condi_type = condi_type
+        self.param = param
+
+    def check(self, **context) -> bool:
+        """
+        检查条件是否满足
+        :param context: 上下文参数，用于条件判断
+        :return: True表示条件满足，False表示不满足
+        """
+        match self.condi_type:
+            case Condition.TYPE.ALWAYS:
+                return True
+            case Condition.TYPE.CONSUNRG:
+                char = context.get("character", None)
+                required_energy = self.param.get("energy", 0)
+                return char.getInGameAttr("energy") >= required_energy
+            case Condition.TYPE.CONSUHP:
+                char = context.get("character", None)
+                required_hp = self.param.get("hp", 0)
+                return char.getInGameAttr("hp") >= required_hp
+            case Condition.TYPE.HASSTATU:
+                char = context.get("character", None)
+                statu_name = self.param.get("statu_name", "")
+                return char.hasStatu(statu_name)
+            case _:
+                return False
+    
+    def __str__(self):
+        return f"Condition({self.condi_type}, {self.param})"
+    
+    def __repr__(self):
+        return self.__str__()
+    
+    def byDict(cls, data: dict) -> "Condition":
+        """
+        通过字典创建Condition实例
+        :param data: 包含 type 和 param 的字典
+        :return: Condition实例
+        """
+        return cls(
+            condi_type=data.get("type", ""),
+            param=data.get("param", {})
+        )
+    
 class Effect:
+    """
+    
+    """
+    ATTRS = {
+        "ATK": "atk",
+        "HP": "hp",
+    }
+
+    def __init__(self, effect_type: str, param: str, mode: str):
+        """
+        
+        """
+        self.effect_type = effect_type
+        self.param = param
+        self.mode = mode
+    
+    def emphasize(self):
+        """
+        
+        """
+        match self.effect_type:
+            case "modify_attr":
+                pattern = re.compile(
+                    r'(?P<attr>[A-Z]+)'          # 1. 属性：任意大写字母串
+                    r'(?P<op>[+-=])'              # 2. 方向：+ 或 -
+                    r'(?P<val>[1-9]\d*)'         # 3. 数值：正整数（首位不能为 0）
+                    r'(?:(?P<is_pct>%)(?P<pct_base>[bmr]))?'  # 4. 可选：% 紧跟 b/m/r
+                )
+                info = pattern.fullmatch(self.param).groupdict()
+                info['attr'] = Effect.ATTRS.get(info['attr'], info['attr'].lower())
+                return info
+            case "add_buff":
+                pass
+            case "remove_buff":
+                pass
+            case "add_statu":
+                pass
+            case "remove_statu":
+                pass
+            case _:
+                pass
+
+'''class Effect:
     """
     效果类，表示单个属性修改效果
     """
@@ -97,7 +201,7 @@ class InstantEffect(Effect):
         :param type: 效果类型 (例如: "add", "multiply", "override")
         """
         super().__init__(_attr, _value, _type)
-
+'''
 class Buff:
     """
     增益/减益类，表示一个可叠加、有持续时间的效果组合

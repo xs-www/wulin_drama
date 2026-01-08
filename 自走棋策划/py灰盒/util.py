@@ -95,32 +95,6 @@ class Log:
 
 log = Log()
 
-class Buff:
-
-    def __init__(self, inflicator, bearer, name: str, duration: int, effect: dict):
-        
-        self.inflicator = inflicator
-        self.bearer = bearer
-
-        self.name = name
-        self.duration = duration  # 回合数
-        self.effect = effect      # 效果描述
-        self.buff_id = uuid.uuid4()
-
-    def isActive(self) -> bool:
-        return self.duration > 0
-    
-    def update(self):
-        if self.duration > 0:
-            self.duration -= 1
-
-class Effect:
-
-    def __init__(self, name: str, effect_type: str, value: float):
-        self.name = name
-        self.effect_type = effect_type
-        self.value = value
-
 def loadJsonConfig(file_path: str) -> dict:
     import json
     with open(file_path, 'r', encoding='utf-8') as file:

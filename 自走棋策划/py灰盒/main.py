@@ -4,6 +4,7 @@ import pygame, sys
 from simulator import * 
 from util import log, em
 from entity import Damage, Character
+from effect import Condition, Effect, Buff, BuffList
 from keywords import *
 
 
@@ -13,21 +14,20 @@ def main():
 
     pygame.init()
 
-    r_game_grid = GameGrid()
-    b_game_grid = GameGrid()
+    e1 = Effect(
+        "modify_attr", "HP+10%r", "self"
+    )
 
-    r_1 = Character.byId('0002')
-    r_1.draw()
-    
-    r_1.addKeyword("Sheild")
+    print(e1.emphasize())
 
-    r_1.getHurt(Damage(amount=3, damage_type="physical", source=None))
+    ch1 = Character.byId(1)
+    ch1.getHurt(Damage(amount=100, damage_type="physical", source=None))
 
-    r_1.draw()
+    ch1.draw()
 
-    r_1.getHurt(Damage(amount=3, damage_type="physical", source=None))
+    ch1.applyEffect(e1)
 
-    r_1.draw()
+    ch1.draw()
 
     #r_1.getHurt(Damage(amount=3, damage_type="physical", source=b_2))
     log.saveLog()  
