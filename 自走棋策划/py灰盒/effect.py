@@ -73,20 +73,30 @@ class Effect:
     """
     ATTRS = {
         "ATK": "atk",
+        "MHP": "max_hp",
         "HP": "hp",
+        "DMG": "damage",
+        "SPD": "speed",
+        "SPEED": "speed",
+        "NRG": "energy",
+        "ENERGY": "energy",
+        "HATE": "hate_value",
+        "CRTRA": "critical_rate",
+        "CRTDMG": "critical_damage"
     }
 
     def __init__(self, effect_type: str, param: str, mode: str):
         """
-        
+        初始化效果
         """
         self.effect_type = effect_type
         self.param = param
         self.mode = mode
     
-    def emphasize(self):
+    def parse(self):
         """
-        
+        解析效果参数字符串，返回结构化信息
+        :return: 解析后的信息字典
         """
         match self.effect_type:
             case "modify_attr":
@@ -98,6 +108,12 @@ class Effect:
                 )
                 info = pattern.fullmatch(self.param).groupdict()
                 info['attr'] = Effect.ATTRS.get(info['attr'], info['attr'].lower())
+                info['is_pct'] = True if info['is_pct'] else False
+                if info['is_pct']:
+                    if info['pct_base'] == 'm' and info['attr'] not in ['hp', 'energy']:
+                        info['pct_base'] = 'r'  # 非生命和能量属性，m视为r
+                    elif not info['pct_base']:
+                        info['pct_base'] = 'r'  # 默认百分比基于当前值
                 return info
             case "add_buff":
                 pass
@@ -109,6 +125,22 @@ class Effect:
                 pass
             case _:
                 pass
+    
+    @classmethod
+    def byList(cls, data: list) -> "Effect":
+        """
+        通过列表创建Effect实例
+        :param data: [effect_type, param, mode] 格式的列表
+        :return: Effect实例
+        """
+        if len(data) >= 3:
+            return cls(effect_type=data[0], param=data[1], mode=data[2])
+        else:
+            raise ValueError("列表至少需要包含 effect_type, param 和 mode")
+        
+    @classmethod
+    def byDict(cls, data: dict) -> "Effect":
+        return cls(data.get["typs"], data.get["param"], data.get["mode"])
 
 '''class Effect:
     """
@@ -238,6 +270,9 @@ class Buff:
                 effect_dict[attr] = value * self.layer
         return effect_dict
     
+    def getEffects(self) -> list:
+        return self.effect_list
+    
     def addLayer(self, num: int = 1):
         """
         增加Buff层数
@@ -283,6 +318,10 @@ class Buff:
     
     def __repr__(self):
         return self.__str__()
+    
+    @classmethod
+    def byDict(self):
+        pass
 
 
 class BuffList:
@@ -321,6 +360,12 @@ class BuffList:
                 else:
                     total_effects[attr] = value
         return total_effects
+    
+    def getEffects(self) -> list:
+        ls = []
+        for buff in self.buffs:
+            ls += buff.getEffects()
+        return ls
     
     def addBuff(self, buff: Buff):
         """

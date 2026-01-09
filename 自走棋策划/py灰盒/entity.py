@@ -3,66 +3,172 @@ from util import *
 from effect import BuffList, Buff, Effect
 from keywords import keywordFactory
 
-class Damage:
+class Entity(pygame.sprite.Sprite):
+    """
+    实体类，表示游戏中的基本单位
+    """
+    def __init__(self, attrs: dict = None):
+        super().__init__()
+        self.attrs = attrs if attrs is not None else {}
+
+    def setAttr(self, key, value):
+        """
+        设置属性值，支持嵌套 key，如 "aaa.bbb.ccc" -> attrs['aaa']['bbb']['ccc']
+        仅当目标 key 存在时设置，否则抛出 AttributeError（保持原有行为）。
+        """
+        parts = key.split('.') if isinstance(key, str) else [key]
+        node = self.attrs
+        # 遍历到父节点
+        for p in parts[:-1]:
+            if isinstance(node, dict) and p in node:
+                node = node[p]
+            else:
+                raise AttributeError(f"Attribute '{key}' not found")
+        last = parts[-1]
+        if isinstance(node, dict) and last in node:
+            node[last] = value
+            return True
+        else:
+            raise AttributeError(f"Attribute '{key}' not found")
+        
+    def getAttr(self, key, value = None):
+        """
+        支持嵌套查询，例如 "aaa.bbb" 会返回 attrs['aaa']['bbb']，找不到时抛出 AttributeError。
+        """
+        if '.' in key:
+            parts = key.split('.') if isinstance(key, str) else [key]
+            node = self.attrs
+            for p in parts:
+                if isinstance(node, dict) and p in node:
+                    node = node[p]
+                else:
+                    raise AttributeError(f"Attribute '{key}' not found")
+            return node
+        else:
+            def dfs(node):
+                if isinstance(node, dict):
+                    for k, v in node.items():
+                        if k == key:
+                            return v
+                        res = dfs(v)
+                        if res is not None:
+                            return res
+                return None
+            res = dfs(self.attrs)
+            if res is not None:
+                return res
+
+    def addAttr(self, key, value):
+        """
+        添加属性值，支持嵌套 key，如 "aaa.bbb.ccc" -> attrs['aaa']['bbb']['ccc']
+        如果中间节点不存在则创建，最终设置目标 key 的值为 value。
+        """
+        parts = key.split('.') if isinstance(key, str) else [key]
+        node = self.attrs
+        for p in parts[:-1]:
+            if isinstance(node, dict):
+                if p not in node:
+                    node[p] = {}
+                node = node[p]
+            else:
+                raise AttributeError(f"Cannot create nested attribute '{key}'")
+        last = parts[-1]
+        if isinstance(node, dict):
+            node[last] = value
+            return True
+        else:
+            raise AttributeError(f"Cannot set attribute '{key}'")
+
+    def applyEffect(self, effect: Effect):
+        log.console(f"{self} applyEffect called with effect: {effect}")
+        
+
+class Damage(Entity):
     """
     伤害类，表示一次伤害事件
     """
-    def __init__(self, source: "Character", amount: int, damage_type: str = "physical"):
+    def __init__(self, source: "Character", damage: int, damage_type: str = "physical"):
         """        
         初始化伤害事件
         :param self: 说明
         :param source: 伤害来源角色
         :type source: "Character"
-        :param amount: 伤害数值
-        :type amount: int
+        :param damage: 伤害数值
+        :type damage: int
         :param damage_type: 伤害类型
         :type damage_type: str
         """
-        self.source = source
-        self.amount = amount
-        self.damage_type = damage_type
-
-class Entity(pygame.sprite.Sprite):
-    """
-    实体类，表示游戏中的基本单位
-    """
-    def __init__(self, attrs: dict):
         super().__init__()
-        self.base_attrs = attrs if attrs else {
-            "atk": 1,
-            "hp": 10,
-            "speed": 1
-        }
-
-    def setPosition(self, position):
-        self.position = position
-
-    def getHurt(self, damage):
-
-        self.health_points -= damage
-        if self.health_points < 0:
-            self.health_points = 0
-
-    def isAlive(self) -> bool:
-
-        return self.health_points > 0
-
-    def move(self, new_position):
-        self.position = new_position
-
-    def __str__(self):
-        return f"Entity(Health: {self.health_points}, Position: {self.position})"
+        self.addAttr("source", source)
+        self.addAttr("damage", damage)
+        self.addAttr("damage_type", damage_type)
+    
+    def applyEffect(self, effect):
+        super().applyEffect(effect)
+        if effect.effect_type == "modify_attr":
+            eff = effect.parse()
+            op = eff['op']
+            val = int(eff['val'])
+            is_pct = eff['is_pct']
+            if is_pct:
+                base_value = self.getAttr("damage")
+                val = base_value * val // 100
+            else:
+                val = val
+            current_value = self.getAttr("damage")
+            match op:
+                case '+':
+                    new_value = current_value + val
+                case '-':
+                    new_value = current_value - val
+                case '=':
+                    new_value = val
+            self.setAttr("damage", new_value)
 
 ## todo
 ## 重构 Character 类
 ## base_attr, current_attr, max_attr
 ## 支持Effect, Buff 等机制
-class Character(pygame.sprite.Sprite):
+class Character(Entity):
     """
     角色类，表示游戏中的棋子
     """
     def __init__(self, attrs: dict):
         super().__init__()
+        self.addAttr("base.atk", attrs.get("attack_power", 1))
+        self.addAttr("base.hp", attrs.get("health_points", 10))
+        self.addAttr("base.speed", attrs.get("speed", 1))
+        self.addAttr("base.critical_rate", attrs.get("critical_rate", 0.0))
+        self.addAttr("base.critical_damage", attrs.get("critical_damage", 1.5))
+        self.addAttr("base.armor", attrs.get("armor", 0))
+        self.addAttr("base.energy", attrs.get("energy", 0))
+        self.addAttr("base.hate_value", attrs.get("hate_value", 1))
+
+        self.addAttr("max.hp", attrs.get("health_points", 10))
+        self.addAttr("max.energy", attrs.get("energy", 3))
+        self.addAttr("max.initiative", 10)
+
+        self.addAttr("hate_bias_matrix", attrs.get("hate_matrix", [[1, 1, 1],[1, 1, 1],[1, 1, 1]]))
+
+        self.addAttr("info.id", attrs.get("id", "0000"))
+        self.addAttr("info.position", ("None", -1))  # (row_name
+        self.addAttr("info.team_id", None)
+        self.addAttr("info.name", attrs.get("name", "Unknown"))
+        self.addAttr("info.price", attrs.get("price", 1))
+        self.addAttr("info.position_constraint", attrs.get("avaliable_location", []))
+        self.addAttr("info.weapon_constraint", attrs.get("weapon", []))
+        self.addAttr("info.fetters", attrs.get("fetter", []))
+
+        self.addAttr("current.atk", attrs.get("attack_power", 1))
+        self.addAttr("current.hp", attrs.get("health_points", 10))
+        self.addAttr("current.speed", attrs.get("speed", 1))
+        self.addAttr("current.critical_rate", 0.0)
+        self.addAttr("current.critical_damage", 1.5)
+        self.addAttr("current.armor", 0)
+        self.addAttr("current.energy", 0)
+        self.addAttr("current.hate_value", attrs.get("hate_value", 1))
+        self.addAttr("current.initiative", 0)
+
         self.base_attrs: dict = {
             "base_atk": attrs.get("attack_power", 1),
             "base_hp": attrs.get("health_points", 10),
@@ -79,20 +185,9 @@ class Character(pygame.sprite.Sprite):
             "hate_bias_matrix": attrs.get("hate_matrix", [[1, 1, 1],[1, 1, 1],[1, 1, 1]]),
         }
 
-        self.info: dict = {
-            "id": attrs.get("id", "0000"),
-            "position": ("None", -1),  # (row_name, index)
-            "team_id": None,
-            "name": attrs.get("name", "Unknown"),
-            "price": attrs.get("price", 1),
-            "position_constraint": attrs.get("avaliable_location", []),
-            "weapon_constraint": attrs.get("weapon", []),
-            "fetters": attrs.get("fetter", []),
-            "max_initiative": 10
-        }
-
         self.buffs = BuffList()
 
+        # delete later
         self.in_game_attrs: dict = {
             "initiative": 0,
             "max_initiative": 10,
@@ -105,6 +200,7 @@ class Character(pygame.sprite.Sprite):
             "hate_value": self.base_attrs["base_hate_value"]
         }
 
+        # delete later
         self.current_attrs = {
             "current_atk": self.base_attrs["base_atk"],
             "current_hp": self.base_attrs["base_hp"],
@@ -124,6 +220,7 @@ class Character(pygame.sprite.Sprite):
         }
 
         self.status: list = []
+        self.skills: list = []
 
         self.keywords: list = []
         self.keywords_dict = {}
@@ -138,6 +235,13 @@ class Character(pygame.sprite.Sprite):
     def removeStatus(self, status_name: str):
         if status_name in self.status:
             self.status.remove(status_name)
+
+    def updateAttrs(self):
+        effects = self.getAllEffects(effect_type = "modify_attr")
+        attr_bouns = {}
+        for e in effects:
+            info = e.parse()
+
 
     # @todo
     def updateInGameAttrs(self):
@@ -164,30 +268,17 @@ class Character(pygame.sprite.Sprite):
             elif bonus_type == Effect.MULTIPLY:
                 bonus_dict[attr] += self.base_attrs["base_" + attr_name] * effect_dict.get(attr, 0)
         pass
-
+    
+    
     def getAttr(self, key: str):
-        if key in self.base_attrs:
-            return self.base_attrs[key]
-        elif key in self.info:
-            return self.info[key]
-        elif key in self.current_attrs:
-            return self.current_attrs[key]
-        else:
-            raise AttributeError(f"Attribute '{key}' not found")
+        super().getAttr(key)
         
     def setAttr(self, key: str, value):
-        if key in self.base_attrs:
-            self.base_attrs[key] = value
-            return True
-        elif key in self.info:
-            self.info[key] = value
-            return True
-        elif key in self.current_attrs:
-            self.current_attrs[key] = value
-            return True
-        else:
-            raise AttributeError(f"Attribute '{key}' not found")
-    
+        before_value = super().getAttr(key)
+        if before_value != value:
+            super().setAttr(key, value)
+            em.broadcast('onAttrChange', character=self, attr=key, before=before_value, after=value)
+
     # delete later
     def getInGameAttr(self, key: str):
         if key in self.in_game_attrs:
@@ -204,19 +295,48 @@ class Character(pygame.sprite.Sprite):
             raise AttributeError(f"In-game attribute '{key}' not found")
 
     def getAttackDamage(self) -> Damage:
-        damage_amount = self.getAttr("current_atk")
-        return Damage(source=self, amount=damage_amount, damage_type="physical")
+        damage_amount = self.getAttr("current.atk")
+        return Damage(source=self, damage=damage_amount, damage_type="physical")
         
     def getHateValue(self) -> int:
-        return self.getAttr("current_hate_value") if self.isAlive() else 0
-    
+        return self.getAttr("current.hate_value") if self.isAlive() else 0
+
     def applyBuff(self, buff: Buff):
         self.buffs.addBuff(buff)
-    
+        self.updateAttrs()
+
+    def getResultofEffect(self, eff: dict) -> dict:
+        attr = eff['attr']
+        op = eff['op']
+        val = int(eff['val'])
+        is_pct = eff['is_pct']
+        pct_base = eff['pct_base']
+        if is_pct:
+            base_value = 0
+            match pct_base:
+                case 'b':
+                    base_value = self.getAttr("base." + attr)
+                case 'm':
+                    base_value = self.getAttr("max." + attr)
+                case 'r':
+                    base_value = self.getAttr("current." + attr)
+            val = base_value * val // 100
+        else:
+            val = val
+        match op:
+            case '+':
+                new_value = val
+            case '-':
+                new_value = -val
+        res = {}
+        res[f"current.{attr}"] = new_value
+        return res
+
     def applyEffect(self, effect: Effect):
+        super().applyEffect(effect)
         match effect.effect_type:
             case "modify_attr":
-                eff = effect.emphasize()
+                eff = effect.parse()
                 attr = eff['attr']
                 op = eff['op']
                 val = int(eff['val'])
@@ -226,15 +346,15 @@ class Character(pygame.sprite.Sprite):
                     base_value = 0
                     match pct_base:
                         case 'b':
-                            base_value = self.getAttr("base_" + attr, 0)
+                            base_value = self.getAttr("base." + attr)
                         case 'm':
-                            base_value = self.getAttr("max_" + attr)
+                            base_value = self.getAttr("max." + attr)
                         case 'r':
-                            base_value = self.getAttr("current_" + attr)
+                            base_value = self.getAttr("current." + attr)
                     val = base_value * val // 100
                 else:
                     val = val
-                current_value = self.getAttr("current_" + attr)
+                current_value = self.getAttr("current." + attr)
                 match op:
                     case '+':
                         new_value = current_value + val
@@ -242,23 +362,30 @@ class Character(pygame.sprite.Sprite):
                         new_value = current_value - val
                     case '=':
                         new_value = val
-                self.setAttr("current_" + attr, new_value)
+                self.setAttr("current." + attr, new_value)
             case _:
                 pass
+
+    def getAllEffects(self, effect_type = None) -> list:
+        ls = [self.buffs.getEffects()]
+
+        if effect_type:
+            ls = [ele for ele in ls if ele.effect_type == effect_type]
+        return ls
 
     def getEffectDict(self) -> dict:
         return mergeDicts([self.buffs.getEffectDict()])
 
     def isAlive(self) -> bool:
-        return self.getInGameAttr("current_hp") > 0
-    
+        return self.getAttr("current.hp") > 0
+
     def getHurt(self, damage: Damage):
         em.broadcast('beforeGetHurt', target=self, damage=damage)
         em.broadcast('onGetHurt', target=self, damage=damage)
-        current_hp = self.getInGameAttr("current_hp")
-        if damage.amount > 0:
-            log.console(f"{self.getAttr('name')} 受到 {damage.amount} 点{damage.damage_type}伤害！", "DAMAGE")
-            self.setInGameAttr("current_hp", max(0, current_hp - damage.amount))
+        current_hp = self.getAttr("current.hp")
+        if damage.getAttr("damage") > 0:
+            log.console(f"{self.getAttr('name')} 受到 {damage.getAttr('damage')} 点{damage.getAttr('damage_type')}伤害！", "DAMAGE")
+            self.setAttr("current.hp", max(0, current_hp - damage.getAttr("damage")))
             em.broadcast('afterGetHurt', target=self, damage=damage)
         
     @staticmethod
@@ -269,7 +396,7 @@ class Character(pygame.sprite.Sprite):
                     "+" + "-" * 11 + "+",
                     "|" + " " * 11 + "|",
                     "|" + " " * 11 + "|",
-                    "| " + str(char.getInGameAttr("atk")).rjust(4) + "/" + str(char.getInGameAttr("current_hp")).ljust(4) + " |",
+                    "| " + str(char.getAttr("current.atk")).rjust(4) + "/" + str(char.getAttr("current.hp")).ljust(4) + " |",
                     "+" + "-" * 11 + "+"
                 ]
                 return il
@@ -303,6 +430,9 @@ class Character(pygame.sprite.Sprite):
             return True
         return False
 
+    def doAct(self):
+        pass
+
     @classmethod
     def byId(cls, char_id):
 
@@ -325,5 +455,5 @@ class Equipment:
 
 
 if __name__ == "__main__":
-    char = Character.byId("0002")
-    char.draw()
+
+    pass

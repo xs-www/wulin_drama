@@ -15,13 +15,25 @@ def main():
     pygame.init()
 
     e1 = Effect(
-        "modify_attr", "HP+10%r", "self"
+        "modify_attr", "HP+10%b", "self"
     )
 
-    print(e1.emphasize())
+    e2 = Effect(
+        "modify_attr", "DMG+20%r", "damage"
+    )
+
+    e3 = Effect(
+        "modify_attr", "ATK+10", "self"
+    )
+
+    bf1 = Buff("test", [e1, e3], 5, 1, -1)
+
+    print(e1.parse())
 
     ch1 = Character.byId(1)
-    ch1.getHurt(Damage(amount=100, damage_type="physical", source=None))
+    ch1.applyBuff(bf1)
+
+    
 
     ch1.draw()
 
