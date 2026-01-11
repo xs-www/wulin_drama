@@ -15,7 +15,7 @@ def main():
     pygame.init()
 
     e1 = Effect(
-        "modify_attr", "HP+10%b", "self"
+        "modify_attr", "HP+10%r", "self"
     )
 
     e2 = Effect(
@@ -28,21 +28,21 @@ def main():
 
     bf1 = Buff("test", [e1, e3], 5, 1, -1)
 
-    print(e1.parse())
-
     ch1 = Character.byId(1)
+
+    ch1.draw()
+
+    ch1.getHurt(Damage(damage=120, damage_type="physical", source=None))
+    
     ch1.applyBuff(bf1)
+
+    ch1.draw()
+
 
     
 
-    ch1.draw()
-
-    ch1.applyEffect(e1)
-
-    ch1.draw()
-
     #r_1.getHurt(Damage(amount=3, damage_type="physical", source=b_2))
-    log.saveLog()  
+    #log.saveLog()  
 
     pygame.quit()
     sys.exit()

@@ -12,12 +12,13 @@ class Condition:
         ALWAYS="always",
         CONSUNRG="consume_energy",
         CONSUHP="consume_hp",
-        HASSTATU="has_statu"
+        HASSTATU="has_statu",
+        GOTHURT="got_hurt"
     )
     """
     条件类，表示触发效果的条件
     """
-    def __init__(self, condi_type: str, param: Dict):
+    def __init__(self, condi_type: str, param):
         """
         初始化条件
         :param condition_type: 条件类型 (例如: "on_attack", "on_damage")
@@ -38,15 +39,18 @@ class Condition:
             case Condition.TYPE.CONSUNRG:
                 char = context.get("character", None)
                 required_energy = self.param.get("energy", 0)
-                return char.getInGameAttr("energy") >= required_energy
+                return char.getAttr("current.energy") >= required_energy
             case Condition.TYPE.CONSUHP:
                 char = context.get("character", None)
                 required_hp = self.param.get("hp", 0)
-                return char.getInGameAttr("hp") >= required_hp
+                return char.getAttr("current.hp") >= required_hp
             case Condition.TYPE.HASSTATU:
                 char = context.get("character", None)
                 statu_name = self.param.get("statu_name", "")
-                return char.hasStatu(statu_name)
+                return char.hasStatus(statu_name)
+            case Condition.TYPE.GOTHURT:
+                char = context.get("character", None)
+                return char.getAttr("current.hp") < char.getAttr("max.hp")
             case _:
                 return False
     
@@ -66,6 +70,8 @@ class Condition:
             condi_type=data.get("type", ""),
             param=data.get("param", {})
         )
+    
+ALWAYS_CONDITION = Condition(Condition.TYPE.ALWAYS, None)
     
 class Effect:
     """
@@ -389,6 +395,58 @@ class BuffList:
     def __repr__(self):
         return self.__str__()
 
+class Skill:
+    """
+    技能类，表示角色的技能
+    self.info: dict - 存储技能的各种信息
+    例如:
+    {
+        "id": "技能id",
+        "name": "技能名称",
+        "decription": "技能描述",
+        "type": "技能种类",
+        "trigger": "事件触发器",         //参照 事件文档.md
+        "condition": [                  //参照 条件文档.md
+            {
+                "type": "条件类型",
+                "param": "条件参数"
+            },
+            ...
+        ],
+        "effect": [                     //参照 效果文档.md
+            {
+                "type": "效果类型",
+                "param": "效果参数",
+                "mode": "生效模式"
+            },
+            ...
+        ]
+    }
+    """
+    
+    def __init__(self, info: dict = None):
+        self.info = {
+            "id": info.get("id", "") if info else "",
+            "name": info.get("name", "") if info else "",
+            "decription": info.get("decription", "") if info else "",
+            "type": info.get("type", "") if info else "",
+            "trigger": info.get("trigger", "") if info else "",
+            "condition": [Condition.byDict(c) for c in info.get("condition", [])] if info else [ALWAYS_CONDITION],
+            "effect": [Effect.byDict(e) for e in info.get("effect", [])] if info else []
+        }
+
+    def canUse(self, character) -> bool:
+        """
+        检查角色是否可以使用该技能
+        :param character: 角色对象
+        :return: True表示可以使用，False表示不可以
+        """
+        if self.info["type"] == "positive":
+            for condition in self.info["condition"]:
+                if not condition.check(character=character):
+                    return False
+            return True
+        return False
 
 if __name__ == "__main__":
     

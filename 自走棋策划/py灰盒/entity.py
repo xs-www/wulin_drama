@@ -80,6 +80,7 @@ class Entity(pygame.sprite.Sprite):
             raise AttributeError(f"Cannot set attribute '{key}'")
 
     def applyEffect(self, effect: Effect):
+        em.broadcast("onEffectApplied", entity=self, effect=effect)
         log.console(f"{self} applyEffect called with effect: {effect}")
         
 
@@ -241,8 +242,12 @@ class Character(Entity):
         attr_bouns = {}
         for e in effects:
             info = e.parse()
+            res = self.getResultofEffect(info)
+            attr_bouns = mergeDicts([attr_bouns, res])
 
-
+        for attr, bonus in attr_bouns.items():
+            current_value = self.getAttr(attr)
+            self.setAttr(attr, current_value + bonus)
     # @todo
     def updateInGameAttrs(self):
         effect_dict = self.getEffectDict()
@@ -271,7 +276,7 @@ class Character(Entity):
     
     
     def getAttr(self, key: str):
-        super().getAttr(key)
+        return super().getAttr(key)
         
     def setAttr(self, key: str, value):
         before_value = super().getAttr(key)
@@ -337,37 +342,15 @@ class Character(Entity):
         match effect.effect_type:
             case "modify_attr":
                 eff = effect.parse()
-                attr = eff['attr']
-                op = eff['op']
-                val = int(eff['val'])
-                is_pct = eff['is_pct']
-                pct_base = eff['pct_base']
-                if is_pct:
-                    base_value = 0
-                    match pct_base:
-                        case 'b':
-                            base_value = self.getAttr("base." + attr)
-                        case 'm':
-                            base_value = self.getAttr("max." + attr)
-                        case 'r':
-                            base_value = self.getAttr("current." + attr)
-                    val = base_value * val // 100
-                else:
-                    val = val
-                current_value = self.getAttr("current." + attr)
-                match op:
-                    case '+':
-                        new_value = current_value + val
-                    case '-':
-                        new_value = current_value - val
-                    case '=':
-                        new_value = val
-                self.setAttr("current." + attr, new_value)
+                res = self.getResultofEffect(eff)
+                current_value = self.getAttr(list(res.keys())[0])
+                for attr, new_value in res.items():
+                    self.setAttr(attr, new_value)
             case _:
                 pass
 
     def getAllEffects(self, effect_type = None) -> list:
-        ls = [self.buffs.getEffects()]
+        ls = self.buffs.getEffects()
 
         if effect_type:
             ls = [ele for ele in ls if ele.effect_type == effect_type]
@@ -431,6 +414,10 @@ class Character(Entity):
         return False
 
     def doAct(self):
+        positive_skills = [skill for skill in self.skills if skill.isPositive()]
+        for skill in self.skills:
+            if skill.canUse(self):
+                return 
         pass
 
     @classmethod
@@ -456,4 +443,5 @@ class Equipment:
 
 if __name__ == "__main__":
 
+    c1 = Character.byId(1)
     pass
