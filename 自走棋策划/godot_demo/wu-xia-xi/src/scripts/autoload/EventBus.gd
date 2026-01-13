@@ -1,69 +1,99 @@
-# EventBus.gd
-## 全局事件总线（Global Event Bus）
-## 作为 AutoLoad 使用，任何地方通过 EventBus.on() / emit() 实现完全解耦的消息通信。
+## 全局事件管理器
+## 使用方式：
+##   装饰器：@EventBus.on("event_name")
+##   直接注册：EventBus.register("event_name", callback)
+##   触发事件：EventBus.broadcast("event_name", key=value)
 extends Node
 
-## 是否打印事件分发日志（仅 debug 用）
 @export var DEBUG := true
-## 若为 true，emit 时会通过 call_deferred 把回调推进主线程，避免多线程 emit 导致崩溃。
 @export var THREAD_SAFE := true
-## 事件名 -> Signal 映射表，运行时自动扩容，无需提前注册。
-var _signals : Dictionary = {}
 
-## 永久监听事件
-## @param event_name : 事件名，推荐用 snake_case，例如 "enemy_died"
-## @param callback   : 回调函数，签名 func(data: Dictionary)，data 由 emit 方决定
-func on(event_name: StringName, callback: Callable) -> void:
-	_get_or_creat(event_name).connect(callback)
-	if DEBUG: prints("[EventBus] on:", event_name, "callback:", callback)
-	pass
+# 事件监听器字典，结构：{事件名: [回调函数1, 回调函数2, ...]}
+var listeners : Dictionary = {}
 
-## 一次性监听：事件触发后自动取消注册
-## 用法与 on() 完全相同，但回调只会执行一次
-func once(event_name: StringName, callback: Callable) -> void:
-	var wrapper : Callable
-	wrapper = func(context=[]):
-		off(event_name, wrapper)	# 先删，确保只执行一次
-		callback.callv(context)		# 再调用用户真正逻辑
-	on(event_name, wrapper)
-	pass
+# 用于跟踪一次性监听器的包装器
+var _once_wrappers : Dictionary = {}
 
-## 取消监听
-## @param callback 必须与当初 on()/once() 传入的 **同一 Callable**，否则无法断开
-func off(event_name: StringName, callback: Callable) -> void:
-	var sig : Signal = _signals.get(event_name)
-	if sig and sig.is_connected(callback):
-		sig.disconnect(callback)
-		if DEBUG:
-			prints("[EventBus] off:", event_name, "callback:", callback)
-	pass
-
-## 派发事件
-## @param event_name : 要触发的事件名
-## @param args       : 任意字典，携带数据给监听者；建议 key 用 snake_case
-func emit(event_name: StringName, context: Dictionary = {}) -> void:
+func _init():
 	if DEBUG:
-		prints("[EventBus] emit:", event_name, "context:", context)
-	var sig : Signal = _get_or_creat(event_name)
-	if not sig:
+		prints("[EventBus] 事件管理器初始化成功。")
+
+## === 核心四个函数 ===
+
+## 注册事件监听器
+func register(event_name: StringName, callback: Callable) -> void:
+	"""
+	直接注册事件监听器
+	:param event_name: 事件名称
+	:param callback: 回调函数，函数签名需匹配事件参数
+	"""
+	if not event_name in listeners:
+		listeners[event_name] = []
+	
+	listeners[event_name].append(callback)
+	
+	if DEBUG:
+		prints("[EventBus] 注册事件:", event_name, "回调:", _get_callback_name(callback))
+
+## 注销事件监听器
+func unregister(event_name: StringName, callback: Callable) -> void:
+	"""
+	注销事件监听器
+	:param event_name: 事件名称
+	:param callback: 需移除的回调函数
+	"""
+	if event_name in listeners:
+		var index = listeners[event_name].find(callback)
+		if index != -1:
+			listeners[event_name].remove_at(index)
+			
+			# 清理一次性监听器的映射
+			if _once_wrappers.has(callback):
+				_once_wrappers.erase(callback)
+			
+			if DEBUG:
+				prints("[EventBus] 注销事件:", event_name, "回调:", _get_callback_name(callback))
+		
+		# 如果事件没有监听器了，清理数组
+		if listeners[event_name].size() == 0:
+			listeners.erase(event_name)
+
+## 广播（触发）事件
+func broadcast(event_name: StringName, context: Dictionary) -> void:
+	"""
+	广播（触发）事件，将 context 作为参数传递给所有监听器
+	:param event_name: 事件名称
+	:param context: 任意关键字参数
+	"""
+	if DEBUG:
+		prints("[EventBus] 事件触发:", event_name, "参数:", context)
+	
+	if not event_name in listeners:
 		if DEBUG:
-			prints("[EventBus] 无监听者，事件被忽略:", event_name)
+			prints("[EventBus] 事件无监听者:", event_name)
 		return
 	
-	if THREAD_SAFE:
-		call_deferred("_do_emit", sig, context)
-	else:
-		_do_emit(sig, context)
-	pass
+	# 获取当前监听器的副本，避免在迭代时修改
+	var callbacks = listeners[event_name].duplicate()
 	
-## 获取或动态创建 Signal
-## @return 与 event_name 绑定的 Signal 实例
-func _get_or_creat(event_name: StringName) -> Signal:
-	if not _signals.has(event_name):
-		_signals[event_name] = Signal()
-	return _signals[event_name]
+	if THREAD_SAFE:
+		call("_execute_callbacks", callbacks, context)
+	else:
+		_execute_callbacks(callbacks, context)
+		
+func _execute_callbacks(callbacks, context: Dictionary) -> void:
+	"""执行所有回调函数"""
+	for callback in callbacks:
+		if callback.is_valid():
+			# 将字典参数转换为关键字参数
+			callback.callv(context.values())
+		elif DEBUG:
+			prints("[EventBus] 无效回调，跳过:", _get_callback_name(callback))
 
-## 真正执行 emit 的地方
-## 分离出来是为了支持 call_deferred
-func _do_emit(sig: Signal, context: Dictionary) -> void:
-	sig.emit(context)
+func _get_callback_name(callback: Callable) -> String:
+	"""获取回调函数的名称（用于调试）"""
+	if callback.is_custom():
+		return "自定义回调"
+	elif callback.is_standard():
+		return callback.get_method()
+	return "未知回调"
