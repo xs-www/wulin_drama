@@ -1,0 +1,357 @@
+{
+  "0001": {
+    "name": "wooden_man",
+    "localization": "木头人",
+    "attack_power": 1,
+    "health_points": 1000,
+    "speed": 5,
+    "hate_value": 1,
+    "price": 1,
+    "weapon": "fist",
+    "energy": 3,
+    "avaliable_location": [
+      "front",
+      "back"
+    ],
+    "fetter": null,
+    "hate_matrix": [
+      [
+        1,
+        1,
+        1
+      ],
+      [
+        1,
+        1,
+        1
+      ],
+      [
+        1,
+        1,
+        1
+      ]
+    ],
+    "max_initiative": "10",
+    "id": "0001"
+  },
+  "0002": {
+    "name": "1up",
+    "localization": "一前",
+    "attack_power": 1,
+    "health_points": 21,
+    "speed": 5,
+    "hate_value": 1,
+    "price": 2,
+    "weapon": null,
+    "energy": 0,
+    "avaliable_location": null,
+    "fetter": null,
+    "hate_matrix": [
+      [
+        1,
+        1,
+        1
+      ],
+      [
+        1,
+        1,
+        1
+      ],
+      [
+        1,
+        1,
+        1
+      ]
+    ],
+    "max_initiative": "10",
+    "id": "0002"
+  },
+  "0003": {
+    "name": "1down",
+    "localization": "一后",
+    "attack_power": 3,
+    "health_points": 7,
+    "speed": 5,
+    "hate_value": 1,
+    "price": 2,
+    "weapon": null,
+    "energy": 0,
+    "avaliable_location": null,
+    "fetter": null,
+    "hate_matrix": [
+      [
+        1,
+        1,
+        1
+      ],
+      [
+        1,
+        1,
+        1
+      ],
+      [
+        1,
+        1,
+        1
+      ]
+    ],
+    "max_initiative": "10",
+    "id": "0003"
+  },
+  "0004": {
+    "name": "2up",
+    "localization": "二前",
+    "attack_power": 1,
+    "health_points": 28,
+    "speed": 5,
+    "hate_value": 1,
+    "price": 2,
+    "weapon": null,
+    "energy": 0,
+    "avaliable_location": null,
+    "fetter": null,
+    "hate_matrix": [
+      [
+        1,
+        1,
+        1
+      ],
+      [
+        1,
+        1,
+        1
+      ],
+      [
+        1,
+        1,
+        1
+      ]
+    ],
+    "max_initiative": "10",
+    "id": "0004"
+  },
+  "0005": {
+    "name": "2down",
+    "localization": "二后",
+    "attack_power": 3,
+    "health_points": 10,
+    "speed": 5,
+    "hate_value": 1,
+    "price": 2,
+    "weapon": null,
+    "energy": 0,
+    "avaliable_location": null,
+    "fetter": null,
+    "hate_matrix": [
+      [
+        1,
+        1,
+        1
+      ],
+      [
+        1,
+        1,
+        1
+      ],
+      [
+        1,
+        1,
+        1
+      ]
+    ],
+    "max_initiative": "10",
+    "id": "0005"
+  },
+  "0006": {
+    "name": "3up",
+    "localization": "三前",
+    "attack_power": 2,
+    "health_points": 28,
+    "speed": 5,
+    "hate_value": 1,
+    "price": 3,
+    "weapon": null,
+    "energy": 0,
+    "avaliable_location": null,
+    "fetter": null,
+    "hate_matrix": [
+      [
+        1,
+        1,
+        1
+      ],
+      [
+        1,
+        1,
+        1
+      ],
+      [
+        1,
+        1,
+        1
+      ]
+    ],
+    "max_initiative": "10",
+    "id": "0006"
+  },
+  "0007": {
+    "name": "3down",
+    "localization": "三后",
+    "attack_power": 4,
+    "health_points": 13,
+    "speed": 5,
+    "hate_value": 1,
+    "price": 3,
+    "weapon": null,
+    "energy": 0,
+    "avaliable_location": null,
+    "fetter": null,
+    "hate_matrix": [
+      [
+        1,
+        1,
+        1
+      ],
+      [
+        1,
+        1,
+        1
+      ],
+      [
+        1,
+        1,
+        1
+      ]
+    ],
+    "max_initiative": "10",
+    "id": "0007"
+  },
+  "0008": {
+    "name": "4up",
+    "localization": "四前",
+    "attack_power": 2,
+    "health_points": 43,
+    "speed": 5,
+    "hate_value": 1,
+    "price": 3,
+    "weapon": null,
+    "energy": 0,
+    "avaliable_location": null,
+    "fetter": null,
+    "hate_matrix": [
+      [
+        1,
+        1,
+        1
+      ],
+      [
+        1,
+        1,
+        1
+      ],
+      [
+        1,
+        1,
+        1
+      ]
+    ],
+    "max_initiative": "10",
+    "id": "0008"
+  },
+  "0009": {
+    "name": "4down",
+    "localization": "四后",
+    "attack_power": 4,
+    "health_points": 19,
+    "speed": 5,
+    "hate_value": 1,
+    "price": 3,
+    "weapon": null,
+    "energy": 0,
+    "avaliable_location": null,
+    "fetter": null,
+    "hate_matrix": [
+      [
+        1,
+        1,
+        1
+      ],
+      [
+        1,
+        1,
+        1
+      ],
+      [
+        1,
+        1,
+        1
+      ]
+    ],
+    "max_initiative": "10",
+    "id": "0009"
+  },
+  "0010": {
+    "name": "5up",
+    "localization": "五前",
+    "attack_power": 3,
+    "health_points": 43,
+    "speed": 5,
+    "hate_value": 1,
+    "price": 4,
+    "weapon": null,
+    "energy": 0,
+    "avaliable_location": null,
+    "fetter": null,
+    "hate_matrix": [
+      [
+        1,
+        1,
+        1
+      ],
+      [
+        1,
+        1,
+        1
+      ],
+      [
+        1,
+        1,
+        1
+      ]
+    ],
+    "max_initiative": "10",
+    "id": "0010"
+  },
+  "0011": {
+    "name": "5down",
+    "localization": "五后",
+    "attack_power": 5,
+    "health_points": 25,
+    "speed": 5,
+    "hate_value": 1,
+    "price": 4,
+    "weapon": null,
+    "energy": 0,
+    "avaliable_location": null,
+    "fetter": null,
+    "hate_matrix": [
+      [
+        1,
+        1,
+        1
+      ],
+      [
+        1,
+        1,
+        1
+      ],
+      [
+        1,
+        1,
+        1
+      ]
+    ],
+    "max_initiative": "10",
+    "id": "0011"
+  }
+}

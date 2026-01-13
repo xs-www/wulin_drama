@@ -15,3 +15,9 @@
 自走棋策划/py灰盒/__pycache__/grid.cpython-310.pyc
 自走棋策划/py灰盒/__pycache__/util.cpython-310.pyc
 自走棋策划/db/database.db
+
+# godot 引擎生成文件
+**/.import/
+**/.godot/
+自走棋策划/godot_demo/wu-xia-xi/addons/
+

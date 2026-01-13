@@ -14,6 +14,14 @@ config/name="wu_xia_xi"
 config/features=PackedStringArray("4.5", "Mobile")
 config/icon="res://icon.svg"
 
+[autoload]
+
+EventBus="*res://src/scripts/autoload/EventBus.gd"
+
+[editor_plugins]
+
+enabled=PackedStringArray("res://addons/godot-sqlite/plugin.cfg", "res://addons/talo/plugin.cfg")
+
 [rendering]
 
 renderer/rendering_method="mobile"
