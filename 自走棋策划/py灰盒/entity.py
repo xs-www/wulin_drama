@@ -3,6 +3,8 @@ from util import *
 from effect import BuffList, Buff, Effect
 from keywords import keywordFactory
 
+#from db.service.character_service import * 
+
 class Entity(pygame.sprite.Sprite):
     """
     实体类，表示游戏中的基本单位
@@ -377,8 +379,8 @@ class Character(Entity):
             if char.isAlive():
                 il = [
                     "+" + "-" * 11 + "+",
-                    "|" + " " * 11 + "|",
-                    "|" + " " * 11 + "|",
+                    "|" + str(char.getAttr("info.price")).ljust(11) + "|",
+                    "|" + char.getAttr("name").center(11) + "|",
                     "| " + str(char.getAttr("current.atk")).rjust(4) + "/" + str(char.getAttr("current.hp")).ljust(4) + " |",
                     "+" + "-" * 11 + "+"
                 ]
@@ -433,6 +435,22 @@ class Character(Entity):
     def __lt__(self, other: "Character"):
         return self.getInGameAttr("speed") + self.getInGameAttr("initiative") < other.getInGameAttr("speed") + other.getInGameAttr("initiative")
 
+    @staticmethod
+    def randomCharacter(level = 0):
+        wight_dict = {
+            0: [100, 0, 0, 0, 0, 0],
+            1: [80, 20, 0, 0, 0, 0],
+            2: [60, 25, 14, 1, 0, 0],
+            3: [37, 30, 20, 3, 0, 0],
+            4: [20, 40, 29, 10, 1, 0],
+            5: [10, 27, 40, 20, 3, 0],
+            6: [10, 15, 30, 35, 10, 1],
+            7: [5, 10, 20, 40, 20, 5],
+        }
+        import random
+        char_pool = [1, 2, 3, 4, 5, 6, 7]
+        return Character.byId(random.choice(char_pool))
+
 # @todo
 class Equipment:
 
@@ -444,4 +462,4 @@ class Equipment:
 if __name__ == "__main__":
 
     c1 = Character.byId(1)
-    pass
+    c1.draw()

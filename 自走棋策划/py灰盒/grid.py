@@ -33,6 +33,14 @@ class GameRow:
         except ValueError:
             return False
     
+    def removeCharacterByPosition(self, position: int) -> bool:
+        idx = position - 1  # Convert to 0-based index
+        if 0 <= idx < self.max_length and self.entities[idx] is not None:
+            self.entities[idx] = None
+            return True
+        else:
+            return False
+    
     def getPosition(self, character: Character) -> int:
         try:
             return (self.idx, self.entities.index(character) + 1)
