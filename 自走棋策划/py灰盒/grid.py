@@ -70,6 +70,12 @@ class GameRow:
                 return False
         return True
     
+    def isEmpty(self) -> bool:
+        for entity in self.entities:
+            if entity is not None:
+                return False
+        return True
+    
     def infoList(self) -> list[str]:
         il = []
         for e in self.entities:
@@ -84,6 +90,9 @@ class GameRow:
     def draw(self, draw_type = "terminal", screen = None, position = (0, 0)):
         match draw_type:
             case "terminal":
+                for i in range(self.max_length):
+                    print(str(i+1).rjust(7) if i == 0 else str(i+1).rjust(12), end="")
+                print()
                 for line in self.infoList():
                     print(line)
             case "pygame":
@@ -137,8 +146,8 @@ class GameGrid:
         if row in self.grid:
             if self.grid[row].setCharacter(character, idx):
                 position = (row, self.grid[row].getPosition(character)[1])
-                character.setAttr("position", position)
-                character.setAttr("team_id", self.team_id)
+                character.setAttr("info.position", position)
+                character.setAttr("info.team_id", self.team_id)
                 return True
         else:
             raise ValueError("Invalid row name")
@@ -173,6 +182,19 @@ class GameGrid:
             if not game_row.isAllDead():
                 return False
         return True
+    
+    @staticmethod
+    def randomGrid(stage=(1, 1)):
+        import random
+        new_grid = GameGrid()
+        positions = ["front", "middle", "back"]
+        for pos in positions:
+            num_chars = random.randint(0, 3)
+            for _ in range(num_chars):
+                char_id = random.randint(1, 10)  # Assuming character IDs range from 1 to 10
+                char = Character.byId(char_id)
+                new_grid.setCharacter(char, pos)
+        return new_grid
     
 class GameBoard:
     def __init__(self, red_group: GameGrid, blue_group: GameGrid):
@@ -211,7 +233,11 @@ class GameBoard:
             return None
 
 if __name__ == "__main__":
-    red_group = GameGrid()
-    blue_group = GameGrid()
-    board = GameBoard(red_group, blue_group)
-    board.draw()
+    gr = GameRow()
+    ch1 = Character.byId(1)
+    ch2 = Character.byId(2)
+    gr.setCharacter(ch1, 1)
+    gr.setCharacter(ch2, 2)
+    gr.draw()
+    print(gr.removeCharacterByPosition(1))
+    gr.draw()
