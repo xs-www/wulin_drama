@@ -1,0 +1,56 @@
+{
+    "CharacterDao": {
+        "fields": {
+            "id": {
+                "type": "TEXT",
+                "primary_key": true
+            },
+            "name": {
+                "type": "TEXT",
+                "not_null": true
+            },
+            "localization": {
+                "type": "TEXT"
+            },
+            "attack_power": {
+                "type": "INTEGER",
+                "default": 4
+            },
+            "health_points": {
+                "type": "INTEGER",
+                "default": 8
+            },
+            "speed": {
+                "type": "INTEGER",
+                "default": 2
+            },
+            "hate_value": {
+                "type": "INTEGER",
+                "default": 1
+            },
+            "price": {
+                "type": "INTEGER",
+                "default": 1
+            },
+            "weapon": {
+                "type": "TEXT"
+            },
+            "energy": {
+                "type": "INTEGER",
+                "default": 0
+            },
+            "avaliable_location": {
+                "type": "TEXT"
+            },
+            "fetter": {
+                "type": "TEXT"
+            },
+            "hate_matrix": {
+                "type": "TEXT"
+            }
+        },
+        "create_table_query": "CREATE TABLE IF NOT EXISTS characters (\n        id TEXT PRIMARY KEY, name TEXT NOT NULL, localization TEXT, attack_power INTEGER DEFAULT 4, health_points INTEGER DEFAULT 8, speed INTEGER DEFAULT 2, hate_value INTEGER DEFAULT 1, price INTEGER DEFAULT 1, weapon TEXT, energy INTEGER DEFAULT 0, avaliable_location TEXT, fetter TEXT, hate_matrix TEXT\n        );",
+        "insert_query": "INSERT INTO characters (id, name, localization, attack_power, health_points, speed, hate_value, price, weapon, energy, avaliable_location, fetter, hate_matrix) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);",
+        "update_query": "UPDATE characters SET name = ?, localization = ?, attack_power = ?, health_points = ?, speed = ?, hate_value = ?, price = ?, weapon = ?, energy = ?, avaliable_location = ?, fetter = ?, hate_matrix = ? WHERE id = ?;"
+    }
+}

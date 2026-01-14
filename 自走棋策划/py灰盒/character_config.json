@@ -3,7 +3,7 @@
     "name": "wooden_man",
     "localization": "木头人",
     "attack_power": 1,
-    "health_points": 1000,
+    "health_points": 20,
     "speed": 5,
     "hate_value": 1,
     "price": 1,

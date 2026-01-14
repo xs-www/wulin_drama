@@ -14,7 +14,7 @@ CREATE TABLE character (
                 fetter TEXT,
                 hate_matrix TEXT
             , "max_initiative" TEXT);
-INSERT INTO "character" VALUES('0001','wooden_man','木头人',1,1000,5,1,1,'fist',3,'["front", "back"]',NULL,'[[1, 1, 1], [1, 1, 1], [1, 1, 1]]','10');
+INSERT INTO "character" VALUES('0001','wooden_man','木头人',1,20,5,1,1,'fist',3,'["front", "back"]',NULL,'[[1, 1, 1], [1, 1, 1], [1, 1, 1]]','10');
 INSERT INTO "character" VALUES('0002','1up','一前',1,21,5,1,2,NULL,0,NULL,NULL,'[[1, 1, 1], [1, 1, 1], [1, 1, 1]]','10');
 INSERT INTO "character" VALUES('0003','1down','一后',3,7,5,1,2,NULL,0,NULL,NULL,'[[1, 1, 1], [1, 1, 1], [1, 1, 1]]','10');
 INSERT INTO "character" VALUES('0004','2up','二前',1,28,5,1,2,NULL,0,NULL,NULL,'[[1, 1, 1], [1, 1, 1], [1, 1, 1]]','10');
