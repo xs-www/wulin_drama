@@ -2,15 +2,13 @@
     "CharacterDao": {
         "fields": {
             "id": {
-                "type": "TEXT",
-                "primary_key": true
+                "type": "INTEGER",
+                "primary_key": true,
+                "autoincrement": true
             },
             "name": {
                 "type": "TEXT",
                 "not_null": true
-            },
-            "localization": {
-                "type": "TEXT"
             },
             "attack_power": {
                 "type": "INTEGER",
@@ -42,15 +40,49 @@
             "avaliable_location": {
                 "type": "TEXT"
             },
-            "fetter": {
-                "type": "TEXT"
-            },
             "hate_matrix": {
                 "type": "TEXT"
             }
         },
-        "create_table_query": "CREATE TABLE IF NOT EXISTS characters (\n        id TEXT PRIMARY KEY, name TEXT NOT NULL, localization TEXT, attack_power INTEGER DEFAULT 4, health_points INTEGER DEFAULT 8, speed INTEGER DEFAULT 2, hate_value INTEGER DEFAULT 1, price INTEGER DEFAULT 1, weapon TEXT, energy INTEGER DEFAULT 0, avaliable_location TEXT, fetter TEXT, hate_matrix TEXT\n        );",
-        "insert_query": "INSERT INTO characters (id, name, localization, attack_power, health_points, speed, hate_value, price, weapon, energy, avaliable_location, fetter, hate_matrix) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);",
-        "update_query": "UPDATE characters SET name = ?, localization = ?, attack_power = ?, health_points = ?, speed = ?, hate_value = ?, price = ?, weapon = ?, energy = ?, avaliable_location = ?, fetter = ?, hate_matrix = ? WHERE id = ?;"
+        "create_table_query": "CREATE TABLE IF NOT EXISTS Character (\n        id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, attack_power INTEGER DEFAULT 4, health_points INTEGER DEFAULT 8, speed INTEGER DEFAULT 2, hate_value INTEGER DEFAULT 1, price INTEGER DEFAULT 1, weapon TEXT, energy INTEGER DEFAULT 0, avaliable_location TEXT, hate_matrix TEXT\n        );",
+        "insert_query": "INSERT INTO Character (id, name, attack_power, health_points, speed, hate_value, price, weapon, energy, avaliable_location, hate_matrix) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);",
+        "update_query": "UPDATE Character SET \n        name = ?, attack_power = ?, health_points = ?, speed = ?, hate_value = ?, price = ?, weapon = ?, energy = ?, avaliable_location = ?, hate_matrix = ? WHERE id = ?;"
+    },
+    "FetterDao": {
+        "fields": {
+            "id": {
+                "type": "TEXT",
+                "not_null": true,
+                "primary_key": true
+            },
+            "numofpeople": {
+                "type": "INTEGER",
+                "not_null": true,
+                "primary_key": true
+            },
+            "description": {
+                "type": "TEXT"
+            }
+        },
+        "create_table_query": "CREATE TABLE IF NOT EXISTS Fetter (\n        id TEXT NOT NULL, numofpeople INTEGER NOT NULL, description TEXT\n        , PRIMARY KEY (id, numofpeople)\n        );",
+        "insert_query": "INSERT INTO Fetter (id, numofpeople, description) VALUES (?, ?, ?);",
+        "update_query": "UPDATE Fetter SET \n        description = ? WHERE id = ? AND numofpeople = ?;"
+    },
+    "CharacterFetterDao": {
+        "fields": {
+            "character_id": {
+                "type": "INTEGER",
+                "not_null": true,
+                "primary_key": true
+            },
+            "fetter_id": {
+                "type": "TEXT",
+                "not_null": true,
+                "primary_key": true
+            }
+        },
+        "create_table_query": "CREATE TABLE IF NOT EXISTS CharacterFetter (\n        character_id INTEGER NOT NULL, fetter_id TEXT NOT NULL\n        , PRIMARY KEY (character_id, fetter_id)\n        );",
+        "insert_query": "INSERT INTO CharacterFetter (character_id, fetter_id) VALUES (?, ?);",
+        "update_query": "UPDATE CharacterFetter SET \n         WHERE character_id = ? AND fetter_id = ?;"
     }
 }
