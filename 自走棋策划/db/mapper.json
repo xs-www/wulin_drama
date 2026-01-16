@@ -31,22 +31,29 @@
                 "default": 1
             },
             "weapon": {
-                "type": "TEXT"
+                "type": "TEXT",
+                "default": "'[]'"
             },
             "energy": {
                 "type": "INTEGER",
                 "default": 0
             },
             "avaliable_location": {
-                "type": "TEXT"
+                "type": "TEXT",
+                "default": "'[]'"
             },
             "hate_matrix": {
-                "type": "TEXT"
+                "type": "TEXT",
+                "default": "'[[1,1,1],[1,1,1],[1,1,1]]'"
+            },
+            "max_initiative": {
+                "type": "INTEGER",
+                "default": "10"
             }
         },
-        "create_table_query": "CREATE TABLE IF NOT EXISTS Character (\n        id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, attack_power INTEGER DEFAULT 4, health_points INTEGER DEFAULT 8, speed INTEGER DEFAULT 2, hate_value INTEGER DEFAULT 1, price INTEGER DEFAULT 1, weapon TEXT, energy INTEGER DEFAULT 0, avaliable_location TEXT, hate_matrix TEXT\n        );",
-        "insert_query": "INSERT INTO Character (id, name, attack_power, health_points, speed, hate_value, price, weapon, energy, avaliable_location, hate_matrix) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);",
-        "update_query": "UPDATE Character SET \n        name = ?, attack_power = ?, health_points = ?, speed = ?, hate_value = ?, price = ?, weapon = ?, energy = ?, avaliable_location = ?, hate_matrix = ? WHERE id = ?;"
+        "create_table_query": "CREATE TABLE IF NOT EXISTS Character (\n        id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, attack_power INTEGER DEFAULT 4, health_points INTEGER DEFAULT 8, speed INTEGER DEFAULT 2, hate_value INTEGER DEFAULT 1, price INTEGER DEFAULT 1, weapon TEXT DEFAULT '[]', energy INTEGER DEFAULT 0, avaliable_location TEXT DEFAULT '[]', hate_matrix TEXT DEFAULT '[[1,1,1],[1,1,1],[1,1,1]]', max_initiative INTEGER DEFAULT 10\n        );",
+        "insert_query": "INSERT INTO Character (id, name, attack_power, health_points, speed, hate_value, price, weapon, energy, avaliable_location, hate_matrix, max_initiative) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);",
+        "update_query": "UPDATE Character SET \n        name = ?, attack_power = ?, health_points = ?, speed = ?, hate_value = ?, price = ?, weapon = ?, energy = ?, avaliable_location = ?, hate_matrix = ?, max_initiative = ? WHERE id = ?;"
     },
     "FetterDao": {
         "fields": {

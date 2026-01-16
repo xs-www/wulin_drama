@@ -1,9 +1,14 @@
-import new_dao as dao
+
 from uuid6 import uuid7
-    
+import json, sys, os
+
+# 添加当前目录到路径
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+import dao as dao
 class CharacterService:
     def __init__(self):
-        self.char_dao = dao.CharacterDao()
+        self.char_dao : dao.CharacterDao = dao.CharacterDao()
+        self.char_fetter_dao : dao.CharacterFetterDao = dao.CharacterFetterDao()
 
     def select_all_characters(self):
         """
@@ -12,6 +17,14 @@ class CharacterService:
         """
         conn = dao.connect_database()
         res = self.char_dao.select_all_characters(conn)
+        for char in res:
+            for k, v in char.items():
+                if k in ['weapon', 'avaliable_location', 'hate_matrix']:
+                    if v:
+                        char[k] = json.loads(v.replace("'", ''))
+                    else:
+                        char[k] = []
+            char["fetters"] = self.char_fetter_dao.get_fetters_by_char_id(char.get("id"), conn)
         conn.close()
         return res
 
@@ -23,7 +36,13 @@ class CharacterService:
         """
         conn = dao.connect_database()
         res = self.char_dao.select_character_by_id(char_id, conn)
-        res["fetters"] = dao.CharacterFetterDao().get_fetters_by_char_id(char_id, conn)
+        for k, v in res.items():
+            if k in ['weapon', 'avaliable_location', 'hate_matrix']:
+                if v:
+                    res[k] = json.loads(v.replace("'", ''))
+                else:
+                    res[k] = []
+        res["fetters"] = self.char_fetter_dao.get_fetters_by_char_id(res.get("id"), conn)
         conn.close()
         return res
 
@@ -35,6 +54,14 @@ class CharacterService:
         """
         conn = dao.connect_database()
         res = self.char_dao.select_character_by_price(price, conn)
+        for char in res:
+            for k, v in char.items():
+                if k in ['weapon', 'avaliable_location', 'hate_matrix']:
+                    if v:
+                        char[k] = json.loads(v.replace("'", ''))
+                    else:
+                        char[k] = []
+            char["fetters"] = self.char_fetter_dao.get_fetters_by_char_id(char.get("id"), conn)
         conn.close()
         return res
 
@@ -43,8 +70,10 @@ class CharacterService:
         插入新角色
         :param character: 角色信息字典
         """
+        print(character)
         conn = dao.connect_database()
-        values = [character.pop("id", None)]
+        character.pop('id')
+        values = [None]
         for field in list(self.char_dao.mapper.get("fields").keys())[1:]:
             if field == "localization" and character.get("localization", None) is None:
                 default_value = character.get("name")
@@ -57,14 +86,13 @@ class CharacterService:
         # 处理羁绊关联
         fetters_name = character.get("fetters", [])
         fdao = dao.FetterDao()
-        cfdao = dao.CharacterFetterDao()
         for fetter_name in fetters_name:
             fetter_info = fdao.select_fetter_by_id(fetter_name, conn)
             if fetter_info is None:
                 raise ValueError(f"Fetter '{fetter_name}' does not exist")
             fetter_id = fetter_info[0].get("id")
             char_fetter_values = [cid, fetter_id]
-            cfdao.insert_character_fetter(char_fetter_values, conn)
+            self.char_fetter_dao.insert_character_fetter(char_fetter_values, conn)
 
         conn.commit()
         conn.close()
@@ -77,16 +105,37 @@ class CharacterService:
         :param updates: 更新内容字典
         """
         conn = dao.connect_database()
-        self.char_dao.update_character(char_id, updates, conn)
+        values = []
+        for field in list(self.char_dao.mapper.get("fields").keys())[1:]:
+            default_value = self.char_dao.mapper.get("fields").get(field).get("default", None)
+            value = updates.get(field, default_value)
+            if isinstance(value, (list, dict)):
+                value = json.dumps(value, ensure_ascii=False)
+            values.append(value)
+        self.char_dao.update_character(char_id, values, conn)
+
+        # 处理羁绊关联
+        fetters_name = json.loads(updates.get("fetters", "[]").replace("\'", "\""))
+        print(fetters_name)
+        fdao = dao.FetterDao()
+        self.char_fetter_dao.delete_character_fetter_by_char_id(char_id, conn)
+        for fetter_name in fetters_name:
+            fetter_info = fdao.select_fetter_by_id(fetter_name, conn)
+            if fetter_info is None:
+                raise ValueError(f"Fetter '{fetter_name}' does not exist")
+            fetter_id = fetter_info[0].get("id")
+            char_fetter_values = [char_id, fetter_id]
+            self.char_fetter_dao.insert_character_fetter(char_fetter_values, conn)
         conn.commit()
         conn.close()
+        return True
 
     def insert_column(self, column: dict):
         """
         向角色表中添加新列
-        :param column_name: 列名
-        :param column_type: 列类型
-        :param default_value: 默认值
+        :param name: 列名
+        :param type: 列类型
+        :param default: 默认值
         """
         conn = dao.connect_database()
         column_name = column.get("name", None)
@@ -102,6 +151,7 @@ class CharacterService:
         if not_null:
             column_info["not_null"] = True
         self.char_dao.insert_column_to_mapper(column_name, column_info)
+        dao.update_mapper("Character")
         self.char_dao.insert_column(column_name, column_type, default_value, not_null, conn)
 
         conn.commit()
@@ -137,6 +187,33 @@ class CharacterService:
             self.insert_character(char, conn)
         conn.commit()
         conn.close()
+
+    def get_next_character_id(self):
+        """
+        获取下一个可用的角色ID
+        :return: 下一个角色ID
+        """
+        conn = dao.connect_database()
+        res = self.char_dao.get_next_id(conn)
+        conn.close()
+        return res if res else 1
+    
+    def get_all_columns(self):
+        """"""
+        res = list(self.char_dao.mapper.get("fields").keys())
+        res.append("fetters")
+        return res
+
+    def dumpJson(self):
+        """
+        导出 JSON 文件
+        """
+        import os
+        characters = self.select_all_characters()
+        path = "data/characters/"
+        with open(os.path.join(path, "characters.json"), "w", encoding="utf-8") as f:
+            json.dump(characters, f, ensure_ascii=False, indent=4)
+
 
 class FetterService:
     def __init__(self):
@@ -188,7 +265,7 @@ class FetterService:
         conn.close()
         return
 
-    def update_fetter(self, fetter_id, updates: dict):
+    def update_fetter(self, fetter_key: tuple, updates: dict):
         """
         更新羁绊信息
         :param fetter_id: 羁绊ID
@@ -196,9 +273,31 @@ class FetterService:
         """
         conn = dao.connect_database()
         updates_list = list(updates.values())
-        self.fetter_dao.update_fetter(fetter_id, updates_list, conn)
+        self.fetter_dao.update_fetter(fetter_key, updates_list, conn)
         conn.commit()
         conn.close()
+        return True
+
+    def delete_fetter(self, fetter_key: tuple):
+        """
+        删除羁绊
+        :param fetter_key: 羁绊唯一标识 (ID, numofpeople)
+        """
+        conn = dao.connect_database()
+        self.fetter_dao.delete_fetter(*fetter_key, conn)
+        conn.commit()
+        conn.close()
+        return True
+
+    def dumpJson(self):
+        """
+        导出 JSON 文件
+        """
+        import os
+        fetters = self.get_all_fetters()
+        path = "data/fetters/"
+        with open(os.path.join(path, "fetters.json"), "w", encoding="utf-8") as f:
+            json.dump(fetters, f, ensure_ascii=False, indent=4)
     
 
 if __name__ == "__main__":
@@ -209,10 +308,9 @@ if __name__ == "__main__":
     cfdao = dao.CharacterFetterDao()
 
     try:
-        #fdao.insert_fetter(["峨眉", 3, "略"], conn)
-        print(cserv.select_character_by_id(2))
+        print(cserv.select_character_by_id(1))
     except Exception as e:
-        print("Error inserting fetters:", e)
+        print("Error", e)
 
     conn.commit()
     conn.close()
