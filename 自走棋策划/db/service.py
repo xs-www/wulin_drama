@@ -4,7 +4,8 @@ import json, sys, os
 
 # 添加当前目录到路径
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-import dao as dao
+import dao
+
 class CharacterService:
     def __init__(self):
         self.char_dao : dao.CharacterDao = dao.CharacterDao()
@@ -84,7 +85,7 @@ class CharacterService:
         cid = self.char_dao.insert_character(values, conn)
 
         # 处理羁绊关联
-        fetters_name = character.get("fetters", [])
+        fetters_name = json.loads(character.get("fetters", "[]").replace("\'", "\""))
         fdao = dao.FetterDao()
         for fetter_name in fetters_name:
             fetter_info = fdao.select_fetter_by_id(fetter_name, conn)

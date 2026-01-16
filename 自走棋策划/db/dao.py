@@ -326,7 +326,7 @@ class FetterDao:
         :return: 羁绊信息字典
         """
         cursor = conn.cursor()
-        cursor.execute("SELECT * FROM fetter WHERE id = ?", (fetter_id,))
+        cursor.execute("SELECT * FROM fetter WHERE id = ? ORDER BY numofpeople", (fetter_id,))
         rows = cursor.fetchall()
         if rows:
             return [dict(row) for row in rows]
