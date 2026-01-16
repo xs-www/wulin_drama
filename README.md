@@ -2,7 +2,7 @@
 
 > 武林主题的回合制自走棋游戏开发与武侠故事创作综合项目
 
-[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![License](https://img.shields.io/badge/license-EULA-blue.svg)](LICENSE)
 [![Python](https://img.shields.io/badge/python-3.x-blue.svg)](https://www.python.org/)
 
 ## 📖 项目简介
@@ -282,7 +282,7 @@ python -c "from dao import dumpJson; dumpJson()"
 
 ## 📄 许可证
 
-本项目采用 MIT 许可证 - 详见 [LICENSE](LICENSE) 文件
+本项目采用 EULA（最终用户许可协议）- 详见 [LICENSE](LICENSE) 文件
 
 ---
 
