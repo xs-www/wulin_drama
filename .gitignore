@@ -19,5 +19,6 @@
 # godot 引擎生成文件
 **/.import/
 **/.godot/
+**/*.import
 自走棋策划/godot_demo/wu-xia-xi/addons/
 

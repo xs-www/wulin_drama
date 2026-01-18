@@ -1,0 +1,22 @@
+[gd_scene load_steps=2 format=3 uid="uid://wf6636id0t1t"]
+
+[ext_resource type="Script" uid="uid://0ahy5gbdy7ta" path="res://src/scripts/texture_progress_bar.gd" id="2_akjgv"]
+
+[node name="CharacterSlot" type="MarginContainer"]
+custom_minimum_size = Vector2(240, 320)
+offset_right = 120.0
+offset_bottom = 160.0
+size_flags_horizontal = 0
+
+[node name="ColorRect" type="ColorRect" parent="."]
+layout_mode = 2
+color = Color(0.49411765, 1, 1, 1)
+
+[node name="health_bar" type="ProgressBar" parent="ColorRect"]
+layout_direction = 2
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 27.0
+grow_horizontal = 2
+script = ExtResource("2_akjgv")

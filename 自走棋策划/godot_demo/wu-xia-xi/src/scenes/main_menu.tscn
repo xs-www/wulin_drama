@@ -1,0 +1,115 @@
+[gd_scene load_steps=2 format=3 uid="uid://by56x7s0qxpb6"]
+
+[ext_resource type="Script" uid="uid://cdplgk8qqt11p" path="res://src/scripts/main_menu.gd" id="1_rm437"]
+
+[node name="MainMenu" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_rm437")
+
+[node name="TextureRect" type="TextureRect" parent="."]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="ColorRect" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 20
+theme_override_constants/margin_right = 20
+theme_override_constants/margin_bottom = 20
+
+[node name="option_buttons" type="VBoxContainer" parent="MarginContainer"]
+custom_minimum_size = Vector2(150, 0)
+layout_mode = 2
+size_flags_horizontal = 0
+size_flags_vertical = 8
+
+[node name="start" type="Button" parent="MarginContainer/option_buttons"]
+custom_minimum_size = Vector2(0, 50)
+layout_mode = 2
+focus_neighbor_right = NodePath("../../option_buttons2/mods")
+focus_neighbor_bottom = NodePath("../saves")
+text = "开始游戏"
+
+[node name="saves" type="Button" parent="MarginContainer/option_buttons"]
+layout_mode = 2
+focus_neighbor_top = NodePath("../start")
+focus_neighbor_right = NodePath("../../option_buttons2/mods")
+focus_neighbor_bottom = NodePath("../codex")
+text = "存档"
+
+[node name="codex" type="Button" parent="MarginContainer/option_buttons"]
+layout_mode = 2
+focus_neighbor_top = NodePath("../saves")
+focus_neighbor_right = NodePath("../../option_buttons2/more_games")
+focus_neighbor_bottom = NodePath("../options")
+text = "图鉴"
+
+[node name="options" type="Button" parent="MarginContainer/option_buttons"]
+layout_mode = 2
+focus_neighbor_top = NodePath("../codex")
+focus_neighbor_right = NodePath("../../option_buttons2/news")
+focus_neighbor_bottom = NodePath("../quit")
+text = "设置"
+
+[node name="quit" type="Button" parent="MarginContainer/option_buttons"]
+layout_mode = 2
+focus_neighbor_top = NodePath("../options")
+focus_neighbor_right = NodePath("../../option_buttons2/credits")
+text = "退出游戏"
+
+[node name="option_buttons2" type="VBoxContainer" parent="MarginContainer"]
+custom_minimum_size = Vector2(150, 0)
+layout_mode = 2
+size_flags_horizontal = 8
+size_flags_vertical = 8
+
+[node name="mods" type="Button" parent="MarginContainer/option_buttons2"]
+layout_mode = 2
+focus_neighbor_left = NodePath("../../option_buttons/start")
+focus_neighbor_bottom = NodePath("../more_games")
+text = "模组"
+
+[node name="more_games" type="Button" parent="MarginContainer/option_buttons2"]
+layout_mode = 2
+focus_neighbor_left = NodePath("../../option_buttons/codex")
+focus_neighbor_top = NodePath("../mods")
+focus_neighbor_bottom = NodePath("../news")
+text = "更多游戏
+"
+
+[node name="news" type="Button" parent="MarginContainer/option_buttons2"]
+layout_mode = 2
+focus_neighbor_left = NodePath("../../option_buttons/options")
+focus_neighbor_top = NodePath("../more_games")
+focus_neighbor_bottom = NodePath("../credits")
+text = "新消息"
+
+[node name="credits" type="Button" parent="MarginContainer/option_buttons2"]
+layout_mode = 2
+focus_neighbor_left = NodePath("../../option_buttons/quit")
+focus_neighbor_top = NodePath("../news")
+text = "制作人名单
+"

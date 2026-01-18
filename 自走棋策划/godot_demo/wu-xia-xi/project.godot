@@ -11,6 +11,10 @@ config_version=5
 [application]
 
 config/name="wu_xia_xi"
+config/name_localized={
+"zh": "武林戏"
+}
+run/main_scene="res://src/scenes/main_menu.tscn"
 config/features=PackedStringArray("4.5", "Mobile")
 config/icon="res://icon.svg"
 
@@ -18,9 +22,14 @@ config/icon="res://icon.svg"
 
 EventBus="*res://src/scripts/autoload/EventBus.gd"
 
+[display]
+
+window/stretch/mode="canvas_items"
+window/stretch/aspect="expand"
+
 [editor_plugins]
 
-enabled=PackedStringArray("res://addons/godot-sqlite/plugin.cfg", "res://addons/talo/plugin.cfg")
+enabled=PackedStringArray("res://addons/godot-sqlite/plugin.cfg")
 
 [rendering]
 
