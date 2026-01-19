@@ -172,7 +172,6 @@ class CharacterManagerUI:
         # 获取完整数据
         #char = self.dao.read(char_id)
         char = self.control.get_character_by_id(char_id)
-        print("编辑 Character:", char)
         if char:
             dialog = CharacterDialog(self.root, "编辑 Character", char, control=self.control)
             if dialog.result:
@@ -182,7 +181,6 @@ class CharacterManagerUI:
                     if 'id' in update_data:
                         del update_data['id']
                     
-                    print(update_data)
                     res = self.control.update_character(char_id, update_data)
                     if res:
                         self.refresh_list()
@@ -313,7 +311,37 @@ class CharacterDialog:
             
             elif field_type == 'text':
                 # 特殊处理 fetter 字段：改为只读文本 + 打开羁绊选择窗口
-                if field_name == 'fetters':
+                if field_name in ('fetter', 'fetters'):
+                     container = ttk.Frame(scrollable_frame)
+                     container.grid(row=row, column=1, sticky=(tk.W, tk.E), pady=2)
+
+                     text_widget = tk.Text(container, width=40, height=4)
+                     text_widget.grid(row=0, column=0, sticky=(tk.W, tk.E))
+                     container.columnconfigure(0, weight=1)
+                     try:
+                         text_widget.config(state='disabled')
+                     except Exception:
+                         pass
+
+                     btn = ttk.Button(container, text='选择羁绊', command=lambda tw=text_widget: self.open_fetter_selector(tw))
+                     btn.grid(row=0, column=1, padx=5)
+
+                     # 如果是编辑模式，填充现有数据（显示为 JSON）
+                     if character and field_name in character:
+                         value = character[field_name]
+                         if value is not None:
+                             if isinstance(value, (list, dict)):
+                                 txt = json.dumps(value, ensure_ascii=False, indent=2)
+                             else:
+                                 txt = str(value)
+                             text_widget.config(state='normal')
+                             text_widget.delete(1.0, tk.END)
+                             text_widget.insert(1.0, txt)
+                             text_widget.config(state='disabled')
+
+                     self.entries[field_name] = text_widget
+                # 特殊处理仇恨偏好矩阵：只读文本 + 打开 3x3 编辑窗口
+                elif field_name == 'hate_matrix':
                     container = ttk.Frame(scrollable_frame)
                     container.grid(row=row, column=1, sticky=(tk.W, tk.E), pady=2)
 
@@ -325,7 +353,7 @@ class CharacterDialog:
                     except Exception:
                         pass
 
-                    btn = ttk.Button(container, text='选择羁绊', command=lambda tw=text_widget: self.open_fetter_selector(tw))
+                    btn = ttk.Button(container, text='编辑仇恨表', command=lambda tw=text_widget: self.open_hate_matrix_editor(tw))
                     btn.grid(row=0, column=1, padx=5)
 
                     # 如果是编辑模式，填充现有数据（显示为 JSON）
@@ -449,7 +477,17 @@ class CharacterDialog:
             text_widget.delete(1.0, tk.END)
             text_widget.insert(1.0, txt)
             text_widget.config(state='disabled')
-        
+
+    def open_hate_matrix_editor(self, text_widget: tk.Text):
+        """打开仇恨偏见矩阵对话框"""
+        dlg = HateBiasMatrixDialog(self.dialog)
+        if dlg.result is not None:
+            # 将选择结果写入只读文本框
+            txt = json.dumps(dlg.result, ensure_ascii=False, indent=2)
+            text_widget.config(state='normal')
+            text_widget.delete(1.0, tk.END)
+            text_widget.insert(1.0, txt)
+            text_widget.config(state='disabled')
 
 class ColumnDialog:
     """用于输入新列信息的对话框"""
@@ -618,3 +656,83 @@ class FetterSelectorDialog:
     def on_cancel(self):
         self.dialog.destroy()
 
+class HateBiasMatrixDialog:
+    """编辑 3x3 仇恨偏好矩阵的对话框，返回 3x3 的嵌套列表"""
+
+    def __init__(self, parent, initial_matrix=None, title='编辑仇恨偏好矩阵'):
+        self.result = None
+
+        self.dialog = tk.Toplevel(parent)
+        self.dialog.title(title)
+        self.dialog.geometry('320x280')
+        self.dialog.transient(parent)
+        self.dialog.grab_set()
+
+        main = ttk.Frame(self.dialog, padding=10)
+        main.pack(fill=tk.BOTH, expand=True)
+
+        # prepare initial matrix as 3x3 list
+        im = initial_matrix if isinstance(initial_matrix, list) else None
+        # 默认值为 1.0（float）
+        matrix = [[1.0 for _ in range(3)] for _ in range(3)]
+        try:
+            if im and len(im) == 3 and all(isinstance(r, list) and len(r) == 3 for r in im):
+                for i in range(3):
+                    for j in range(3):
+                        try:
+                            matrix[i][j] = float(im[i][j])
+                        except Exception:
+                            # 如果无法解析为 float，保留默认 1.0
+                            matrix[i][j] = 1.0
+        except Exception:
+            pass
+
+        self.entries = [[None]*3 for _ in range(3)]
+        grid_frame = ttk.Frame(main)
+        grid_frame.pack(pady=5)
+        # 列头：目标1..3
+        for j in range(3):
+            ttk.Label(grid_frame, text=f'目标{j+1}').grid(row=0, column=j+1, padx=4, pady=2)
+        # 行头：前中后排
+        row_labels = ['前排', '中排', '后排']
+        for i in range(3):
+            ttk.Label(grid_frame, text=row_labels[i]).grid(row=i+1, column=0, padx=4, pady=4)
+            for j in range(3):
+                e = ttk.Entry(grid_frame, width=6)
+                e.grid(row=i+1, column=j+1, padx=4, pady=4)
+                e.insert(0, str(matrix[i][j]))
+                self.entries[i][j] = e
+
+        btn_frame = ttk.Frame(main)
+        btn_frame.pack(fill=tk.X, pady=(10,0))
+        ttk.Button(btn_frame, text='保存', command=self.on_ok).pack(side=tk.RIGHT, padx=5)
+        ttk.Button(btn_frame, text='取消', command=self.on_cancel).pack(side=tk.RIGHT)
+
+        self.dialog.wait_window()
+
+    def on_ok(self):
+        try:
+            mat = []
+            for i in range(3):
+                row = []
+                for j in range(3):
+                    v = self.entries[i][j].get().strip()
+                    try:
+                        fv = float(v)
+                    except Exception:
+                        fv = 1.0
+                    row.append(fv)
+                mat.append(row)
+            self.result = mat
+            self.dialog.destroy()
+        except Exception:
+            messagebox.showerror('错误', '矩阵数据无效')
+
+    def on_cancel(self):
+        self.dialog.destroy()
+
+
+    # 在 CharacterDialog 中使用此对话框时，会把返回的矩阵以 JSON 写回到只读文本框
+    
+    def __repr__(self):
+        return '<HateBiasMatrixDialog>'
