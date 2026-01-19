@@ -399,6 +399,32 @@ class CharacterFetterDao:
         rows = cursor.fetchall()
         return [dict(row).get("fetter_id") for row in rows]
 
+class FetterEffectDao:
+    """
+    羁绊效果数据访问对象
+    """
+    def __init__(self):
+        self.mapper = mapper.get("FetterEffectDao", {})
+
+        update_mapper("FetterEffect")
+        create_table("FetterEffect")
+
+    def insert_fetter_effect(self, fetter_effect_values: list, conn):
+        """
+        插入新羁绊效果
+        :param fetter_effect_values: 羁绊效果信息列表
+        """
+        cursor = conn.cursor()
+        cursor.execute(self.mapper.get("insert_query"), tuple(fetter_effect_values))
+        
+    def delete_fetter_effect_by_fetter_id(self, fetter_id, conn):
+        """
+        根据羁绊ID删除羁绊效果
+        :param fetter_id: 羁绊ID
+        """
+        cursor = conn.cursor()
+        cursor.execute("DELETE FROM FetterEffect WHERE fetter_id = ?", (fetter_id,))
+
 if __name__ == "__main__":
     dumpSql()
     pass
