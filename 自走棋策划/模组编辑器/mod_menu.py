@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 from pathlib import Path
 import subprocess
-import sys
+import sys, os
 import tkinter as tk
 from tkinter import ttk, messagebox, simpledialog
 
@@ -11,7 +11,7 @@ from mod_controller import ModController
 
 # 引入项目日志工具（若不存在则静默）
 try:
-    from logger import log
+    from utils import log
 except Exception:
     class _DummyLog:
         def console(self, *a, **k):
@@ -84,7 +84,10 @@ class FileTree(ttk.Frame):
             return
         # 打开文件
         try:
-            subprocess.run(['open', str(target_path)])
+            if os.name == 'nt':                   # Windows
+                subprocess.run(['start', '', str(target_path)], shell=True)
+            else:                                # macOS / Linux
+                subprocess.run(['open', str(target_path)])
             log.console(f'打开文件：{target_path}', 'INFO')
         except Exception as e:
             messagebox.showerror('错误', f'无法打开文件：{e}')
@@ -98,6 +101,7 @@ class ModMenuUI:
     def __init__(self, root, mod_controller: ModController):
         self.root = root
         self.controller = mod_controller
+        self.mod_path = mod_controller.get_mod_path()
         root.title(f'模组：{mod_controller.modid}')
         root.geometry('900x600')
 
@@ -158,7 +162,10 @@ class ModMenuUI:
                 messagebox.showinfo('提示', f'未找到：{target.name}')
                 return
         try:
-            subprocess.run(['open', str(target)])
+            if os.name == 'nt':                   # Windows
+                subprocess.run(['start', '', str(target)], shell=True)
+            else:                                # macOS / Linux
+                subprocess.run(['open', str(target)])
             self.set_status(f'打开：{target.name}')
         except Exception as e:
             messagebox.showerror('错误', f'无法打开：{e}')
@@ -188,7 +195,7 @@ class ModMenuUI:
         self.open_or_prompt(target)
 
     def open_config(self):
-        cfg = self.get_mod_path() / 'manifest.json'
+        cfg = self.mod_path / 'manifest.json'
         if not cfg.exists():
             if messagebox.askyesno('创建配置文件', '未找到 manifest.json，是否创建默认配置？'):
                 self.open_or_prompt(cfg, create_if_missing=True)

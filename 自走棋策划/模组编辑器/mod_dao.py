@@ -1,6 +1,6 @@
 import json, sys, os
 from pathlib import Path
-from logger import log
+from utils import log
 import zipfile
 
 BASE_DIR = Path(__file__).resolve().parent
@@ -18,14 +18,18 @@ def get_all_mods():
 def get_all_json_file_names(file_path):
     res = []
     if not file_path.exists():
-        log.console(f"Data path does not exist: {file_path}", "WARN")
+        log.console(f"数据路径不存在: {file_path}", "WARN")
         return res
     res = [f.stem for f in file_path.glob('*.json') if f.is_file()]
     return res
 
-def get_language(modid):
+def get_default_language(modid):
     manifest = ModDao(modid).load_manifest()
     return manifest.get("preferred_language", "zh_cn")
+
+def get_default_character():
+    char = load_json(BASE_DIR / 'data' / 'default_character.json')
+    return char
 
 class ModDao:
 
@@ -41,7 +45,7 @@ class ModDao:
         file_path = self.mod_path / 'manifest.json'
         with open(file_path, 'w', encoding='utf-8') as f:
             json.dump(manifest_data, f, ensure_ascii=False, indent=2)
-        log.console(f"Manifest updated for mod: {self.modid}", "INFO")
+        log.console(f"配置已更新，模组ID: {self.modid}", "INFO")
 
     def init_mod_directory(self):
         if not self.mod_path.exists():
@@ -52,20 +56,24 @@ class ModDao:
             self.update_manifest(default_manifest)
             # 初始化export_ignore文件
             export_ignore = load_json(BASE_DIR / 'data' / 'export_ignore.json')
+            for i in range(len(export_ignore)):
+                if 'MODID' in export_ignore[i]:
+                    export_ignore[i] = export_ignore[i].replace('MODID', self.modid)
             with open(self.mod_path / 'export_ignore.json', 'w', encoding='utf-8') as f:
                 json.dump(export_ignore, f, ensure_ascii=False, indent=2)
             # 初始化assets/lang文件夹
-            (self.mod_path / 'assets/lang').mkdir(parents=True, exist_ok=True)
+            (self.mod_path / 'assets' / self.modid / 'lang').mkdir(parents=True, exist_ok=True)
             LangDao.create_lang_file(self.modid, 'zh_cn')
             # 初始化角色文件夹
-            char_dao = CharacterDao(self.modid)
-            default_char = load_json(BASE_DIR / 'data' / 'default_character.json')
-            char_dao.create_character(default_char)
-            skill_dao = SkillDao(self.modid)
-            buff_dao = BuffDao(self.modid)
-            log.console(f"Mod directory created at: {self.mod_path}", "INFO")
+            CharacterDao(self.modid)
+            SkillDao(self.modid)
+            BuffDao(self.modid)
+            FetterDao(self.modid)
+            log.console(f"模组目录已创建，路径: {self.mod_path}", "INFO")
+            return True
         else:
-            log.console(f"Mod directory already exists at: {self.mod_path}", "INFO")
+            log.console(f"模组目录已存在，路径: {self.mod_path}", "INFO")
+            return False
 
     def export_mod(self, export_path = None) -> Path:
         """
@@ -104,7 +112,7 @@ class ModDao:
 class LangDao:
 
     def __init__(self, modid, lang='zh_cn'):
-        self.file_path = BASE_DIR / "mods" / modid / f'assets/lang/{lang}.json'
+        self.file_path = BASE_DIR / "mods" / modid / 'assets' / modid / f'lang/{lang}.json'
 
     def load_lang(self):
         # log.console(f"加载语言文件: {self.file_path}", "INFO")
@@ -141,17 +149,17 @@ class LangDao:
 
     @staticmethod
     def create_lang_file(modid, lang='zh_cn'):
-        lang_path = BASE_DIR / "mods" / modid / f'assets/lang/{lang}.json'
+        lang_path = BASE_DIR / "mods" / modid / 'assets' / modid / f'lang/{lang}.json'
         if not lang_path.exists():
             with open(lang_path, 'w', encoding='utf-8') as f:
                 json.dump({}, f, ensure_ascii=False, indent=2)
             log.console(f"创建新语言文件: {lang_path}", "INFO")
         else:
-            log.console(f"Language file already exists: {lang_path}", "INFO")
+            log.console(f"语言文件已存在: {lang_path}", "INFO")
 
     @staticmethod
     def add_lang_key(modid, keys: list[str] | str):
-        keys_path = BASE_DIR / "mods" / modid / 'assets/lang/lang_keys.json'
+        keys_path = BASE_DIR / "mods" / modid / 'assets' / modid / 'lang/lang_keys.json'
         if not keys_path.exists():
             with open(keys_path, 'w', encoding='utf-8') as f:
                 json.dump([], f, ensure_ascii=False, indent=2)
@@ -161,21 +169,21 @@ class LangDao:
         for k in keys:
             if k not in lang_keys:
                 lang_keys.append(k)
-                log.console(f"Added new language key: {k}", "INFO")
+                log.console(f"已添加新的语言键: {k}", "INFO")
         with open(keys_path, 'w', encoding='utf-8') as f:
             json.dump(lang_keys, f, ensure_ascii=False, indent=2)
 
     @staticmethod
     def remove_lang_key(modid, keys: list[str]):
-        keys_path = BASE_DIR / "mods" / modid / 'assets/lang/lang_keys.json'
+        keys_path = BASE_DIR / "mods" / modid / 'assets' / modid / 'lang/lang_keys.json'
         if not keys_path.exists():
-            log.console(f"Language keys file does not exist: {keys_path}", "WARN")
+            log.console(f"语言键文件不存在: {keys_path}", "WARN")
             return
         lang_keys = load_json(keys_path)
         for key in keys:
             if key in lang_keys:
                 lang_keys.remove(key)
-                log.console(f"Removed language key: {key}", "INFO")
+                log.console(f"已移除语言键: {key}", "INFO")
         with open(keys_path, 'w', encoding='utf-8') as f:
             json.dump(lang_keys, f, ensure_ascii=False, indent=2)
 
@@ -196,7 +204,7 @@ class CharacterDao:
 
     def __init__(self, modid):
         self.modid = modid
-        self.file_path = BASE_DIR / "mods" / modid / 'data/characters/'
+        self.file_path = BASE_DIR / "mods" / modid / 'data' / modid / 'characters/'
 
         if not self.file_path.exists():
             self.file_path.mkdir(parents=True, exist_ok=True)
@@ -219,14 +227,8 @@ class CharacterDao:
         log.console("未提供角色ID进行加载。", "WARN")
         return res
 
-    def get_default_character(self):
-        return self.get_character_by_id("default_character")
-
     def create_character(self, char_data):
         char_id = char_data.get('id')
-        if not char_id:
-            log.console("角色数据必须包含 'id' 字段。", "ERROR")
-            return False
         file_path = self.file_path / f'{char_id}.json'
         if file_path.exists():
             log.console(f"角色ID {char_id} 已存在。", "ERROR")
@@ -249,16 +251,16 @@ class CharacterDao:
     def delete_character(self, char_id):
         file_path = self.file_path / f'{char_id}.json'
         if not file_path.exists():
-            log.console(f"Character with ID {char_id} does not exist for deletion.", "ERROR")
+            log.console(f"角色ID {char_id} 不存在，无法删除。", "ERROR")
             return False
         os.remove(file_path)
-        log.console(f"Character deleted with ID: {char_id}", "INFO")
+        log.console(f"角色已删除，ID: {char_id}", "INFO")
         return True
     
 class SkillDao:
     
     def __init__(self, modid):
-        self.file_path = BASE_DIR / "mods" / modid / 'data/skills/'
+        self.file_path = BASE_DIR / "mods" / modid / 'data' / modid / 'skills/'
 
         if not self.file_path.exists():
             self.file_path.mkdir(parents=True, exist_ok=True)
@@ -282,7 +284,7 @@ class SkillDao:
 class BuffDao:
     
     def __init__(self, modid):
-        self.file_path = BASE_DIR / "mods" / modid / 'data/buffs/'
+        self.file_path = BASE_DIR / "mods" / modid / 'data' / modid / 'buffs/'
 
         if not self.file_path.exists():
             self.file_path.mkdir(parents=True, exist_ok=True)
@@ -301,6 +303,40 @@ class BuffDao:
             return load_json(self.file_path / f'{buff_id}.json')
         log.console("No buff ID provided for loading.", "WARN")
         return None
+    
+class FetterDao:
+
+    def __init__(self, modid):
+        self.file_path = BASE_DIR / "mods" / modid / 'data' / modid / 'fetters/'
+
+        if not self.file_path.exists():
+            self.file_path.mkdir(parents=True, exist_ok=True)
+    
+    def get_all_fetter_ids(self):
+        res = []
+        if not self.file_path.exists():
+            log.console(f"羁绊数据路径不存在: {self.file_path}", "WARN")
+            return res
+        res = [f.stem for f in self.file_path.glob('*.json') if f.is_file()]
+        return res
+    
+    def load_fetter_by_id(self, fetter_id=None):
+        if fetter_id:
+            log.console(f"加载羁绊数据，ID: {fetter_id}", "INFO")
+            return load_json(self.file_path / f'{fetter_id}.json')
+        log.console("未提供羁绊ID进行加载。", "WARN")
+        return None
+    
+    def create_fetter(self, fetter_data):
+        fetter_id = fetter_data.get('id')
+        file_path = self.file_path / f'{fetter_id}.json'
+        if file_path.exists():
+            log.console(f"羁绊ID {fetter_id} 已存在。", "ERROR")
+            return False
+        with open(file_path, 'w', encoding='utf-8') as f:
+            json.dump(fetter_data, f, ensure_ascii=False, indent=2)
+        log.console(f"羁绊创建成功，ID: {fetter_id}", "INFO")
+        return True
 
 if __name__ == '__main__':
     moddao = ModDao("test")

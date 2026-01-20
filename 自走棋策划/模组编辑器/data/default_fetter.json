@@ -1,0 +1,11 @@
+{
+    "id": "default_fetter",
+    "name": "modid.fetter.default_fetter.name",
+    "description": "modid.fetter.default_fetter.description",
+    "effects": [
+        {
+            "type": "modify_attr",
+            "param": "HP+10"
+        }
+    ]
+}

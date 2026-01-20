@@ -7,7 +7,11 @@ class ModService:
         self.dao = dao.ModDao(modid)
 
     def init_directory(self):
-        return self.dao.init_mod_directory()
+        res = self.dao.init_mod_directory()
+        if res:
+            char = dao.get_default_character()
+            CharacterService(self.modid).create_character(char)
+        return res
 
 class CharacterService:
     def __init__(self, modid):
@@ -28,11 +32,11 @@ class CharacterService:
         for key, value in char_data.items():
             if isinstance(value, str):
                 if '.' in value:
-                    char_data[key] = t(self.modid, dao.get_language(self.modid), value)
+                    char_data[key] = t(self.modid, dao.get_default_language(self.modid), value)
         return char_data
 
     def create_character(self, char_data):
-        char = self.dao.get_default_character()
+        char = dao.get_default_character()
         new_keys = []
         for key in char:
             if key in ['name', 'background', 'description']:
