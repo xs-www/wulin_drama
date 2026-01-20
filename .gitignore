@@ -16,6 +16,10 @@
 自走棋策划/py灰盒/__pycache__/util.cpython-310.pyc
 自走棋策划/db/database.db
 
-
+# godot 
 **/.DS_Store
 **/exports/
+**/godot_demo/
+
+# mods
+**/mods/
