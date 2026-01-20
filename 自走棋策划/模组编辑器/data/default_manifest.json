@@ -1,0 +1,9 @@
+{
+    "id": "modid",
+    "name": "mod_name",
+    "version": "1.0.0",
+    "description": "A new mod.",
+    "author": "Author Name",
+    "dependencies": [],
+    "preferred_language": "zh_cn"
+}

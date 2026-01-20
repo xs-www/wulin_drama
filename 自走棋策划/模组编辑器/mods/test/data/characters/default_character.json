@@ -1,0 +1,35 @@
+{
+  "id": "default_character",
+  "name": "默认角色",
+  "price": 1,
+  "background": "背景故事。",
+  "description": "文字技能描述。",
+  "attack_power": 1,
+  "health_points": 1,
+  "defense_points": 1,
+  "speed": 1,
+  "ini_energy": 0,
+  "hate_value": 1,
+  "hate_bias_matrix": [
+    [
+      1.0,
+      1.0,
+      1.0
+    ],
+    [
+      1.0,
+      1.0,
+      1.0
+    ],
+    [
+      0.0,
+      0.0,
+      0.0
+    ]
+  ],
+  "fetter": [],
+  "max_initiative": 1,
+  "skills": [
+    "modid:default_skill"
+  ]
+}

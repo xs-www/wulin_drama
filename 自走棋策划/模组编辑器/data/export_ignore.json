@@ -1,0 +1,7 @@
+[
+    "export_ignore.json",
+    "assets/lang_keys.json",
+    "data/characters/default_character.json",
+    "data/skills/default_skill.json",
+    "data/buffs/default_buff.json"
+]
