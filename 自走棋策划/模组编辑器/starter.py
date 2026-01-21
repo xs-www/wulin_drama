@@ -3,7 +3,7 @@
 from pathlib import Path
 import tkinter as tk
 from mod_manager_ui import ModManagerUI, ensure_mods_dir
-from 自走棋策划.模组编辑器.utils import log
+from utils import log
 
 
 def main():

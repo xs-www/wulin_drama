@@ -2,6 +2,7 @@
     "export_ignore.json",
     "assets/MODID/lang/lang_keys.json",
     "data/MODID/characters/default_character.json",
+    "data/MODID/fetters/default_fetter.json",
     "data/MODID/skills/default_skill.json",
     "data/MODID/buffs/default_buff.json"
 ]

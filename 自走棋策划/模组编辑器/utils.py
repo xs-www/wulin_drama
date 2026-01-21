@@ -9,6 +9,10 @@ from pathlib import Path
 # 当前正在执行的 .py 文件绝对目录
 BASE_DIR = Path(__file__).resolve().parent
 
+class ParseError(Exception):
+    """自定义解析错误异常类"""
+    pass
+
 def timestampDate():
     """
     获取当前时间戳，格式为 "YYYY-MM-DD"。
@@ -44,10 +48,11 @@ class Logger:
     def __init__(self):
         self.entries: list[Entry] = []
 
-    def console(self, content: str, info_type: str = "INFO") -> bool:
+    def console(self, content: str, info_type: str = "INFO", record: bool = False) -> bool:
         entry = Entry(content, info_type)
         _term_console.print(entry.rich_str())   # ① 终端走 rich
-        self.addEntry(entry)                    # ② 文件走 __str__
+        if record:
+            self.addEntry(entry)                    # ② 文件走 __str__
         return True
     
     def clearLog(self):
@@ -79,7 +84,24 @@ class Logger:
 
 log = Logger()
 
-def effect_parser(effect_dict: dict) -> str:
+ATTRS = {
+    "ATK": "攻击力",
+    "MHP": "最大生命值",
+    "HP": "生命值",
+    "DMG": "伤害",
+    "SPD": "速度",
+    "SPEED": "速度",
+    "NRG": "能量",
+    "ENERGY": "能量",
+    "RECHARGE": "能量恢复效率",
+    "RECHG": "能量恢复效率",
+    "HTE": "仇恨值",
+    "HATE": "仇恨值",
+    "CRTRA": "暴击率",
+    "CRTDMG": "暴击伤害"
+}
+
+def effect_parser(effect_dict: dict, highlight_num = False) -> str:
     """
     解析效果字典为自然语言形式。
     例如:
@@ -95,60 +117,73 @@ def effect_parser(effect_dict: dict) -> str:
     """
 
     try:
-        if effect_dict.get("type") == "modify_attr":
-            param = effect_dict.get("param", "")
-            mode = effect_dict.get("mode", "")
-            target_map = {
-                "all_ally": "所有右方单位",
-                "all_enemy": "所有左方单位",
-                "self": "自身",
-            }
-            target_desc = target_map.get(mode, "未知目标")
-            return f"{target_desc}{param.replace('+', '增加').replace('-', '减少')}"
+        match effect_dict.get("type"):
+            case "modify_attr":
+                param = effect_dict.get("param", "")
+                parsed_param = parse_param("modify_attr", param, highlight_num)
+                mode = effect_dict.get("mode", "")
+                parsed_mode = parse_mode("modify_attr", mode)
+                return f"使{parsed_mode}{parsed_param}"
+            case _:
+                return "暂不支持该效果类型的解析"
     except Exception as e:
         log.console(f"解析效果失败: {e}", "ERROR")
         return "格式错误，请检查输入"
     
-def parse_param(effect_type: str, param: str) -> dict:
+def parse_param(effect_type: str, param: str, highlight_num = False) -> dict:
     """
     解析效果参数字符串，返回结构化信息
     :return: 解析后的信息字典
     """
-    ATTRS = {
-        "ATK": "攻击力",
-        "MHP": "最大生命值",
-        "HP": "生命值",
-        "DMG": "伤害",
-        "SPD": "速度",
-        "SPEED": "速度",
-        "NRG": "能量",
-        "ENERGY": "能量",
-        "HATE": "仇恨值",
-        "CRTRA": "暴击率",
-        "CRTDMG": "暴击伤害"
-    }
+
     match effect_type:
         case "modify_attr":
+            res = ''
             pattern = re.compile(
                 r'(?P<attr>[A-Z]+)'          # 1. 属性：任意大写字母串
-                r'(?P<op>[+-=])'              # 2. 方向：+ 或 -
-                r'(?P<val>[1-9]\d*)'         # 3. 数值：正整数（首位不能为 0）
-                r'(?:(?P<is_pct>%)(?P<pct_base>[bmr]))?'  # 4. 可选：% 紧跟 b/m/r
+                r'(?P<op>[+-=])'             # 2. 方向：+ 或 - 或 =
+                r'(?P<val>[1-9]\d*)'        # 3. 数值：正整数（首位不能为 0）
+                r'(?:(?P<is_pct>%)(?P<pct_base>[bmrc]))?'  # 4. 可选：% 紧跟 b/m/r/c
+                r'(?:\((?P<paren>[A-Z]+)\))?'           # 5. 可选：末尾括号内的大写字母标签，如 (TAG)
             )
-            info = pattern.fullmatch(param).groupdict()
-            info['attr'] = ATTRS.get(info['attr'])
-            info['is_pct'] = True if info['is_pct'] else False
+            m = pattern.fullmatch(param)
+            if not m:
+                log.console(f"参数解析失败，无法匹配: {param}", "WARN")
+                raise ParseError("参数解析失败, 请检查格式是否正确")
+            info = m.groupdict()
+            raw_attr = info.get('attr')
+            # 将属性代码映射为中文描述，若无对应则保留原代码
+            info['attr'] = ATTRS.get(raw_attr, raw_attr)
+            if raw_attr in ['HP', 'NRG']:
+                info['op'] = {'+': '恢复', '-': '降低', '=': '变为'}.get(info.get('op'), info.get('op'))
+            else:
+                info['op'] = {'+': '提升', '-': '减少', '=': '变为'}.get(info.get('op'), info.get('op'))
+            res += f"{info['attr']}{info['op']}:"
+            # 处理百分比标识
+            info['is_pct'] = True if info.get('is_pct') else False
             if info['is_pct']:
-                if info['pct_base'] == 'm' and info['attr'] not in ['hp', 'energy']:
+                if info.get('pct_base') == 'm' and raw_attr not in ['HP', 'MHP', 'NRG', 'ENERGY']:
                     info['pct_base'] = 'r'  # 非生命和能量属性，m视为r
-                elif not info['pct_base']:
+                elif not info.get('pct_base'):
                     info['pct_base'] = 'r'  # 默认百分比基于当前值
                 info['pct_base_desc'] = {
-                    'b': '基础值',
-                    'm': '最大值',
-                    'r': '当前值'
-                }.get(info['pct_base'], '当前值')
-            return info
+                    'b': '基础',
+                    'm': '最大',
+                    'r': '当前',
+                    'c': '当前'
+                }.get(info.get('pct_base'), '当前')
+                # 括号标签（可选）
+                info['paren'] = ATTRS.get(info.get('paren'), info.get('attr'))
+                if highlight_num:
+                    res += f"({info['val']}%){info['pct_base_desc']}{info['paren']}"
+                else:
+                    res += f"{info['val']}%{info['pct_base_desc']}{info['paren']}"
+            else:
+                if highlight_num:
+                    res += f"({info['val']})"
+                else:
+                    res += f"{info['val']}"
+            return res
         case "add_buff":
             pass
         case "remove_buff":
@@ -159,3 +194,89 @@ def parse_param(effect_type: str, param: str) -> dict:
             pass
         case _:
             pass
+
+def parse_mode(effect_type: str, mode: str) -> str:
+    """
+    解析效果目标模式，返回自然语言描述
+    :return: 目标描述字符串
+    """
+    match effect_type:
+        case "modify_attr":
+            res = ''
+            if '_' in mode:
+                prefix, suffix = mode.split('_', 1)
+                if prefix.startswith('highest') or prefix.startswith('lowest'):
+                    attr_code = prefix[len('highest'):] if prefix.startswith('highest') else prefix[len('lowest'):]
+                    attr_desc = ATTRS.get(attr_code, attr_code)
+                    order_desc = "最高" if prefix.startswith('highest') else "最低"
+                    res += f"{attr_desc}{order_desc}的"
+                else:
+                    prefix_map = {
+                        "all": "所有",
+                        "random": "随机",
+                        "other": "其他"
+                    }
+                    if prefix not in prefix_map:
+                        raise ParseError(f"模式解析失败: 未知前缀 {prefix}")
+                    res += f"{prefix_map.get(prefix, '未知目标')}"
+                
+                if ':' not in suffix and prefix != "all":
+                    suffix += ':1'
+                if prefix != "all":
+                    target_type, count = suffix.split(':', 1)
+                    count += "名"
+                else:
+                    target_type = suffix
+                    count = ''
+                if prefix == "all" and count:
+                    raise ParseError("模式解析失败: 'all' 不能指定数量")
+                if target_type in ['ally', 'enemy']:
+                    if prefix == "other" and target_type == "enemy":
+                        raise ParseError("模式解析失败: 'other' 不能与 'enemy' 组合")
+                    target_map = {
+                        "ally": "己方角色",
+                        "enemy": "敌方角色",
+                    }
+                    res += f"{count}{target_map.get(target_type, '未知目标')}"
+                else:
+                    raise ParseError(f"模式解析失败: 未知目标类型 {target_type}")
+
+            else:
+                target_map = {
+                    "self": "自身",
+                    "target": "攻击目标的",
+                    "source": "效果来源的",
+                    "player": "玩家",
+                }
+                return target_map.get(mode, "未知目标")
+            return res
+        case _:
+            return "未知目标"
+
+if __name__ == "__main__":
+    # effect_str = '{"type": "modify_attr", "param": "MHP+10", "mode": "all_ally"}'
+    # effect_dict = json.loads(effect_str)
+    # desc = effect_parser(effect_dict)
+    # print(desc)
+
+    effects = [{
+        "type": "modify_attr",
+        "param": "HTE+20%r",
+        "mode": "highestHTE_ally"
+    },{
+        "type": "modify_attr",
+        "param": "ATK+10",
+        "mode": "self"
+    },{
+        "type": "modify_attr",
+        "param": "HP-15%c",
+        "mode": "random_enemy:2"
+    },{
+        "type": "modify_attr",
+        "param": "NRG=30",
+        "mode": "player"
+    }]
+    for effect in effects:
+        print(effect)
+        info = effect_parser(effect)
+        print(info)

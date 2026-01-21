@@ -6,7 +6,8 @@ import sys, os
 import tkinter as tk
 from tkinter import ttk, messagebox, simpledialog
 
-from character_ui import CharacterManagerUI
+from ui_character import CharacterManagerUI
+from ui_fetter import FetterManagerUI
 from mod_controller import ModController
 
 # 引入项目日志工具（若不存在则静默）
@@ -120,11 +121,11 @@ class ModMenuUI:
         btn_role = ttk.Button(right, text='编辑角色', command=self.open_character_editor)
         btn_role.pack(fill='x', pady=6)
 
-        btn_skill = ttk.Button(right, text='编辑技能', command=self.open_skills_editor)
+        btn_skill = ttk.Button(right, text='编辑羁绊', command=self.open_fetter_editor)
         btn_skill.pack(fill='x', pady=6)
 
-        btn_data = ttk.Button(right, text='编辑数据', command=self.open_data_editor)
-        btn_data.pack(fill='x', pady=6)
+        #btn_data = ttk.Button(right, text='编辑数据', command=self.open_data_editor)
+        #btn_data.pack(fill='x', pady=6)
 
         btn_cfg = ttk.Button(right, text='编辑配置', command=self.open_config)
         btn_cfg.pack(fill='x', pady=6)
@@ -134,6 +135,9 @@ class ModMenuUI:
 
         btn_refresh = ttk.Button(right, text='刷新', command=self.refresh)
         btn_refresh.pack(fill='x', pady=6)
+
+        btn_export = ttk.Button(right, text='导出模组', command=self.export_mod)
+        btn_export.pack(fill='x', pady=6)
 
         self.status = tk.StringVar()
         statusbar = ttk.Label(root, textvariable=self.status, relief='sunken', anchor='w')
@@ -172,9 +176,12 @@ class ModMenuUI:
             log.console(f'无法打开：{e}', 'ERROR')
 
     def open_character_editor(self):
-        # 约定：角色数据保存在 mods/<mod>/data/character/character_id.json
         win = tk.Toplevel(self.root)
         CharacterManagerUI(win, modid=self.controller.modid)
+
+    def open_fetter_editor(self):
+        win = tk.Toplevel(self.root)
+        FetterManagerUI(win, modid=self.controller.modid)
 
     def open_skills_editor(self):
         candidates = [self.controller.get_mod_path() / 'skills.json', self.controller.get_mod_path() / 'data' / 'skills.json']
@@ -208,6 +215,15 @@ class ModMenuUI:
     def refresh(self):
         self.tree.refresh()
         self.set_status('已刷新')
+
+    def export_mod(self):
+        res = self.controller.export_mod()
+        if res:
+            messagebox.showinfo('导出成功', f'模组已导出到：{res}')
+            self.set_status(f'模组已导出到：{res}')
+        else:
+            messagebox.showerror('导出失败', '模组导出失败，请查看日志获取更多信息。')
+            self.set_status('模组导出失败。')
 
 
 def choose_mod_interactively():

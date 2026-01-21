@@ -2,10 +2,20 @@
     "id": "default_fetter",
     "name": "modid.fetter.default_fetter.name",
     "description": "modid.fetter.default_fetter.description",
-    "effects": [
-        {
-            "type": "modify_attr",
-            "param": "HP+10"
-        }
-    ]
+    "effects": {
+        "3": [
+            {
+                "type": "modify_attr",
+                "param": "MHP+10",
+                "mode": "all_ally"
+            }
+        ],
+        "5": [
+            {
+                "type": "modify_attr",
+                "param": "MHP+20",
+                "mode": "all_ally"
+            }
+        ]
+    }
 }

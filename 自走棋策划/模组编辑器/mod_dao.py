@@ -27,9 +27,9 @@ def get_default_language(modid):
     manifest = ModDao(modid).load_manifest()
     return manifest.get("preferred_language", "zh_cn")
 
-def get_default_character():
-    char = load_json(BASE_DIR / 'data' / 'default_character.json')
-    return char
+def get_default_data(data_type):
+    data = load_json(BASE_DIR / 'data' / f'default_{data_type}.json')
+    return data
 
 class ModDao:
 
@@ -101,7 +101,9 @@ class ModDao:
                 to_pack.append(p)
 
         # 3. 写 zip
-        export_path = export_path or (BASE_DIR / "exports" / f"{self.modid}.zip")
+        manifest = self.load_manifest()
+        mod_name = f"{manifest.get('id')}-{manifest.get('version', 'unknown')}"
+        export_path = export_path or (BASE_DIR / "exports" / f"{mod_name}.zip")
         export_path.parent.mkdir(parents=True, exist_ok=True)
         with zipfile.ZipFile(export_path, "w", compression=zipfile.ZIP_DEFLATED) as zf:
             for file in to_pack:
@@ -127,7 +129,7 @@ class LangDao:
         if not isinstance(values, list):
             values = [values]
         for key, value in zip(keys, values):
-            lang_data[key] = value
+            lang_data[key] = str(value)
         with open(lang_dao.file_path, 'w', encoding='utf-8') as f:
             json.dump(lang_data, f, ensure_ascii=False, indent=2)
         log.console(f"设置语言键 '{key}' 为 '{value}'", "INFO")
@@ -260,6 +262,7 @@ class CharacterDao:
 class SkillDao:
     
     def __init__(self, modid):
+        self.modid = modid
         self.file_path = BASE_DIR / "mods" / modid / 'data' / modid / 'skills/'
 
         if not self.file_path.exists():
@@ -284,6 +287,7 @@ class SkillDao:
 class BuffDao:
     
     def __init__(self, modid):
+        self.modid = modid
         self.file_path = BASE_DIR / "mods" / modid / 'data' / modid / 'buffs/'
 
         if not self.file_path.exists():
@@ -307,6 +311,7 @@ class BuffDao:
 class FetterDao:
 
     def __init__(self, modid):
+        self.modid = modid
         self.file_path = BASE_DIR / "mods" / modid / 'data' / modid / 'fetters/'
 
         if not self.file_path.exists():
@@ -320,7 +325,7 @@ class FetterDao:
         res = [f.stem for f in self.file_path.glob('*.json') if f.is_file()]
         return res
     
-    def load_fetter_by_id(self, fetter_id=None):
+    def get_fetter_by_id(self, fetter_id=None):
         if fetter_id:
             log.console(f"加载羁绊数据，ID: {fetter_id}", "INFO")
             return load_json(self.file_path / f'{fetter_id}.json')
@@ -336,6 +341,25 @@ class FetterDao:
         with open(file_path, 'w', encoding='utf-8') as f:
             json.dump(fetter_data, f, ensure_ascii=False, indent=2)
         log.console(f"羁绊创建成功，ID: {fetter_id}", "INFO")
+        return True
+
+    def update_fetter(self, fetter_id, fetter_data):
+        file_path = self.file_path / f'{fetter_id}.json'
+        if not file_path.exists():
+            log.console(f"羁绊ID {fetter_id} 不存在，无法更新。", "ERROR")
+            return False
+        with open(file_path, 'w', encoding='utf-8') as f:
+            json.dump(fetter_data, f, ensure_ascii=False, indent=2)
+        log.console(f"羁绊更新成功，ID: {fetter_id}", "INFO")
+        return True
+
+    def delete_fetter(self, fetter_id):
+        file_path = self.file_path / f'{fetter_id}.json'
+        if not file_path.exists():
+            log.console(f"羁绊ID {fetter_id} 不存在，无法删除。", "ERROR")
+            return False
+        os.remove(file_path)
+        log.console(f"羁绊已删除，ID: {fetter_id}", "INFO")
         return True
 
 if __name__ == '__main__':
