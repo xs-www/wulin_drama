@@ -7,7 +7,7 @@ import tkinter as tk
 from tkinter import ttk, messagebox, simpledialog
 
 from ui_character import CharacterManagerUI
-from ui_fetter import FetterManagerUI
+from ui_faction import FactionManagerUI
 from mod_controller import ModController
 
 # 引入项目日志工具（若不存在则静默）
@@ -121,7 +121,7 @@ class ModMenuUI:
         btn_role = ttk.Button(right, text='编辑角色', command=self.open_character_editor)
         btn_role.pack(fill='x', pady=6)
 
-        btn_skill = ttk.Button(right, text='编辑羁绊', command=self.open_fetter_editor)
+        btn_skill = ttk.Button(right, text='编辑羁绊', command=self.open_faction_editor)
         btn_skill.pack(fill='x', pady=6)
 
         #btn_data = ttk.Button(right, text='编辑数据', command=self.open_data_editor)
@@ -179,9 +179,9 @@ class ModMenuUI:
         win = tk.Toplevel(self.root)
         CharacterManagerUI(win, modid=self.controller.modid)
 
-    def open_fetter_editor(self):
+    def open_faction_editor(self):
         win = tk.Toplevel(self.root)
-        FetterManagerUI(win, modid=self.controller.modid)
+        FactionManagerUI(win, modid=self.controller.modid)
 
     def open_skills_editor(self):
         candidates = [self.controller.get_mod_path() / 'skills.json', self.controller.get_mod_path() / 'data' / 'skills.json']

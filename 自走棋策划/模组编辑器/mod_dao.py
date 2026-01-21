@@ -68,7 +68,7 @@ class ModDao:
             CharacterDao(self.modid)
             SkillDao(self.modid)
             BuffDao(self.modid)
-            FetterDao(self.modid)
+            FactionDao(self.modid)
             log.console(f"模组目录已创建，路径: {self.mod_path}", "INFO")
             return True
         else:
@@ -229,8 +229,7 @@ class CharacterDao:
         log.console("未提供角色ID进行加载。", "WARN")
         return res
 
-    def create_character(self, char_data):
-        char_id = char_data.get('id')
+    def create_character(self, char_id, char_data):
         file_path = self.file_path / f'{char_id}.json'
         if file_path.exists():
             log.console(f"角色ID {char_id} 已存在。", "ERROR")
@@ -308,16 +307,16 @@ class BuffDao:
         log.console("No buff ID provided for loading.", "WARN")
         return None
     
-class FetterDao:
+class FactionDao:
 
     def __init__(self, modid):
         self.modid = modid
-        self.file_path = BASE_DIR / "mods" / modid / 'data' / modid / 'fetters/'
+        self.file_path = BASE_DIR / "mods" / modid / 'data' / modid / 'factions/'
 
         if not self.file_path.exists():
             self.file_path.mkdir(parents=True, exist_ok=True)
     
-    def get_all_fetter_ids(self):
+    def get_all_faction_ids(self):
         res = []
         if not self.file_path.exists():
             log.console(f"羁绊数据路径不存在: {self.file_path}", "WARN")
@@ -325,42 +324,48 @@ class FetterDao:
         res = [f.stem for f in self.file_path.glob('*.json') if f.is_file()]
         return res
     
-    def get_fetter_by_id(self, fetter_id=None):
-        if fetter_id:
-            log.console(f"加载羁绊数据，ID: {fetter_id}", "INFO")
-            return load_json(self.file_path / f'{fetter_id}.json')
+    def get_faction_by_id(self, faction_id=None):
+        if faction_id:
+            log.console(f"加载羁绊数据，ID: {faction_id}", "INFO")
+            return load_json(self.file_path / f'{faction_id}.json')
         log.console("未提供羁绊ID进行加载。", "WARN")
         return None
     
-    def create_fetter(self, fetter_data):
-        fetter_id = fetter_data.get('id')
-        file_path = self.file_path / f'{fetter_id}.json'
+    def create_faction(self, faction_id, faction_data):
+        file_path = self.file_path / f'{faction_id}.json'
+        if not self.file_path.exists():
+            print(f"Creating faction data directory: {self.file_path}")
+            self.file_path.mkdir(parents=True, exist_ok=True)
         if file_path.exists():
-            log.console(f"羁绊ID {fetter_id} 已存在。", "ERROR")
+            log.console(f"羁绊ID {faction_id} 已存在。", "ERROR")
             return False
         with open(file_path, 'w', encoding='utf-8') as f:
-            json.dump(fetter_data, f, ensure_ascii=False, indent=2)
-        log.console(f"羁绊创建成功，ID: {fetter_id}", "INFO")
+            json.dump(faction_data, f, ensure_ascii=False, indent=2)
+        log.console(f"羁绊创建成功，ID: {faction_id}", "INFO")
         return True
 
-    def update_fetter(self, fetter_id, fetter_data):
-        file_path = self.file_path / f'{fetter_id}.json'
+    def update_faction(self, faction_id, faction_data):
+        file_path = self.file_path / f'{faction_id}.json'
         if not file_path.exists():
-            log.console(f"羁绊ID {fetter_id} 不存在，无法更新。", "ERROR")
+            log.console(f"羁绊ID {faction_id} 不存在，无法更新。", "ERROR")
             return False
         with open(file_path, 'w', encoding='utf-8') as f:
-            json.dump(fetter_data, f, ensure_ascii=False, indent=2)
-        log.console(f"羁绊更新成功，ID: {fetter_id}", "INFO")
+            json.dump(faction_data, f, ensure_ascii=False, indent=2)
+        log.console(f"羁绊更新成功，ID: {faction_id}", "INFO")
         return True
 
-    def delete_fetter(self, fetter_id):
-        file_path = self.file_path / f'{fetter_id}.json'
+    def delete_faction(self, faction_id):
+        file_path = self.file_path / f'{faction_id}.json'
         if not file_path.exists():
-            log.console(f"羁绊ID {fetter_id} 不存在，无法删除。", "ERROR")
+            log.console(f"羁绊ID {faction_id} 不存在，无法删除。", "ERROR")
             return False
         os.remove(file_path)
-        log.console(f"羁绊已删除，ID: {fetter_id}", "INFO")
+        log.console(f"羁绊已删除，ID: {faction_id}", "INFO")
         return True
+    
+    def has_id(self, faction_id):
+        file_path = self.file_path / f'{faction_id}.json'
+        return file_path.exists()
 
 if __name__ == '__main__':
     moddao = ModDao("test")

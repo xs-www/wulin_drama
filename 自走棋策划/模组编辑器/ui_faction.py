@@ -1,6 +1,6 @@
 """
-Fetter 数据库管理 UI
-使用 tkinter 创建可视化界面，用于对 fetter 表进行增删查改操作
+Faction 数据库管理 UI
+使用 tkinter 创建可视化界面，用于对 faction 表进行增删查改操作
 """
 import tkinter as tk
 from tkinter import ttk, messagebox, scrolledtext
@@ -10,20 +10,20 @@ import copy
 # 添加当前目录到路径
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from mod_controller import FetterController
+from mod_controller import FactionController
 from utils import effect_parser
 
-class FetterManagerUI:
-    """Fetter 管理 UI 类"""
+class FactionManagerUI:
+    """Faction 管理 UI 类"""
 
     def __init__(self, root, modid):
         self.root = root
-        self.root.title("Fetter 数据库管理")
+        self.root.title("Faction 数据库管理")
         self.root.geometry("1000x700")
 
         # 控制层
         self.modid = modid
-        self.control = FetterController(modid)
+        self.controller = FactionController(modid)
 
         # 创建 UI
         self.create_widgets()
@@ -41,7 +41,7 @@ class FetterManagerUI:
         main_frame.rowconfigure(1, weight=1)
 
         # 左侧列表
-        list_frame = ttk.LabelFrame(main_frame, text="Fetter 列表", padding="5")
+        list_frame = ttk.LabelFrame(main_frame, text="Faction 列表", padding="5")
         list_frame.grid(row=0, column=0, rowspan=2, sticky=(tk.W, tk.E, tk.N, tk.S), padx=(0, 5))
 
         self.tree = ttk.Treeview(list_frame, columns=("ID", "Variants"), show="headings", height=30)
@@ -63,15 +63,15 @@ class FetterManagerUI:
         button_frame = ttk.Frame(main_frame)
         button_frame.grid(row=0, column=1, sticky=(tk.W, tk.E, tk.N), pady=(0, 5))
 
-        ttk.Button(button_frame, text="新建", command=self.create_fetter).pack(side=tk.LEFT, padx=2)
-        ttk.Button(button_frame, text="编辑", command=self.edit_fetter).pack(side=tk.LEFT, padx=2)
-        ttk.Button(button_frame, text="删除", command=self.delete_fetter).pack(side=tk.LEFT, padx=2)
+        ttk.Button(button_frame, text="新建", command=self.create_faction).pack(side=tk.LEFT, padx=2)
+        ttk.Button(button_frame, text="编辑", command=self.edit_faction).pack(side=tk.LEFT, padx=2)
+        ttk.Button(button_frame, text="删除", command=self.delete_faction).pack(side=tk.LEFT, padx=2)
         ttk.Button(button_frame, text="刷新", command=self.refresh_list).pack(side=tk.LEFT, padx=2)
         #ttk.Button(button_frame, text="导入 JSON", command=import_from_json).pack(side=tk.LEFT, padx=2)
         #ttk.Button(button_frame, text="导出 JSON", command=self.export_json).pack(side=tk.LEFT, padx=2)
 
         # 右侧详情（分块显示）
-        detail_frame = ttk.LabelFrame(main_frame, text="Fetter 详情", padding="5")
+        detail_frame = ttk.LabelFrame(main_frame, text="Faction 详情", padding="5")
         detail_frame.grid(row=1, column=1, sticky=(tk.W, tk.E, tk.N, tk.S))
         detail_frame.columnconfigure(0, weight=1)
         detail_frame.rowconfigure(1, weight=1)
@@ -136,7 +136,7 @@ class FetterManagerUI:
             self.tree.delete(item)
 
         # 先拿到所有原始记录以获取 ID 列表及备用的 name
-        records = self.control.get_all_fetters() or []
+        records = self.controller.get_all_factions() or []
         ids = []
         backup_name = {}
         for r in records:
@@ -152,7 +152,7 @@ class FetterManagerUI:
         for fid in ids:
             comp = None
             try:
-                comp = self.control.get_fetter_by_id(fid) or {}
+                comp = self.controller.get_faction_by_id(fid) or {}
             except Exception:
                 comp = {}
             display_name = comp.get('name') or backup_name.get(fid, fid)
@@ -187,13 +187,13 @@ class FetterManagerUI:
             fid = item['values'][0]
 
         # 获取所有与该 id 对应的记录
-        fetter = self.control.get_fetter_by_id(fid)
+        faction = self.controller.get_faction_by_id(fid)
 
         # 生成复合结构: id, name, description (taken from first), effects: {num: [effects...]}
-        # composite = fetter.copy()
+        # composite = faction.copy()
 
         # 存储当前复合数据并渲染到右侧面板
-        self.current_composite = self.control.get_fetter_by_id(fid)
+        self.current_composite = self.controller.get_faction_by_id(fid)
         self.populate_detail()
 
     def populate_detail(self):
@@ -259,7 +259,7 @@ class FetterManagerUI:
 
     def on_add_threshold(self):
         if not self.current_composite:
-            messagebox.showwarning('提示', '请先选择或创建一个 Fetter')
+            messagebox.showwarning('提示', '请先选择或创建一个 Faction')
             return
         # 如果已有门槛，建议一个默认的 num（最大 +1），便于快速添加连续门槛
         suggested = ''
@@ -338,11 +338,11 @@ class FetterManagerUI:
         gen = None
         # 优先调用 controller 的 gen_description_sentence
         try:
-            if hasattr(self.control, 'gen_description_sentence'):
-                gen = self.control.gen_description_sentence(target)
-            elif hasattr(self.control, 'gen_description'):
+            if hasattr(self.controller, 'gen_description_sentence'):
+                gen = self.controller.gen_description_sentence(target)
+            elif hasattr(self.controller, 'gen_description'):
                 # gen_description 可能返回 dict，取第一条
-                gd = self.control.gen_description(target)
+                gd = self.controller.gen_description(target)
                 if isinstance(gd, dict):
                     gen = '；'.join(list(gd.values()))
                 else:
@@ -375,24 +375,12 @@ class FetterManagerUI:
         effects = self.current_composite.get('effects', {}) or {}
         gen = None
         try:
-            if hasattr(self.control, 'gen_description_sentence'):
-                gen = self.control.gen_description_sentence(effects)
-            elif hasattr(self.control, 'gen_description'):
-                gd = self.control.gen_description(effects)
-                if isinstance(gd, dict):
-                    gen = '；'.join(list(gd.values()))
-                else:
-                    gen = str(gd)
+            gd = self.controller.gen_description(effects)
+            if isinstance(gd, dict):
+                gen = '；'.join(list(gd.values()))
             else:
-                parts = []
-                for num in sorted(effects.keys(), key=lambda x: int(x) if str(x).isdigit() else x):
-                    effs = effects.get(num) or []
-                    if isinstance(effs, list):
-                        desc = '；'.join([effect_parser(e) if callable(effect_parser) else str(e) for e in effs])
-                    else:
-                        desc = str(effs)
-                    parts.append(f"当人数{num}时，{desc}")
-                gen = '；'.join(parts)
+                gen = str(gd)
+            
         except Exception as e:
             messagebox.showerror('错误', f'生成描述失败：{e}')
             return
@@ -450,10 +438,10 @@ class FetterManagerUI:
         if not self.current_composite:
             return
         try:
-            if hasattr(self.control, 'save_fetter'):
-                ok = self.control.save_fetter(self.current_composite)
-            elif hasattr(self.control, 'update_fetter_composite'):
-                ok = self.control.update_fetter_composite(self.current_composite)
+            if hasattr(self.controller, 'save_faction'):
+                ok = self.controller.save_faction(self.current_composite)
+            elif hasattr(self.controller, 'update_faction_composite'):
+                ok = self.controller.update_faction_composite(self.current_composite)
             else:
                 # 降级：尝试把 composite 拆成单条记录并调用 create/update
                 # 这里只做本地提示
@@ -463,58 +451,39 @@ class FetterManagerUI:
         except Exception as e:
             messagebox.showerror('保存失败', f'保存失败：{e}\n请检查后端接口')
 
-    def create_fetter(self):
-        """创建新羁绊。注意：Fetter 的主键是 (id, numofpeople)。
+    def create_faction(self):
+        """创建新羁绊。注意：Faction 的主键是 (id, numofpeople)。
         后端如果需要提供自动生成 num 或 id 的接口，请在 new_control/new_service 中实现；
         当前前端要求用户手动填写 id 和 numofpeople。
         """
         # 使用简化对话仅收集 id/name/description
-        dialog = SimpleFetterDialog(self.root, "新建 Fetter")
+        dialog = SimpleFactionDialog(self.root, "新建 Faction")
         if dialog.result:
             composite = dialog.result
             # 将 effects 留空（创建时仅保存元信息，后续可由编辑界面补充）
             composite.setdefault('effects', {})
-            try:
-                if hasattr(self.control, 'save_fetter'):
-                    ok = self.control.save_fetter(composite)
-                elif hasattr(self.control, 'insert_fetter_composite'):
-                    ok = self.control.insert_fetter_composite(composite)
-                else:
-                    # 如果后端只支持 create_fetter 单项插入，尝试降级：拆分成多条变体插入（numofpeople 默认为 0）
-                    if hasattr(self.control, 'create_fetter'):
-                        # 构造兼容旧接口的单条记录
-                        rec = {
-                            'id': composite['id'],
-                            'numofpeople': 0,
-                            'name': composite.get('name'),
-                            'description': composite.get('description')
-                        }
-                        ok = self.control.create_fetter(rec)
-                    else:
-                        raise AttributeError('control 不支持保存复合 fetter，请实现 save_fetter/composite 接口')
-                if ok:
-                    self.refresh_list()
-                    messagebox.showinfo("成功", "Fetter 创建成功！")
-                else:
-                    messagebox.showerror("失败", "后端返回失败或未实现保存逻辑")
-            except Exception as e:
-                messagebox.showerror("错误", f"创建失败：{e}\n生成的数据：{json.dumps(composite, ensure_ascii=False, indent=2)}")
+            ok = self.controller.save_faction(composite)
+            if ok:
+                self.refresh_list()
+                messagebox.showinfo("成功", "Faction 创建成功！")
+            else:
+                messagebox.showerror("失败", "后端返回失败或未实现保存逻辑")
 
-    def edit_fetter(self):
-        """编辑羁绊。因为主键是 (id, numofpeople)，若所选 ID 有多个 numofpeople，需要先选择具体变体。"""
+    def edit_faction(self):
+        """编辑羁绊。"""
         selection = self.tree.selection()
         if not selection:
-            messagebox.showwarning("警告", "请先在左侧选择一个 Fetter ID！")
+            messagebox.showwarning("警告", "请先在左侧选择一个 Faction ID！")
             return
         item = self.tree.item(selection[0])
         fid = item['values'][0]
         variants = str(item['values'][1]).split(',') if item['values'][1] else []
 
         # 构建复合结构并交给编辑对话框
-        all_fetters = self.control.get_all_fetters()
-        variants = [f for f in all_fetters if f.get('id') == fid]
+        all_factions = self.controller.get_all_factions()
+        variants = [f for f in all_factions if f.get('id') == fid]
         if not variants:
-            messagebox.showerror("错误", "未能获取到指定的 Fetter 记录，请检查后端接口是否支持查询")
+            messagebox.showerror("错误", "未能获取到指定的 Faction 记录，请检查后端接口是否支持查询")
             return
 
         composite = {
@@ -538,42 +507,42 @@ class FetterManagerUI:
                 except Exception:
                     composite['effects'][key] = []
 
-        dialog = FetterDialog(self.root, "编辑 Fetter", fetter=composite, control=self.control)
+        dialog = FactionDialog(self.root, "编辑 Faction", faction=composite, control=self.controller)
         if dialog.result:
             composite_res = dialog.result
             try:
-                if hasattr(self.control, 'save_fetter'):
-                    ok = self.control.save_fetter(composite_res)
-                elif hasattr(self.control, 'update_fetter_composite'):
-                    ok = self.control.update_fetter_composite(composite_res)
+                if hasattr(self.controller, 'save_faction'):
+                    ok = self.controller.save_faction(composite_res)
+                elif hasattr(self.controller, 'update_faction_composite'):
+                    ok = self.controller.update_faction_composite(composite_res)
                 else:
-                    raise AttributeError('control 不支持保存复合 fetter，请实现 save_fetter(composite)')
+                    raise AttributeError('control 不支持保存复合 faction，请实现 save_faction(composite)')
                 if ok:
                     self.refresh_list()
-                    messagebox.showinfo("成功", "Fetter 更新成功！")
+                    messagebox.showinfo("成功", "Faction 更新成功！")
                 else:
                     messagebox.showerror("失败", "后端返回失败或未实现保存逻辑")
             except Exception as e:
                 messagebox.showerror("错误", f"更新失败：{e}\n生成的数据：{json.dumps(composite_res, ensure_ascii=False, indent=2)}")
 
-    def delete_fetter(self):
+    def delete_faction(self):
         """删除羁绊，同样需要指定 numofpeople。如果所选 ID 有多个变体，会要求选择具体变体。"""
         selection = self.tree.selection()
         if not selection:
-            messagebox.showwarning("警告", "请先在左侧选择一个 Fetter ID！")
+            messagebox.showwarning("警告", "请先在左侧选择一个 Faction ID！")
             return
         item = self.tree.item(selection[0])
-        fid = item['values'][0]
+        fid = self.current_composite.get('id') if self.current_composite else item['values'][0]
         variants = str(item['values'][1]).split(',') if item['values'][1] else []
 
         try:
-            # 同 edit 中的说明，delete_fetter 接口在 control 层接受单个 fetter_id，目前后端实现可能需要调整为复合主键
-            # 我们尝试直接调用 delete_fetter，并传入复合主键元组；若后端不支持，请在后端实现支持 (id, numofpeople)
-            res = self.control.delete_fetter(fid)
+            # 同 edit 中的说明，delete_faction 接口在 control 层接受单个 faction_id，目前后端实现可能需要调整为复合主键
+            # 我们尝试直接调用 delete_faction，并传入复合主键元组；若后端不支持，请在后端实现支持 (id, numofpeople)
+            res = self.controller.delete_faction(fid)
             if res:
                 self.refresh_list()
                 # self.detail_text.delete(1.0, tk.END)
-                messagebox.showinfo("成功", "Fetter 删除成功！")
+                messagebox.showinfo("成功", "Faction 删除成功！")
             else:
                 messagebox.showerror("失败", "删除失败，后端返回 False 或 未实现复合主键删除")
         except Exception as e:
@@ -581,7 +550,7 @@ class FetterManagerUI:
 
     def export_json(self):
         try:
-            self.control.dumpJson()
+            self.controller.dumpJson()
             messagebox.showinfo("成功", "JSON 导出成功！")
         except Exception as e:
             messagebox.showerror("错误", f"导出失败：{e}")
@@ -598,7 +567,7 @@ class VariantSelectDialog:
         self.dialog.transient(parent)
         self.dialog.grab_set()
 
-        ttk.Label(self.dialog, text=f"Fetter: {fid}").pack(pady=5)
+        ttk.Label(self.dialog, text=f"Faction: {fid}").pack(pady=5)
         self.listbox = tk.Listbox(self.dialog)
         for v in variants:
             self.listbox.insert(tk.END, v)
@@ -623,12 +592,12 @@ class VariantSelectDialog:
         self.dialog.destroy()
 
 
-class FetterDialog:
-    """用于创建/编辑单条 Fetter 记录的对话框"""
+class FactionDialog:
+    """用于创建/编辑单条 Faction 记录的对话框"""
 
-    def __init__(self, parent, title, fetter: dict = None, control: FetterController = None):
+    def __init__(self, parent, title, faction: dict = None, control: FactionController = None):
         self.result = None
-        self.control = control
+        self.controller = control
 
         self.dialog = tk.Toplevel(parent)
         self.dialog.title(title)
@@ -657,24 +626,24 @@ class FetterDialog:
         self.effects_text.grid(row=3, column=1, sticky=(tk.W, tk.E), pady=2)
 
         # 如果是编辑模式，填充现有数据；支持传入复合结构或单项结构
-        if fetter:
-            # fetter 可能是复合结构
-            fid = fetter.get('id')
+        if faction:
+            # faction 可能是复合结构
+            fid = faction.get('id')
             if fid is not None:
                 self.id_entry.insert(0, str(fid))
                 try:
                     self.id_entry.state(['readonly'])
                 except Exception:
                     self.id_entry.config(state='readonly')
-            name = fetter.get('name') or ''
+            name = faction.get('name') or ''
             self.name_entry.insert(0, str(name))
-            desc = fetter.get('description', '')
+            desc = faction.get('description', '')
             if isinstance(desc, (dict, list)):
                 self.desc_text.insert(1.0, json.dumps(desc, ensure_ascii=False, indent=2))
             else:
                 self.desc_text.insert(1.0, str(desc))
             # effects 期望为 dict，显示为 json
-            effects = fetter.get('effects') or {}
+            effects = faction.get('effects') or {}
             try:
                 self.effects_text.insert(1.0, json.dumps(effects, ensure_ascii=False, indent=2))
             except Exception:
@@ -731,9 +700,9 @@ class FetterDialog:
         self.dialog.destroy()
 
 
-class SimpleFetterDialog:
+class SimpleFactionDialog:
     """用于仅创建时收集 id、name、description 的简化对话框"""
-    def __init__(self, parent, title="新建 Fetter 简化"):
+    def __init__(self, parent, title="新建 Faction 简化"):
         self.result = None
         self.dialog = tk.Toplevel(parent)
         self.dialog.title(title)
@@ -779,5 +748,5 @@ class SimpleFetterDialog:
 
 if __name__ == "__main__":
     root = tk.Tk()
-    app = FetterManagerUI(root, 'test')
+    app = FactionManagerUI(root, 'test')
     root.mainloop()

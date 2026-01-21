@@ -27,7 +27,7 @@
       1.0
     ]
   ],
-  "fetter": [],
+  "faction": [],
   "max_initiative": 1,
   "skills": [
     "modid:default_skill"

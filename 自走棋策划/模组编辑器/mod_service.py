@@ -13,8 +13,8 @@ class ModService:
         if res:
             char = dao.get_default_data('character')
             CharacterService(self.modid).create_character(char)
-            fet = dao.get_default_data('fetter')
-            FetterService(self.modid).create_fetter(fet)
+            fet = dao.get_default_data('faction')
+            FactionService(self.modid).create_faction(fet)
 
         return res
     
@@ -36,6 +36,8 @@ class CharacterService:
         return characters
 
     def get_character_by_id(self, char_id):
+        if char_id.startswith(f"{self.modid}:character/"):
+            char_id = char_id.split('/')[-1]
         char_data = self.dao.get_character_by_id(char_id)
         for key, value in char_data.items():
             if isinstance(value, str):
@@ -54,7 +56,8 @@ class CharacterService:
             else:
                 if key in char_data:
                     char[key] = char_data[key]
-        res = self.dao.create_character(char)
+        char['id'] = f"{self.modid}:character/{char_data.get('id')}"
+        res = self.dao.create_character(char_data.get('id'), char)
         if res:
             for lang_key in new_keys:
                 key = lang_key.split('.')[-1]
@@ -62,7 +65,10 @@ class CharacterService:
             dao.LangDao.add_lang_key(self.modid, new_keys)
         return res
 
-    def update_character(self, char_id, char_data):
+    def update_character(self, char_data):
+        char_id = char_data.get('id')
+        if char_id.startswith(f"{self.modid}:character/"):
+            char_id = char_id.split('/')[-1]
         for key in ['name', 'background', 'description']:
             lang_key = f"{self.modid}.character.{char_id}.{key}"
             dao.LangDao.set_lang(self.modid, lang_key, char_data.get(key, ''))
@@ -90,74 +96,81 @@ class CharacterService:
             return list(default_char.keys())
         return []
     
-class FetterService:
+class FactionService:
     def __init__(self, modid):
         self.modid = modid
-        self.dao = dao.FetterDao(modid)
+        self.dao = dao.FactionDao(modid)
 
-    def get_all_fetters(self):
-        fetter_ids = self.dao.get_all_fetter_ids()
-        fetters = []
-        for fid in fetter_ids:
-            fetter = self.get_fetter_by_id(fid)
-            if fetter:
-                fetters.append(fetter)
-        return fetters
+    def get_all_factions(self) -> list[dict]:
+        faction_ids = self.dao.get_all_faction_ids()
+        factions = []
+        for fid in faction_ids:
+            faction = self.get_faction_by_id(fid)
+            if faction:
+                factions.append(faction)
+        return factions
     
-    def get_fetter_by_id(self, fetter_id):
-        fetter_data = self.dao.get_fetter_by_id(fetter_id)
-        for key, value in fetter_data.items():
+    def get_faction_by_id(self, faction_id):
+        if faction_id.startswith(f"{self.modid}:faction/"):
+            faction_id = faction_id.split('/')[-1]
+        faction_data = self.dao.get_faction_by_id(faction_id)
+        for key, value in faction_data.items():
             if isinstance(value, str):
                 if '.' in value:
-                    fetter_data[key] = t(self.modid, dao.get_default_language(self.modid), value)
-        return fetter_data
+                    faction_data[key] = t(self.modid, dao.get_default_language(self.modid), value)
+        return faction_data
 
-    def create_fetter(self, fetter_data):
-        fetter = dao.get_default_data('fetter')
-        fetter['effects'] = {}
+    def create_faction(self, faction_data):
+        faction = dao.get_default_data('faction')
+        faction['effects'] = {}
         new_keys = []
-        for key in fetter:
+        for key in faction:
             if key in ['name', 'description']:
-                lang_key = f"{self.modid}.fetter.{fetter_data.get('id')}.{key}"
-                fetter[key] = lang_key
+                lang_key = f"{self.modid}.faction.{faction_data.get('id')}.{key}"
+                faction[key] = lang_key
                 new_keys.append(lang_key)
             else:
-                if key in fetter_data:
-                    fetter[key] = fetter_data[key]
-        res = self.dao.create_fetter(fetter)
+                if key in faction_data:
+                    faction[key] = faction_data[key]
+        faction_id = f"{self.modid}:faction/{faction_data.get('id')}"
+        faction['id'] = faction_id
+        res = self.dao.create_faction(faction_data.get('id'), faction)
         if res:
             for lang_key in new_keys:
                 key = lang_key.split('.')[-1]
-                dao.LangDao.set_lang(self.modid, lang_key, fetter_data.get(key, ''))
+                dao.LangDao.set_lang(self.modid, lang_key, faction_data.get(key, ''))
             dao.LangDao.add_lang_key(self.modid, new_keys)
         return res
 
-    def update_fetter(self, fetter_id, fetter_data):
-        for key in ['name', 'description']:
-            lang_key = f"{self.modid}.fetter.{fetter_id}.{key}"
-            dao.LangDao.set_lang(self.modid, lang_key, fetter_data.get(key, ''))
-            fetter_data[key] = lang_key
-        return self.dao.update_fetter(fetter_id, fetter_data)
+    def update_faction(self, faction_data):
+        faction_id = faction_data.get('id')
+        if faction_id.startswith(f"{self.modid}:faction/"):
+            faction_id = faction_id.split('/')[-1]
+        res = self.dao.update_faction(faction_id, faction_data)
+        if res:
+            for key in ['name', 'description']:
+                lang_key = f"{self.modid}.faction.{faction_id}.{key}"
+                dao.LangDao.set_lang(self.modid, lang_key, faction_data.get(key, ''))
+                faction_data[key] = lang_key
 
-    def save_fetter(self, fetter_dict):
-        fetter_id = fetter_dict.get('id')
-        existing_fetter = self.get_fetter_by_id(fetter_id)
-        if existing_fetter:
-            return self.update_fetter(fetter_id, fetter_dict)
+    def save_faction(self, faction_dict):
+        faction_id = faction_dict.get('id')
+        if self.dao.has_id(faction_id):
+            return self.update_faction(faction_id, faction_dict)
         else:
-            return self.create_fetter(fetter_dict)
+            return self.create_faction(faction_dict)
 
-    def delete_fetter(self, fetter_id):
+    def delete_faction(self, faction_id):
         lang_keys = [
-            f"{self.modid}.fetter.{fetter_id}.{key}"
+            f"{self.modid}.faction.{faction_id}.{key}"
             for key in ['name', 'description']
         ]
-        res = self.dao.delete_fetter(fetter_id)
+        res = self.dao.delete_faction(faction_id)
         if res:
             dao.LangDao.del_lang(self.modid, lang_keys)
             dao.LangDao.remove_lang_key(self.modid, lang_keys)
         return res
-
+    
     def gen_description(self, effects_dict: dict):
 
         def extract_simple(s):
@@ -196,6 +209,6 @@ class FetterService:
 
 if __name__ == "__main__":
     modid = 'test'
-    fs = FetterService(modid)
-    aaa = fs.get_fetter_by_id('aaa')
+    fs = FactionService(modid)
+    aaa = fs.get_faction_by_id('aaa')
     print(fs.gen_description(aaa.get('effects', {})))

@@ -5,15 +5,12 @@ Character 数据库管理 UI
 import tkinter as tk
 from tkinter import ttk, messagebox, scrolledtext
 import json, sys, os
+from utils import log, effect_parser
 
 # 添加当前目录到路径
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from mod_controller import CharacterController
-
-class FetterController:
-    """Fetter 控制器占位类"""
-    pass
+from mod_controller import CharacterController, FactionController
 
 class CharacterManagerUI:
     """Character 管理 UI 类"""
@@ -26,7 +23,7 @@ class CharacterManagerUI:
         
         # 初始化数据访问对象
         #self.dao = CharacterDao()
-        self.control = CharacterController(modid)
+        self.controller = CharacterController(modid)
 
         # 创建 UI 组件
         self.create_widgets()
@@ -105,7 +102,7 @@ class CharacterManagerUI:
         
         # 加载数据
         #characters = self.dao.read_all()
-        characters = self.control.get_all_characters()
+        characters = self.controller.get_all_characters()
         for char in characters:
             self.tree.insert("", tk.END, values=(
                 char.get('id', ''),
@@ -124,7 +121,7 @@ class CharacterManagerUI:
 
             # 获取完整数据
             #char = self.dao.read(char_id)
-            char = self.control.get_character_by_id(char_id)
+            char = self.controller.get_character_by_id(char_id)
             if char:
                 # 显示详情
                 self.detail_text.delete(1.0, tk.END)
@@ -134,7 +131,7 @@ class CharacterManagerUI:
         d = ColumnDialog(self.root, '新增 Character 列')
         if d.result:
             try:
-                self.control.add_character_column(d.result)
+                self.controller.add_character_column(d.result)
                 self.refresh_list()
                 messagebox.showinfo('成功', f'新增列 {d.result.get("name")} 成功')
             except Exception as e:
@@ -143,11 +140,11 @@ class CharacterManagerUI:
     def create_character(self):
         """创建新 character"""
         # 获取下一个可用的自增 ID 并传入对话框以便预填充
-        dialog = CharacterDialog(self.root, "新建 Character", default_id=None, control=self.control)
+        dialog = CharacterDialog(self.root, "新建 Character", default_id=None, control=self.controller)
         if dialog.result:
             try:
                 #self.dao.create(dialog.result)
-                res = self.control.create_character(dialog.result)
+                res = self.controller.create_character(dialog.result)
                 if res:
                     self.refresh_list()
                     messagebox.showinfo("成功", "Character 创建成功！")
@@ -168,17 +165,13 @@ class CharacterManagerUI:
         
         # 获取完整数据
         #char = self.dao.read(char_id)
-        char = self.control.get_character_by_id(char_id)
+        char = self.controller.get_character_by_id(char_id)
         if char:
-            dialog = CharacterDialog(self.root, "编辑 Character", char, control=self.control)
+            dialog = CharacterDialog(self.root, "编辑 Character", char, control=self.controller)
             if dialog.result:
                 try:
-                    # 移除 id 字段，因为 update 方法中 id 是作为参数传入的
-                    update_data = dialog.result.copy()
-                    if 'id' in update_data:
-                        del update_data['id']
                     
-                    res = self.control.update_character(char_id, update_data)
+                    res = self.controller.update_character(dialog.result)
                     if res:
                         self.refresh_list()
                         messagebox.showinfo("成功", "Character 更新成功！")
@@ -199,7 +192,7 @@ class CharacterManagerUI:
         
         if messagebox.askyesno("确认", f"确定要删除 Character {char_id} 吗？"):
             try:
-                self.control.delete_character(char_id)
+                self.controller.delete_character(char_id)
                 self.refresh_list()
                 self.detail_text.delete(1.0, tk.END)
                 messagebox.showinfo("成功", "Character 删除成功！")
@@ -211,7 +204,8 @@ class CharacterDialog:
 
     def __init__(self, parent, title, character=None, default_id=None, control: CharacterController = None):
         self.result = None
-        self.control = control if control else CharacterController('default_mod')
+        self.controller = control if control else CharacterController('default_mod')
+        self.modid = self.controller.modid
 
         # 创建对话框窗口
         self.dialog = tk.Toplevel(parent)
@@ -238,20 +232,20 @@ class CharacterDialog:
         canvas.configure(yscrollcommand=scrollbar.set)
         
         # 字段定义（静态字段）
-        _fields = self.control.get_default_fields()
+        _fields = self.controller.get_default_fields()
 
         def get_type(field):
             field_dic = {
                 'entry':['id', 'name', 'attack_power', 'health_points', 'speed', 'hate_value', 'price', 'energy'],
-                # 注意：后端/元数据中可能使用 'fetter' 或 'fetters'，这里统一识别 'fetter'
-                'text':['weapon', 'avaliable_location', 'hate_matrix', 'fetter', 'fetters']
+                # 注意：后端/元数据中可能使用 'faction' 或 'factions'，这里统一识别 'faction'
+                'text':['weapon', 'avaliable_location', 'hate_matrix', 'faction', 'factions']
             }
             for t, f in field_dic.items():
                 if field in f:
                     return t
             return 'text'
 
-        # 使用后端返回的列顺序，但确保我们包含 fetter 字段
+        # 使用后端返回的列顺序，但确保我们包含 faction 字段
         fields = [(field, field, get_type(field)) for field in _fields]
         self.entries = {}
 
@@ -282,8 +276,8 @@ class CharacterDialog:
                 self.entries[field_name] = entry
             
             elif field_type == 'text':
-                # 特殊处理 fetter 字段：改为只读文本 + 打开羁绊选择窗口
-                if field_name in ('fetter', 'fetters'):
+                # 特殊处理 faction 字段：改为只读文本 + 打开羁绊选择窗口
+                if field_name in ('faction', 'factions'):
                      container = ttk.Frame(scrollable_frame)
                      container.grid(row=row, column=1, sticky=(tk.W, tk.E), pady=2)
 
@@ -295,7 +289,7 @@ class CharacterDialog:
                      except Exception:
                          pass
 
-                     btn = ttk.Button(container, text='选择羁绊', command=lambda tw=text_widget: self.open_fetter_selector(tw))
+                     btn = ttk.Button(container, text='选择羁绊', command=lambda tw=text_widget: self.open_faction_selector(tw))
                      btn.grid(row=0, column=1, padx=5)
 
                      # 如果是编辑模式，填充现有数据（显示为 JSON）
@@ -390,9 +384,9 @@ class CharacterDialog:
                     continue
                 
                 # 对于 JSON 字段，尝试解析
-                if field_name in ['weapon', 'avaliable_location', 'fetter', 'hate_matrix']:
+                if field_name in ['weapon', 'avaliable_location', 'faction', 'hate_matrix']:
                     try:
-                        value = json.loads(value)
+                        json.loads(value)
                     except:
                         pass
                 
@@ -423,9 +417,9 @@ class CharacterDialog:
         """取消按钮处理"""
         self.dialog.destroy()
 
-    def open_fetter_selector(self, text_widget: tk.Text):
-        """打开羁绊选择对话框，并把用户确认的预览写回到 fetter 文本框（只写入 JSON 列表）"""
-        # 解析当前已存在的 fetter 内容作为初始选择
+    def open_faction_selector(self, text_widget: tk.Text):
+        """打开羁绊选择对话框，并把用户确认的预览写回到 faction 文本框（只写入 JSON 列表）"""
+        # 解析当前已存在的 faction 内容作为初始选择
         current = []
         try:
             text_widget.config(state='normal')
@@ -440,7 +434,7 @@ class CharacterDialog:
         except Exception:
             current = []
 
-        dlg = FetterSelectorDialog(self.dialog, current)
+        dlg = FactionSelectorDialog(self.dialog, current, modid=self.modid)
         if dlg.result is not None:
             sel = dlg.result
             # 将选择结果写入只读文本框
@@ -509,12 +503,12 @@ class ColumnDialog:
         self.dialog.destroy()
 
 
-class FetterSelectorDialog:
+class FactionSelectorDialog:
     """选择羁绊的对话框：左上为羁绊列表（同名只出现一次），右上为选中羁绊详情，双击列表项切换选中状态，下方为已选羁绊预览（JSON）。"""
 
-    def __init__(self, parent, initial_selected=None, title='选择羁绊'):
+    def __init__(self, parent, initial_selected=None, title='选择羁绊', modid='default_mod'):
         self.result = None
-        self.control = FetterController()
+        self.controller = FactionController(modid=modid)
 
         self.dialog = tk.Toplevel(parent)
         self.dialog.title(title)
@@ -563,17 +557,17 @@ class FetterSelectorDialog:
 
         # load data
         self.selected = set(initial_selected or [])
-        self._load_fetters()
+        self._load_factions()
         self._refresh_preview()
 
         self.dialog.wait_window()
 
-    def _load_fetters(self):
-        all_f = self.control.get_all_fetters()
+    def _load_factions(self):
+        all_f = self.controller.get_all_factions()
         grouped = {}
         for f in all_f:
             fid = f.get('id')
-            n = f.get('numofpeople')
+            n = ','.join(f.get('effects', {}).keys()) if f.get('effects') else ''
             if fid is None:
                 continue
             grouped.setdefault(fid, []).append(n)
@@ -593,11 +587,11 @@ class FetterSelectorDialog:
         item = self.tree.item(sel[0])
         fid = item['values'][0]
         # show details for this fid
-        all_f = self.control.get_all_fetters()
-        res = [f for f in all_f if f.get('id') == fid]
+        faction_dict = self.controller.get_faction_by_id(fid)
+        faction_dict['effects'] = self.controller.gen_description(faction_dict.get('effects', {}))
         self.info_text.config(state='normal')
         self.info_text.delete(1.0, tk.END)
-        self.info_text.insert(1.0, json.dumps(res, ensure_ascii=False, indent=2))
+        self.info_text.insert(1.0, json.dumps(faction_dict, ensure_ascii=False, indent=2))
         self.info_text.config(state='disabled')
 
     def on_double(self, event):

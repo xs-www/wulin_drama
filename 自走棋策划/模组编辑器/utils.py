@@ -48,7 +48,7 @@ class Logger:
     def __init__(self):
         self.entries: list[Entry] = []
 
-    def console(self, content: str, info_type: str = "INFO", record: bool = False) -> bool:
+    def console(self, content: str, info_type: str = "INFO", record: bool = True) -> bool:
         entry = Entry(content, info_type)
         _term_console.print(entry.rich_str())   # ① 终端走 rich
         if record:
@@ -88,6 +88,7 @@ ATTRS = {
     "ATK": "攻击力",
     "MHP": "最大生命值",
     "HP": "生命值",
+    "DEF": "防御力",
     "DMG": "伤害",
     "SPD": "速度",
     "SPEED": "速度",
@@ -98,7 +99,11 @@ ATTRS = {
     "HTE": "仇恨值",
     "HATE": "仇恨值",
     "CRTRA": "暴击率",
-    "CRTDMG": "暴击伤害"
+    "CRITRATE": "暴击率",
+    "CRTDMG": "暴击伤害",
+    "CRITDAMAGE": "暴击伤害",
+    "INITIA": "先攻值",
+    "INITIATIVE": "先攻值",
 }
 
 def effect_parser(effect_dict: dict, highlight_num = False) -> str:
@@ -127,7 +132,7 @@ def effect_parser(effect_dict: dict, highlight_num = False) -> str:
             case _:
                 return "暂不支持该效果类型的解析"
     except Exception as e:
-        log.console(f"解析效果失败: {e}", "ERROR")
+        log.console(f"解析效果失败: {e}", "ERROR", False)
         return "格式错误，请检查输入"
     
 def parse_param(effect_type: str, param: str, highlight_num = False) -> dict:
