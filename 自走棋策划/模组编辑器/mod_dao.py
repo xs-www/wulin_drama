@@ -270,19 +270,48 @@ class SkillDao:
     def get_all_skill_ids(self):
         res = []
         if not self.file_path.exists():
-            log.console(f"Skill data path does not exist: {self.file_path}", "WARN")
+            log.console(f"技能数据路径不存在: {self.file_path}", "WARN")
             return res
         res = [f.stem for f in self.file_path.glob('*.json') if f.is_file()]
         return res
 
-    def load_skill_by_id(self, skill_id=None):
+    def get_skill_by_id(self, skill_id=None):
         res = None
         if skill_id:
-            log.console(f"Loading skill data for ID: {skill_id}", "INFO")
+            log.console(f"加载技能数据，ID: {skill_id}", "INFO")
             res = load_json(self.file_path / f'{skill_id}.json')
-        log.console(f"Skill data loaded for ID: {skill_id}", "INFO")
+        log.console(f"技能数据加载完成，ID: {skill_id}", "INFO")
         return res
 
+    def create_skill(self, skill_id, skill_data):
+        file_path = self.file_path / f'{skill_id}.json'
+        if file_path.exists():
+            log.console(f"技能ID {skill_id} 已存在。", "ERROR")
+            return False
+        with open(file_path, 'w', encoding='utf-8') as f:
+            json.dump(skill_data, f, ensure_ascii=False, indent=2)
+        log.console(f"技能创建成功，ID: {skill_id}", "INFO")
+        return True
+    
+    def update_skill(self, skill_id, skill_data):
+        file_path = self.file_path / f'{skill_id}.json'
+        if not file_path.exists():
+            log.console(f"技能ID {skill_id} 不存在，无法更新。", "ERROR")
+            return False
+        with open(file_path, 'w', encoding='utf-8') as f:
+            json.dump(skill_data, f, ensure_ascii=False, indent=2)
+        log.console(f"技能更新成功，ID: {skill_id}", "INFO")
+        return True
+
+    def delete_skill(self, skill_id):
+        file_path = self.file_path / f'{skill_id}.json'
+        if not file_path.exists():
+            log.console(f"技能ID {skill_id} 不存在，无法删除。", "ERROR")
+            return False
+        os.remove(file_path)
+        log.console(f"技能已删除，ID: {skill_id}", "INFO")
+        return True
+    
 class BuffDao:
     
     def __init__(self, modid):
@@ -295,17 +324,46 @@ class BuffDao:
     def get_all_buff_ids(self):
         res = []
         if not self.file_path.exists():
-            log.console(f"Buff data path does not exist: {self.file_path}", "WARN")
+            log.console(f"Buff数据路径不存在: {self.file_path}", "WARN")
             return res
         res = [f.stem for f in self.file_path.glob('*.json') if f.is_file()]
         return res
 
     def load_buff_by_id(self, buff_id=None):
         if buff_id:
-            log.console(f"Loading buff data for ID: {buff_id}", "INFO")
+            log.console(f"加载Buff数据，ID: {buff_id}", "INFO")
             return load_json(self.file_path / f'{buff_id}.json')
-        log.console("No buff ID provided for loading.", "WARN")
+        log.console("未提供Buff ID进行加载。", "WARN")
         return None
+    
+    def create_buff(self, buff_id, buff_data):
+        file_path = self.file_path / f'{buff_id}.json'
+        if file_path.exists():
+            log.console(f"Buff ID {buff_id} 已存在。", "ERROR")
+            return False
+        with open(file_path, 'w', encoding='utf-8') as f:
+            json.dump(buff_data, f, ensure_ascii=False, indent=2)
+        log.console(f"Buff创建成功，ID: {buff_id}", "INFO")
+        return True
+    
+    def update_buff(self, buff_id, buff_data):
+        file_path = self.file_path / f'{buff_id}.json'
+        if not file_path.exists():
+            log.console(f"Buff ID {buff_id} 不存在，无法更新。", "ERROR")
+            return False
+        with open(file_path, 'w', encoding='utf-8') as f:
+            json.dump(buff_data, f, ensure_ascii=False, indent=2)
+        log.console(f"Buff更新成功，ID: {buff_id}", "INFO")
+        return True
+    
+    def delete_buff(self, buff_id):
+        file_path = self.file_path / f'{buff_id}.json'
+        if not file_path.exists():
+            log.console(f"Buff ID {buff_id} 不存在，无法删除。", "ERROR")
+            return False
+        os.remove(file_path)
+        log.console(f"Buff已删除，ID: {buff_id}", "INFO")
+        return True
     
 class FactionDao:
 
@@ -365,7 +423,64 @@ class FactionDao:
     
     def has_id(self, faction_id):
         file_path = self.file_path / f'{faction_id}.json'
+        print(f"Checking existence of faction ID {faction_id} at {file_path}")
         return file_path.exists()
+
+class EventDao:
+
+    def __init__(self, modid):
+        self.modid = modid
+        self.file_path = BASE_DIR / "mods" / modid / 'data' / modid / 'events/'
+
+        if not self.file_path.exists():
+            self.file_path.mkdir(parents=True, exist_ok=True)
+
+    def get_all_event_ids(self):
+        res = []
+        if not self.file_path.exists():
+            log.console(f"事件数据路径不存在: {self.file_path}", "WARN")
+            return res
+        res = [f.stem for f in self.file_path.glob('*.json') if f.is_file()]
+        return res
+
+    def get_event_by_id(self, event_id=None):
+        if event_id:
+            log.console(f"加载事件数据，ID: {event_id}", "INFO")
+            return load_json(self.file_path / f'{event_id}.json')
+        log.console("未提供事件ID进行加载。", "WARN")
+        return None
+
+    def create_event(self, event_id, event_data):
+        file_path = self.file_path / f'{event_id}.json'
+        if not self.file_path.exists():
+            print(f"Creating event data directory: {self.file_path}")
+            self.file_path.mkdir(parents=True, exist_ok=True)
+        if file_path.exists():
+            log.console(f"事件ID {event_id} 已存在。", "ERROR")
+            return False
+        with open(file_path, 'w', encoding='utf-8') as f:
+            json.dump(event_data, f, ensure_ascii=False, indent=2)
+        log.console(f"事件创建成功，ID: {event_id}", "INFO")
+        return True
+
+    def update_event(self, event_id, event_data):
+        file_path = self.file_path / f'{event_id}.json'
+        if not file_path.exists():
+            log.console(f"事件ID {event_id} 不存在，无法更新。", "ERROR")
+            return False
+        with open(file_path, 'w', encoding='utf-8') as f:
+            json.dump(event_data, f, ensure_ascii=False, indent=2)
+        log.console(f"事件更新成功，ID: {event_id}", "INFO")
+        return True
+
+    def delete_event(self, event_id):
+        file_path = self.file_path / f'{event_id}.json'
+        if not file_path.exists():
+            log.console(f"事件ID {event_id} 不存在，无法删除。", "ERROR")
+            return False
+        os.remove(file_path)
+        log.console(f"事件已删除，ID: {event_id}", "INFO")
+        return True
 
 if __name__ == '__main__':
     moddao = ModDao("test")

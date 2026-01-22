@@ -1,0 +1,8 @@
+{
+    "id": "defalut_event",
+    "name": "默认事件",
+    "description": "这是一个默认事件，用于测试和示例目的。",
+    "params": [
+        "param1"
+    ]
+}

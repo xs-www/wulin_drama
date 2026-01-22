@@ -10,7 +10,7 @@ from utils import log, effect_parser
 # 添加当前目录到路径
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from mod_controller import CharacterController, FactionController
+from mod_controller import CharacterController, FactionController, SkillController
 
 class CharacterManagerUI:
     """Character 管理 UI 类"""
@@ -306,6 +306,36 @@ class CharacterDialog:
                              text_widget.config(state='disabled')
 
                      self.entries[field_name] = text_widget
+                # 特殊处理技能字段：只读文本 + 打开技能选择窗口（行为类似羁绊选择器）
+                elif field_name in ('skill', 'skills'):
+                     container = ttk.Frame(scrollable_frame)
+                     container.grid(row=row, column=1, sticky=(tk.W, tk.E), pady=2)
+
+                     text_widget = tk.Text(container, width=40, height=4)
+                     text_widget.grid(row=0, column=0, sticky=(tk.W, tk.E))
+                     container.columnconfigure(0, weight=1)
+                     try:
+                         text_widget.config(state='disabled')
+                     except Exception:
+                         pass
+
+                     btn = ttk.Button(container, text='选择技能', command=lambda tw=text_widget: self.open_skill_selector(tw))
+                     btn.grid(row=0, column=1, padx=5)
+
+                     # 如果是编辑模式，填充现有数据（显示为 JSON）
+                     if character and field_name in character:
+                         value = character[field_name]
+                         if value is not None:
+                             if isinstance(value, (list, dict)):
+                                 txt = json.dumps(value, ensure_ascii=False, indent=2)
+                             else:
+                                 txt = str(value)
+                             text_widget.config(state='normal')
+                             text_widget.delete(1.0, tk.END)
+                             text_widget.insert(1.0, txt)
+                             text_widget.config(state='disabled')
+
+                     self.entries[field_name] = text_widget
                 # 特殊处理仇恨偏好矩阵：只读文本 + 打开 3x3 编辑窗口
                 elif field_name == 'hate_matrix':
                     container = ttk.Frame(scrollable_frame)
@@ -375,27 +405,37 @@ class CharacterDialog:
             
             for field_name, widget in self.entries.items():
                 if isinstance(widget, tk.Text):
-                    value = widget.get(1.0, tk.END).strip()
+                    raw = widget.get(1.0, tk.END).strip()
                 else:
-                    value = widget.get().strip()
+                    raw = widget.get().strip()
                 
                 # 跳过空值
-                if not value:
+                if not raw:
                     continue
-                
-                # 对于 JSON 字段，尝试解析
-                if field_name in ['weapon', 'avaliable_location', 'faction', 'hate_matrix']:
+
+                value = raw
+                # 对 Text 字段，尝试解析为 JSON（优先返回结构化类型）
+                if isinstance(widget, tk.Text):
                     try:
-                        json.loads(value)
-                    except:
-                        pass
-                
-                # 对于数字字段，转换为整数
-                elif field_name in ['attack_power', 'health_points', 'speed', 'hate_value', 'price', 'energy']:
-                    try:
-                        value = int(value)
-                    except:
-                        pass
+                        parsed = json.loads(raw)
+                        # 如果解析得到的是列表/字典/数值/布尔，采用解析结果
+                        if isinstance(parsed, (list, dict, int, float, bool)):
+                            value = parsed
+                        else:
+                            # 字符串类型的 JSON（带引号）也保持为原始字符串
+                            value = parsed if isinstance(parsed, str) and parsed != '' else raw
+                    except Exception:
+                        # 解析失败则保持原始字符串
+                        value = raw
+                else:
+                    # 非 Text 字段：尝试根据字段名转换为整数（数字字段）
+                    if field_name in ['attack_power', 'health_points', 'speed', 'hate_value', 'price', 'energy']:
+                        try:
+                            value = int(raw)
+                        except Exception:
+                            value = raw
+                    else:
+                        value = raw
                 
                 result[field_name] = value
             
@@ -444,12 +484,25 @@ class CharacterDialog:
             text_widget.insert(1.0, txt)
             text_widget.config(state='disabled')
 
-    def open_hate_matrix_editor(self, text_widget: tk.Text):
-        """打开仇恨偏见矩阵对话框"""
-        dlg = HateBiasMatrixDialog(self.dialog)
+    def open_skill_selector(self, text_widget: tk.Text):
+        """打开技能选择对话框，并把用户确认的选择写回到文本框（JSON 列表或字符串）"""
+        current = []
+        try:
+            text_widget.config(state='normal')
+            raw = text_widget.get(1.0, tk.END).strip()
+            text_widget.config(state='disabled')
+            if raw:
+                try:
+                    current = json.loads(raw)
+                except Exception:
+                    current = [s.strip() for s in raw.split(',') if s.strip()]
+        except Exception:
+            current = []
+
+        dlg = SkillSelectorDialog(self.dialog, current, modid=self.modid)
         if dlg.result is not None:
-            # 将选择结果写入只读文本框
-            txt = json.dumps(dlg.result, ensure_ascii=False, indent=2)
+            sel = dlg.result
+            txt = json.dumps(sel, ensure_ascii=False, indent=2)
             text_widget.config(state='normal')
             text_widget.delete(1.0, tk.END)
             text_widget.insert(1.0, txt)
@@ -621,6 +674,112 @@ class FactionSelectorDialog:
 
     def on_cancel(self):
         self.dialog.destroy()
+
+class SkillSelectorDialog:
+    """选择技能的对话框：左侧技能列表，右侧技能详情，下方为已选预览（支持多选，双击切换）。"""
+    def __init__(self, parent, initial_selected=None, title='选择技能', modid='default_mod'):
+        self.result = None
+        self.controller = SkillController(modid=modid)
+
+        self.dialog = tk.Toplevel(parent)
+        self.dialog.title(title)
+        self.dialog.geometry('700x520')
+        self.dialog.transient(parent)
+        self.dialog.grab_set()
+
+        main = ttk.Frame(self.dialog, padding=10)
+        main.pack(fill=tk.BOTH, expand=True)
+
+        top_frame = ttk.Frame(main)
+        top_frame.pack(fill=tk.BOTH, expand=True)
+
+        left = ttk.LabelFrame(top_frame, text='技能 列表')
+        left.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=(0,5))
+
+        self.tree = ttk.Treeview(left, columns=('ID','Name'), show='headings')
+        self.tree.heading('ID', text='ID')
+        self.tree.heading('Name', text='名称')
+        self.tree.pack(fill=tk.BOTH, expand=True)
+        self.tree.bind('<<TreeviewSelect>>', self.on_select)
+        self.tree.bind('<Double-1>', self.on_double)
+
+        lscroll = ttk.Scrollbar(left, orient=tk.VERTICAL, command=self.tree.yview)
+        lscroll.pack(side=tk.RIGHT, fill=tk.Y)
+        self.tree.configure(yscrollcommand=lscroll.set)
+
+        right = ttk.LabelFrame(top_frame, text='技能 信息')
+        right.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+        self.info_text = scrolledtext.ScrolledText(right, width=40, height=10)
+        self.info_text.pack(fill=tk.BOTH, expand=True)
+        self.info_text.config(state='disabled')
+
+        preview_frame = ttk.LabelFrame(main, text='已选择 技能 预览 (JSON)')
+        preview_frame.pack(fill=tk.BOTH, expand=True, pady=(5,0))
+        self.preview = scrolledtext.ScrolledText(preview_frame, height=8)
+        self.preview.pack(fill=tk.BOTH, expand=True)
+
+        btn_frame = ttk.Frame(main)
+        btn_frame.pack(fill=tk.X, pady=(5,0))
+        ttk.Button(btn_frame, text='确定', command=self.on_ok).pack(side=tk.RIGHT, padx=5)
+        ttk.Button(btn_frame, text='取消', command=self.on_cancel).pack(side=tk.RIGHT)
+
+        # load data
+        self.selected = set(initial_selected or [])
+        self._load_skills()
+        self._refresh_preview()
+
+        self.dialog.wait_window()
+
+    def _load_skills(self):
+        all_s = self.controller.get_all_skills() or []
+        for s in all_s:
+            sid = s.get('id')
+            name = s.get('name','')
+            iid = self.tree.insert('', tk.END, values=(sid, name))
+            if sid in self.selected:
+                self.tree.item(iid, tags=('selected',))
+        self.tree.tag_configure('selected', background='#c6f7d0')
+
+    def on_select(self, event):
+        sel = self.tree.selection()
+        if not sel:
+            return
+        item = self.tree.item(sel[0])
+        sid = item['values'][0]
+        skill = self.controller.get_skill_by_id(sid)
+        if skill:
+            self.info_text.config(state='normal')
+            self.info_text.delete(1.0, tk.END)
+            self.info_text.insert(1.0, json.dumps(skill, ensure_ascii=False, indent=2))
+            self.info_text.config(state='disabled')
+
+    def on_double(self, event):
+        item_id = self.tree.identify_row(event.y)
+        if not item_id:
+            return
+        item = self.tree.item(item_id)
+        sid = item['values'][0]
+        if sid in self.selected:
+            self.selected.remove(sid)
+            self.tree.item(item_id, tags=())
+        else:
+            self.selected.add(sid)
+            self.tree.item(item_id, tags=('selected',))
+            self.tree.tag_configure('selected', background='#c6f7d0')
+        self._refresh_preview()
+
+    def _refresh_preview(self):
+        arr = list(self.selected)
+        self.preview.delete(1.0, tk.END)
+        self.preview.insert(1.0, json.dumps(arr, ensure_ascii=False, indent=2))
+
+    def on_ok(self):
+        self.result = list(self.selected)
+        self.dialog.destroy()
+
+    def on_cancel(self):
+        self.dialog.destroy()
+
 
 class HateBiasMatrixDialog:
     """编辑 3x3 仇恨偏好矩阵的对话框，返回 3x3 的嵌套列表"""

@@ -1,0 +1,6 @@
+{
+  "id": "WuLinXi:event/on_entity_dead",
+  "name": "当实体死亡时",
+  "description": "",
+  "enabled": true
+}

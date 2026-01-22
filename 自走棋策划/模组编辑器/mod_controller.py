@@ -128,4 +128,126 @@ class FactionController:
         except Exception as e:
             print(f"生成羁绊描述失败: {e}")
             return f"生成羁绊描述失败: {e}"
-    
+        
+class SkillController:
+    def __init__(self, modid):
+        self.modid = modid
+        self.service = service.SkillService(modid)
+
+    def get_all_skills(self):
+        try:
+            res = self.service.get_all_skills()
+        except Exception as e:
+            print(f"Error listing skills: {e}")
+            res = []
+        return res
+
+    def get_skill_by_id(self, skill_id):
+        try:
+            return self.service.get_skill_by_id(skill_id)
+        except Exception as e:
+            print(f"Error getting skill {skill_id}: {e}")
+            return None
+
+    def create_skill(self, skill_data):
+        try:
+            return self.service.create_skill(skill_data.copy())
+        except Exception as e:
+            print(f"Error creating skill: {e}")
+            return False
+
+    def update_skill(self, skill_data):
+        try:
+            return self.service.update_skill(skill_data.copy())
+        except Exception as e:
+            print(f"Error updating skill: {e}")
+            return False
+
+    def delete_skill(self, skill_id):
+        try:
+            return self.service.delete_skill(skill_id)
+        except Exception as e:
+            print(f"Error deleting skill {skill_id}: {e}")
+            return False
+
+class EventController:
+    def __init__(self, modid):
+        self.modid = modid
+        self.service = service.EventService(modid)
+
+    def get_all_events(self):
+        try:
+            res = self.service.get_all_events()
+        except Exception as e:
+            print(f"Error listing events: {e}")
+            res = []
+        return res
+
+    def get_event_by_id(self, event_id):
+        try:
+            return self.service.get_event_by_id(event_id)
+        except Exception as e:
+            print(f"Error getting event {event_id}: {e}")
+            return None
+
+    def create_event(self, event_data):
+        try:
+            return self.service.create_event(event_data.copy())
+        except Exception as e:
+            print(f"Error creating event: {e}")
+            return False
+
+    def update_event(self, event_data):
+        try:
+            return self.service.update_event(event_data.copy())
+        except Exception as e:
+            print(f"Error updating event: {e}")
+            return False
+
+    def delete_event(self, event_id):
+        try:
+            return self.service.delete_event(event_id)
+        except Exception as e:
+            print(f"Error deleting event {event_id}: {e}")
+            return False
+        
+class BuffController:
+    def __init__(self, modid):
+        self.modid = modid
+        self.service = service.BuffService(modid)
+
+    def get_all_buffs(self):
+        try:
+            res = self.service.get_all_buffs()
+        except Exception as e:
+            print(f"Error listing buffs: {e}")
+            res = []
+        return res
+
+    def get_buff_by_id(self, buff_id):
+        try:
+            return self.service.get_buff_by_id(buff_id)
+        except Exception as e:
+            print(f"Error getting buff {buff_id}: {e}")
+            return None
+
+    def create_buff(self, buff_data):
+        try:
+            return self.service.create_buff(buff_data.copy())
+        except Exception as e:
+            print(f"Error creating buff: {e}")
+            return False
+
+    def update_buff(self, buff_data):
+        try:
+            return self.service.update_buff(buff_data.copy())
+        except Exception as e:
+            print(f"Error updating buff: {e}")
+            return False
+
+    def delete_buff(self, buff_id):
+        try:
+            return self.service.delete_buff(buff_id)
+        except Exception as e:
+            print(f"Error deleting buff {buff_id}: {e}")
+            return False

@@ -1,0 +1,20 @@
+{
+    "id": "default_skill",
+    "name": "modid.skill.default_skill.name",
+    "decription": "modid.skill.default_skill.description",
+    "type": "passive",
+    "trigger": "modid:event_trigger.event_trigger_id",
+    "condition": [
+        {
+            "type": "modid:condition.condition_type",
+            "param": ""
+        }
+    ],
+    "effects": [
+        {
+            "type": "modid:effect.effect_type",
+            "param": "",
+            "mode": ""
+        }
+    ]
+}

@@ -1,7 +1,8 @@
 import mod_dao as dao
 from mod_dao import t
 from utils import effect_parser
-import re
+import re, shutil
+from pathlib import Path
 
 class ModService:
     def __init__(self, modid):
@@ -10,11 +11,10 @@ class ModService:
 
     def init_directory(self):
         res = self.dao.init_mod_directory()
-        if res:
-            char = dao.get_default_data('character')
-            CharacterService(self.modid).create_character(char)
-            fet = dao.get_default_data('faction')
-            FactionService(self.modid).create_faction(fet)
+        BASE_PATH = Path(__file__).resolve().parent
+        src = BASE_PATH / 'data' / 'WuLinXi'
+        dst = self.dao.mod_path() / 'data' / 'WuLinXi'
+        shutil.copytree(src, dst, dirs_exist_ok=True)
 
         return res
     
@@ -152,11 +152,14 @@ class FactionService:
                 lang_key = f"{self.modid}.faction.{faction_id}.{key}"
                 dao.LangDao.set_lang(self.modid, lang_key, faction_data.get(key, ''))
                 faction_data[key] = lang_key
+        return res
 
     def save_faction(self, faction_dict):
         faction_id = faction_dict.get('id')
+        if faction_id.startswith(f"{self.modid}:faction/"):
+            faction_id = faction_id.split('/')[-1]
         if self.dao.has_id(faction_id):
-            return self.update_faction(faction_id, faction_dict)
+            return self.update_faction(faction_dict)
         else:
             return self.create_faction(faction_dict)
 
@@ -207,8 +210,206 @@ class FactionService:
         res = f"当人数达到 {keys} 时激活：{res}"[:-1] + '。'
         return res
 
+class SkillService:
+    def __init__(self, modid):
+        self.modid = modid
+        self.dao = dao.SkillDao(modid)
+
+    def get_all_skills(self) -> list[dict]:
+        skill_ids = self.dao.get_all_skill_ids()
+        skills = []
+        for sid in skill_ids:
+            skill = self.get_skill_by_id(sid)
+            if skill:
+                skills.append(skill)
+        return skills
+    
+    def get_skill_by_id(self, skill_id):
+        if skill_id.startswith(f"{self.modid}:skill/"):
+            skill_id = skill_id.split('/')[-1]
+        skill_data = self.dao.get_skill_by_id(skill_id)
+        for key, value in skill_data.items():
+            if isinstance(value, str):
+                if '.' in value:
+                    skill_data[key] = t(self.modid, dao.get_default_language(self.modid), value)
+        return skill_data
+
+    def create_skill(self, skill_data):
+        skill_id = skill_data.get('id')
+        if skill_id.startswith(f"{self.modid}:skill/"):
+            skill_id = skill_id.split('/')[-1]
+        else:
+            skill_data['id'] = f"{self.modid}:skill/{skill_id}"
+        res = self.dao.create_skill(skill_id, skill_data)
+        if res:
+            new_keys = []
+            for key in ['name', 'description']:
+                lang_key = f"{self.modid}.skill.{skill_id}.{key}"
+                skill_data[key] = lang_key
+                new_keys.append(lang_key)
+            for lang_key in new_keys:
+                key = lang_key.split('.')[-1]
+                dao.LangDao.set_lang(self.modid, lang_key, skill_data.get(key, ''))
+            dao.LangDao.add_lang_key(self.modid, new_keys)
+        return res
+
+    def update_skill(self, skill_data):
+        skill_id = skill_data.get('id')
+        if skill_id.startswith(f"{self.modid}:skill/"):
+            skill_id = skill_id.split('/')[-1]
+        res = self.dao.update_skill(skill_id, skill_data)
+        if res:
+            for key in ['name', 'description']:
+                lang_key = f"{self.modid}.skill.{skill_id}.{key}"
+                dao.LangDao.set_lang(self.modid, lang_key, skill_data.get(key, ''))
+                skill_data[key] = lang_key
+        return res
+
+    def delete_skill(self, skill_id):
+        if skill_id.startswith(f"{self.modid}:skill/"):
+            skill_id = skill_id.split('/')[-1]
+        res = self.dao.delete_skill(skill_id)
+        if res:
+            lang_keys = [
+                f"{self.modid}.skill.{skill_id}.{key}"
+                for key in ['name', 'description']
+            ]
+            dao.LangDao.del_lang(self.modid, lang_keys)
+            dao.LangDao.remove_lang_key(self.modid, lang_keys)
+        return res
+    
+class EventService:
+    def __init__(self, modid):
+        self.modid = modid
+        self.dao = dao.EventDao(modid)
+
+    def get_all_events(self) -> list[dict]:
+        event_ids = self.dao.get_all_event_ids()
+        events = []
+        for eid in event_ids:
+            event = self.get_event_by_id(eid)
+            if event:
+                events.append(event)
+        return events
+
+    def get_event_by_id(self, event_id):
+        if event_id.startswith(f"{self.modid}:event/"):
+            event_id = event_id.split('/')[-1]
+        return self.dao.get_event_by_id(event_id)
+
+    def create_event(self, event_data):
+        event_id = event_data.get('id')
+        if event_id.startswith(f"{self.modid}:event/"):
+            event_id = event_id.split('/')[-1]
+        else:
+            event_data['id'] = f"{self.modid}:event/{event_id}"
+        print(event_data)
+        res = self.dao.create_event(event_id, event_data)
+        if res:
+            new_keys = []
+            for key in ['name', 'description']:
+                lang_key = f"{self.modid}.event.{event_id}.{key}"
+                event_data[key] = lang_key
+                new_keys.append(lang_key)
+            for lang_key in new_keys:
+                key = lang_key.split('.')[-1]
+                dao.LangDao.set_lang(self.modid, lang_key, event_data.get(key, ''))
+            dao.LangDao.add_lang_key(self.modid, new_keys)
+        return res
+
+    def update_event(self, event_data):
+        event_id = event_data.get('id')
+        if event_id.startswith(f"{self.modid}:event/"):
+            event_id = event_id.split('/')[-1]
+        res = self.dao.update_event(event_id, event_data)
+        if res:
+            for key in ['name', 'description']:
+                lang_key = f"{self.modid}.event.{event_id}.{key}"
+                dao.LangDao.set_lang(self.modid, lang_key, event_data.get(key, ''))
+                event_data[key] = lang_key
+        return res
+
+    def delete_event(self, event_id):
+        if event_id.startswith(f"{self.modid}:event/"):
+            event_id = event_id.split('/')[-1]
+        res = self.dao.delete_event(event_id)
+        if res:
+            lang_keys = [
+                f"{self.modid}.event.{event_id}.{key}"
+                for key in ['name', 'description']
+            ]
+            dao.LangDao.del_lang(self.modid, lang_keys)
+            dao.LangDao.remove_lang_key(self.modid, lang_keys)
+        return res
+
+class BuffService:
+    def __init__(self, modid):
+        self.modid = modid
+        self.dao = dao.BuffDao(modid)
+
+    def get_all_buffs(self) -> list[dict]:
+        buff_ids = self.dao.get_all_buff_ids()
+        buffs = []
+        for bid in buff_ids:
+            buff = self.get_buff_by_id(bid)
+            if buff:
+                buffs.append(buff)
+        return buffs
+
+    def get_buff_by_id(self, buff_id):
+        if buff_id.startswith(f"{self.modid}:buff/"):
+            buff_id = buff_id.split('/')[-1]
+        return self.dao.load_buff_by_id(buff_id)
+
+    def create_buff(self, buff_data):
+        buff_id = buff_data.get('id')
+        if buff_id.startswith(f"{self.modid}:buff/"):
+            buff_id = buff_id.split('/')[-1]
+        else:
+            buff_data['id'] = f"{self.modid}:buff/{buff_id}"
+        res = self.dao.create_buff(buff_id, buff_data)
+        if res:
+            new_keys = []
+            for key in ['name', 'description']:
+                lang_key = f"{self.modid}.buff.{buff_id}.{key}"
+                buff_data[key] = lang_key
+                new_keys.append(lang_key)
+            for lang_key in new_keys:
+                key = lang_key.split('.')[-1]
+                dao.LangDao.set_lang(self.modid, lang_key, buff_data.get(key, ''))
+            dao.LangDao.add_lang_key(self.modid, new_keys)
+        return res
+
+    def update_buff(self, buff_data):
+        buff_id = buff_data.get('id')
+        if buff_id.startswith(f"{self.modid}:buff/"):
+            buff_id = buff_id.split('/')[-1]
+        res = self.dao.update_buff(buff_id, buff_data)
+        if res:
+            new_keys = []
+            for key in ['name', 'description']:
+                lang_key = f"{self.modid}.buff.{buff_id}.{key}"
+                buff_data[key] = lang_key
+                new_keys.append(lang_key)
+            for lang_key in new_keys:
+                key = lang_key.split('.')[-1]
+                dao.LangDao.set_lang(self.modid, lang_key, buff_data.get(key, ''))
+            dao.LangDao.add_lang_key(self.modid, new_keys)
+        return res
+
+    def delete_buff(self, buff_id):
+        if buff_id.startswith(f"{self.modid}:buff/"):
+            buff_id = buff_id.split('/')[-1]
+        res = self.dao.delete_buff(buff_id)
+        if res:
+            lang_keys = [
+                f"{self.modid}.buff.{buff_id}.{key}"
+                for key in ['name', 'description']
+            ]
+            dao.LangDao.del_lang(self.modid, lang_keys)
+            dao.LangDao.remove_lang_key(self.modid, lang_keys)
+        return res
+
 if __name__ == "__main__":
-    modid = 'test'
-    fs = FactionService(modid)
-    aaa = fs.get_faction_by_id('aaa')
-    print(fs.gen_description(aaa.get('effects', {})))
+    pass
+

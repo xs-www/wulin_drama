@@ -1,0 +1,35 @@
+{
+  "id": "WuLinXi:character/default_character",
+  "name": "WuLinXi.character.default_character.name",
+  "price": 1,
+  "background": "WuLinXi.character.default_character.background",
+  "description": "WuLinXi.character.default_character.description",
+  "attack_power": 1,
+  "health_points": 1,
+  "defense_points": 1,
+  "speed": 1,
+  "ini_energy": 0,
+  "hate_value": 1,
+  "hate_bias_matrix": [
+    [
+      1.0,
+      1.0,
+      1.0
+    ],
+    [
+      1.0,
+      1.0,
+      1.0
+    ],
+    [
+      1.0,
+      1.0,
+      1.0
+    ]
+  ],
+  "faction": [],
+  "max_initiative": 1,
+  "skills": [
+    "modid:default_skill"
+  ]
+}

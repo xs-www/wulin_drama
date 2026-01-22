@@ -187,7 +187,7 @@ class FactionManagerUI:
             fid = item['values'][0]
 
         # 获取所有与该 id 对应的记录
-        faction = self.controller.get_faction_by_id(fid)
+        #faction = self.controller.get_faction_by_id(fid)
 
         # 生成复合结构: id, name, description (taken from first), effects: {num: [effects...]}
         # composite = faction.copy()
@@ -212,7 +212,6 @@ class FactionManagerUI:
             child.destroy()
 
         effects_with_num = comp.get('effects', {}) or {}
-        print(effects_with_num)
         # 按门槛数值升序渲染
         for idx, num in enumerate(sorted(effects_with_num.keys(), key=lambda x: int(x))):
             row_frame = ttk.Frame(self.threshold_inner, padding=4, relief='ridge')
@@ -318,7 +317,7 @@ class FactionManagerUI:
         except Exception:
             messagebox.showerror('错误', '无法加载效果编辑器')
             return
-        res = show_effect_editor(self.root)
+        res = show_effect_editor(self.root, modid=self.modid)
         if res is None:
             return
         # 添加到当前 composite

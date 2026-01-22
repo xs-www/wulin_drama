@@ -1,0 +1,6 @@
+{
+  "id": "WuLinXi:event/on_buff_expired",
+  "name": "当buff失效时",
+  "description": "",
+  "enabled": true
+}

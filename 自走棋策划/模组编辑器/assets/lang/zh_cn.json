@@ -1,0 +1,12 @@
+{
+  "modid.character.default_character.name" : "默认角色",
+  "modid.character.default_character.background": "默认角色背景",
+  "modid.character.default_character.description": "默认角色描述",
+  "modid.faction.default_faction.name": "默认门派",
+  "modid.faction.default_faction.description": "默认门派描述",
+  "wu_lin_xi.effect_type.modify_attr": "修改属性",
+  "wu_lin_xi.effect_type.add_buff": "添加增益",
+  "wu_lin_xi.effect_type.remove_buff": "移除增益",
+  "wu_lin_xi.effect_type.cause_damage": "造成伤害",
+  "wu_lin_xi.effect_type.heal": "治疗"
+}

@@ -1,0 +1,21 @@
+{
+  "id": "WuLinXi:faction/default_faction",
+  "name": "WuLinXi.faction.default_faction.name",
+  "description": "WuLinXi.faction.default_faction.description",
+  "effects": {
+    "3": [
+      {
+        "type": "modify_attr",
+        "param": "MHP+10",
+        "mode": "all_ally"
+      }
+    ],
+    "5": [
+      {
+        "type": "modify_attr",
+        "param": "MHP+20",
+        "mode": "all_ally"
+      }
+    ]
+  }
+}

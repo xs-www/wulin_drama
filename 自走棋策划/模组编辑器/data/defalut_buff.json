@@ -1,0 +1,11 @@
+{
+    "id": "default_buff",
+    "name": "默认增益效果",
+    "description": "这是一个默认的增益效果，用于测试和示例目的。",
+    "duration": 5,
+    "max_stacks": 3,
+    "effects": [{
+        "type": "modify_attr",
+        "param": "MHP+10"
+    }]
+}

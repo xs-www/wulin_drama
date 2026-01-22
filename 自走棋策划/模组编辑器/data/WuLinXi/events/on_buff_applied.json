@@ -1,0 +1,6 @@
+{
+  "id": "WuLinXi:event/on_buff_applied",
+  "name": "当buff施加时",
+  "description": "",
+  "enabled": true
+}

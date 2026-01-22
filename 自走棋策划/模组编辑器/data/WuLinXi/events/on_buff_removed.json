@@ -1,0 +1,6 @@
+{
+  "id": "WuLinXi:event/on_buff_removed",
+  "name": "当buff移除时",
+  "description": "",
+  "enabled": true
+}
