@@ -14,14 +14,14 @@ class ModController:
             self.service.init_directory()
             return True
         except Exception as e:
-            print(f"Error initializing mod directory: {e}")
+            print(f"初始化模组目录失败: {e}")
             return False
 
     def export_mod(self, export_path=None):
         try:
             return self.service.export_mod(export_path)
         except Exception as e:
-            print(f"Error exporting mod: {e}")
+            print(f"导出模组失败: {e}")
             return False
 
 class CharacterController:
@@ -29,11 +29,11 @@ class CharacterController:
         self.modid = modid
         self.service = service.CharacterService(modid)
 
-    def get_all_characters(self):
+    def get_all_characters(self, is_self_mod=False):
         try:
-            res = self.service.get_all_character()
+            res = self.service.get_all_character(is_self_mod=is_self_mod)
         except Exception as e:
-            print(f"Error listing characters: {e}")
+            print(f"获取角色列表失败: {e}")
             res = []
         return res
 
@@ -41,14 +41,14 @@ class CharacterController:
         try:
             return self.service.get_character_by_id(char_id)
         except Exception as e:
-            print(f"Error getting character {char_id}: {e}")
+            print(f"获取角色 {char_id} 失败: {e}")
             return None
         
     def get_default_fields(self):
         try:
             res = self.service.get_default_fields()
         except Exception as e:
-            print(f"Error getting default fields: {e}")
+            print(f"获取默认字段失败: {e}")
             res = []
         return res
 
@@ -56,21 +56,21 @@ class CharacterController:
         try:
             return self.service.create_character(char_data.copy())
         except Exception as e:
-            print(f"Error creating character: {e}")
+            print(f"创建角色失败: {e}")
             return False
 
     def update_character(self, char_data):
         try:
             return self.service.update_character(char_data.copy())
         except Exception as e:
-            print(f"Error updating character: {e}")
+            print(f"更新角色失败: {e}")
             return False
 
     def delete_character(self, char_id):
         try:
             return self.service.delete_character(char_id)
         except Exception as e:
-            print(f"Error deleting character {char_id}: {e}")
+            print(f"删除角色 {char_id} 失败: {e}")
             return False
         
 class FactionController:
@@ -78,9 +78,9 @@ class FactionController:
         self.modid = modid
         self.service = service.FactionService(modid)
 
-    def get_all_factions(self):
+    def get_all_factions(self, is_self_mod=False):
         try:
-            res = self.service.get_all_factions()
+            res = self.service.get_all_factions(is_self_mod=is_self_mod)
         except Exception as e:
             print(f"获取羁绊列表失败: {e}")
             res = []
@@ -134,11 +134,11 @@ class SkillController:
         self.modid = modid
         self.service = service.SkillService(modid)
 
-    def get_all_skills(self):
+    def get_all_skills(self, is_self_mod=False):
         try:
-            res = self.service.get_all_skills()
+            res = self.service.get_all_skills(is_self_mod=is_self_mod)
         except Exception as e:
-            print(f"Error listing skills: {e}")
+            print(f"获取技能列表失败: {e}")
             res = []
         return res
 
@@ -146,28 +146,28 @@ class SkillController:
         try:
             return self.service.get_skill_by_id(skill_id)
         except Exception as e:
-            print(f"Error getting skill {skill_id}: {e}")
+            print(f"获取技能 {skill_id} 失败: {e}")
             return None
 
     def create_skill(self, skill_data):
         try:
             return self.service.create_skill(skill_data.copy())
         except Exception as e:
-            print(f"Error creating skill: {e}")
+            print(f"创建技能失败: {e}")
             return False
 
     def update_skill(self, skill_data):
         try:
             return self.service.update_skill(skill_data.copy())
         except Exception as e:
-            print(f"Error updating skill: {e}")
+            print(f"更新技能失败: {e}")
             return False
 
     def delete_skill(self, skill_id):
         try:
             return self.service.delete_skill(skill_id)
         except Exception as e:
-            print(f"Error deleting skill {skill_id}: {e}")
+            print(f"删除技能 {skill_id} 失败: {e}")
             return False
 
 class EventController:
@@ -175,11 +175,11 @@ class EventController:
         self.modid = modid
         self.service = service.EventService(modid)
 
-    def get_all_events(self):
+    def get_all_events(self, is_self_mod=False):
         try:
-            res = self.service.get_all_events()
+            res = self.service.get_all_events(is_self_mod=is_self_mod)
         except Exception as e:
-            print(f"Error listing events: {e}")
+            print(f"获取事件列表失败: {e}")
             res = []
         return res
 
@@ -187,28 +187,28 @@ class EventController:
         try:
             return self.service.get_event_by_id(event_id)
         except Exception as e:
-            print(f"Error getting event {event_id}: {e}")
+            print(f"获取事件 {event_id} 失败: {e}")
             return None
 
     def create_event(self, event_data):
         try:
             return self.service.create_event(event_data.copy())
         except Exception as e:
-            print(f"Error creating event: {e}")
+            print(f"创建事件失败: {e}")
             return False
 
     def update_event(self, event_data):
         try:
             return self.service.update_event(event_data.copy())
         except Exception as e:
-            print(f"Error updating event: {e}")
+            print(f"更新事件失败: {e}")
             return False
 
     def delete_event(self, event_id):
         try:
             return self.service.delete_event(event_id)
         except Exception as e:
-            print(f"Error deleting event {event_id}: {e}")
+            print(f"删除事件 {event_id} 失败: {e}")
             return False
         
 class BuffController:
@@ -220,7 +220,7 @@ class BuffController:
         try:
             res = self.service.get_all_buffs()
         except Exception as e:
-            print(f"Error listing buffs: {e}")
+            print(f"获取增益列表失败: {e}")
             res = []
         return res
 
@@ -228,26 +228,26 @@ class BuffController:
         try:
             return self.service.get_buff_by_id(buff_id)
         except Exception as e:
-            print(f"Error getting buff {buff_id}: {e}")
+            print(f"获取增益 {buff_id} 失败: {e}")
             return None
 
     def create_buff(self, buff_data):
         try:
             return self.service.create_buff(buff_data.copy())
         except Exception as e:
-            print(f"Error creating buff: {e}")
+            print(f"创建增益失败: {e}")
             return False
 
     def update_buff(self, buff_data):
         try:
             return self.service.update_buff(buff_data.copy())
         except Exception as e:
-            print(f"Error updating buff: {e}")
+            print(f"更新增益失败: {e}")
             return False
 
     def delete_buff(self, buff_id):
         try:
             return self.service.delete_buff(buff_id)
         except Exception as e:
-            print(f"Error deleting buff {buff_id}: {e}")
+            print(f"删除增益 {buff_id} 失败: {e}")
             return False

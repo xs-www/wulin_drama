@@ -1,9 +1,9 @@
 [
     "export_ignore.json",
     "assets/MODID/lang/lang_keys.json",
-    "data/MODID/characters/default_character.json",
-    "data/MODID/factions/default_faction.json",
-    "data/MODID/skills/default_skill.json",
-    "data/MODID/buffs/default_buff.json",
-    "data/MODID/events/default_event.json"
+    "**/default_character.json",
+    "**/default_faction.json",
+    "**/default_skill.json",
+    "**/default_buff.json",
+    "**/default_event.json"
 ]

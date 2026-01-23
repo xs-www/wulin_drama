@@ -8,24 +8,6 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from mod_controller import EventController
 
-# 简单事件类型列表，参考 文档：文档中可扩展或从文件读取
-EVENT_TYPES = {
-    'onAttack': ['beforeAttack', 'afterAttack'],
-    'onTurnStart': [],
-    'onGameStart': [],
-    'onAct': [],
-    'onGetHurt': ['beforeGetHurt', 'afterGetHurt'],
-    'onEntityDead': [],
-    'onAttrChanged': [],
-    'onSkillReleased': [],
-    'onBuffApplied': [],
-    'onBuffExpired': [],
-    'onBuffRemoved': [],
-    'onAddStatu': [],
-    'onRemoveStatu': []
-}
-
-
 class EventManagerUI:
     def __init__(self, root, modid):
         self.root = root
@@ -51,12 +33,18 @@ class EventManagerUI:
         lb_scroll = ttk.Scrollbar(left, orient=tk.VERTICAL, command=self.listbox.yview)
         lb_scroll.pack(side=tk.LEFT, fill=tk.Y)
         self.listbox.config(yscrollcommand=lb_scroll.set)
+        # parallel array to store full IDs corresponding to listbox entries
+        self.list_ids = []
 
         btn_frame = ttk.Frame(left)
         btn_frame.pack(fill=tk.X, pady=6)
         ttk.Button(btn_frame, text='新建', command=self.new_event).pack(side=tk.LEFT, padx=4)
         ttk.Button(btn_frame, text='删除', command=self.delete_event).pack(side=tk.LEFT, padx=4)
         ttk.Button(btn_frame, text='刷新', command=self.refresh_list).pack(side=tk.LEFT, padx=4)
+        # 仅显示本模组选项
+        self.only_self_var = tk.BooleanVar(value=False)
+        cb = ttk.Checkbutton(btn_frame, text='只看本模组', variable=self.only_self_var, command=self.refresh_list)
+        cb.pack(side=tk.LEFT, padx=(8,0))
 
         # 右侧精简详情编辑
         right = ttk.Frame(main)
@@ -85,34 +73,54 @@ class EventManagerUI:
 
     def refresh_list(self):
         self.listbox.delete(0, tk.END)
+        self.list_ids.clear()
+        # 根据复选框决定是否仅加载本模组
+        is_self = bool(self.only_self_var.get()) if hasattr(self, 'only_self_var') else False
         try:
-            events = self.ctrl.get_all_events() or []
+            # 尝试将 is_self 传给 controller；若不支持该参数则回退到无参数调用
+            try:
+                events = self.ctrl.get_all_events(is_self) or []
+            except TypeError:
+                events = self.ctrl.get_all_events() or []
         except Exception:
             events = []
         for e in events:
-            eid = e.get('id').split('/')[-1]
-            label = f"{eid} - {e.get('name','') }"
+            full_id = str(e.get('id') or '')
+            short = full_id.split('/')[-1] if full_id else ''
+            label = f"{short} - {e.get('name','') }"
             self.listbox.insert(tk.END, label)
+            self.list_ids.append(full_id)
 
     def on_select(self, event):
         sel = self.listbox.curselection()
         if not sel:
             return
         idx = sel[0]
-        label = self.listbox.get(idx)
-        eid = label.split(' - ')[0]
+        # use stored full id for lookup
         try:
-            data = self.ctrl.get_event_by_id(eid)
+            full_id = self.list_ids[idx]
+        except Exception:
+            full_id = None
+        if not full_id:
+            messagebox.showerror('错误', '无法获取对应的事件 ID')
+            return
+        try:
+            data = self.ctrl.get_event_by_id(full_id)
         except Exception:
             data = None
         if not data:
-            messagebox.showerror('错误', f'无法加载事件 {eid}')
+            short = full_id.split('/')[-1]
+            messagebox.showerror('错误', f'无法加载事件 {short}')
             return
         self.load_into_form(data)
-        self.current = eid
+        # keep current as short id for UI purposes
+        self.current = full_id.split('/')[-1]
 
     def load_into_form(self, data: dict):
-        self.id_var.set(str(data.get('id','')))
+        # 在界面中仅显示短 ID（不含 mod 前缀），保存时使用完整 ID
+        full_id = str(data.get('id',''))
+        short_id = full_id.split('/')[-1] if full_id else ''
+        self.id_var.set(short_id)
         # 将 ID 设为只读，防止修改已存在的 ID
         try:
             self.id_entry.config(state='readonly')
@@ -154,12 +162,17 @@ class EventManagerUI:
             messagebox.showwarning('警告', '请先选择要删除的事件注册')
             return
         idx = sel[0]
-        label = self.listbox.get(idx)
-        eid = label.split(' - ')[0]
-        if not messagebox.askyesno('确认', f'确定删除事件注册 {eid} ?'):
+        # use stored full id
+        try:
+            full_id = self.list_ids[idx]
+        except Exception:
+            messagebox.showerror('错误', '无法获取对应的事件 ID')
+            return
+        short = full_id.split('/')[-1]
+        if not messagebox.askyesno('确认', f'确定删除事件注册 {short} ?'):
             return
         try:
-            ok = self.ctrl.delete_event(eid)
+            ok = self.ctrl.delete_event(full_id)
         except Exception as e:
             ok = False
         if ok:
@@ -169,10 +182,16 @@ class EventManagerUI:
             messagebox.showerror('失败', '删除失败')
 
     def save_event(self):
-        eid = self.id_var.get().strip()
-        if not eid:
+        entered = self.id_var.get().strip()
+        if not entered:
             messagebox.showerror('错误', 'ID 不能为空')
             return
+        # 生成完整 ID（modid: event/id），如果用户已经输入完整 ID 则保持不变
+        if entered.startswith(f"{self.modid}:event/") or (':' in entered and '/' in entered):
+            full_id = entered
+        else:
+            full_id = f"{self.modid}:event/{entered}"
+        eid = full_id
         name = self.name_var.get().strip()
         desc_raw = self.desc_text.get(1.0, tk.END).strip()
         desc_val = desc_raw
@@ -194,9 +213,11 @@ class EventManagerUI:
             exists = self.ctrl.get_event_by_id(eid)
         except Exception:
             exists = None
-        if exists and (not self.current or self.current != eid):
+        # 注意：self.current 在 UI 中保留短 id（不含 mod 前缀），因此比较时用短 id
+        short_entered = eid.split('/')[-1]
+        if exists and (not self.current or self.current != short_entered):
             # 存在且不是当前正在编辑的项，询问是否覆盖
-            if not messagebox.askyesno('覆盖', f'ID {eid} 已存在，是否覆盖？'):
+            if not messagebox.askyesno('覆盖', f'ID {short_entered} 已存在，是否覆盖？'):
                 return
         try:
             if exists:
@@ -208,7 +229,8 @@ class EventManagerUI:
         if ok:
             messagebox.showinfo('成功', '保存成功')
             self.refresh_list()
-            self.current = eid
+            # 更新 current 为短 id
+            self.current = short_entered
         else:
             messagebox.showerror('失败', '保存失败')
 

@@ -4,6 +4,6 @@
     "version": "1.0.0",
     "description": "A new mod.",
     "author": "Author Name",
-    "dependencies": [],
+    "dependencies": {},
     "preferred_language": "zh_cn"
 }
