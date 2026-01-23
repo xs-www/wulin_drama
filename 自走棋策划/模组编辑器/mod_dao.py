@@ -1,14 +1,10 @@
 import json, sys, os
 from pathlib import Path
-from utils import log
+from utils import log, load_json
 import zipfile, shutil
 import fnmatch
 
 BASE_DIR = Path(__file__).resolve().parent
-
-def load_json(file_path):
-    with open(file_path, 'r', encoding='utf-8') as f:
-        return json.load(f)
 
 def get_all_mods():
     mods_path = BASE_DIR / "mods"
@@ -36,14 +32,14 @@ def save_data_to_file(data_file_path: Path, data_dict: dict):
     data_file_path.parent.mkdir(parents=True, exist_ok=True)
     with open(data_file_path, 'w', encoding='utf-8') as f:
         json.dump(data_dict, f, ensure_ascii=False, indent=2)
-    log.console(f"数据已保存到文件: {data_file_path}", "INFO")
+    #log.console(f"数据已保存到文件: {data_file_path}", "INFO")
 
 def load_data_from_file(data_file_path: Path) -> dict:
     if not data_file_path.exists():
         log.console(f"数据文件不存在: {data_file_path}", "WARN")
         return {}
     data = load_json(data_file_path)
-    log.console(f"已加载数据 from {data_file_path}", "INFO")
+    #log.console(f"已加载数据 from {data_file_path}", "INFO")
     return data
 
 def delete_file(file_path: Path):
@@ -304,19 +300,6 @@ class LangDao:
                 log.console(f"已移除语言键: {key}", "INFO")
         with open(keys_path, 'w', encoding='utf-8') as f:
             json.dump(lang_keys, f, ensure_ascii=False, indent=2)
-
-def t(modid, lang, key):
-    """
-    根据 modid 和 lang 加载对应的语言文件，返回 key 对应的翻译文本。
-    如果找不到对应的翻译，则返回 key 本身。
-    :param modid: 模组ID
-    :param lang: 语言代码，如 'zh_cn'
-    :param key: 需要翻译的文本键
-    :return: 翻译后的文本或原始键
-    """
-    lang_dao = LangDao(modid, lang)
-    lang_data = lang_dao.load_lang()
-    return lang_data.get(key, key)
 
 class CharacterDao:
 

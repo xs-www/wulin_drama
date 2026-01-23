@@ -9,6 +9,7 @@ import json
 import subprocess
 import tkinter as tk
 from tkinter import simpledialog, messagebox, ttk, scrolledtext
+import utils
 from utils import log
 
 import mod_controller as controller
@@ -133,6 +134,7 @@ class ModManagerUI:
             return
         try:
             mod_ctrl = controller.ModController(modid)
+            utils.MODID = modid  # 设置全局变量
             mod_menu_ui = ModMenuUI(tk.Toplevel(self.root), mod_ctrl)
             self.set_status(f'已打开模组编辑界面：{modid}')
             log.console(f'启动 mod_menu 打开模组：{modid}', 'INFO')

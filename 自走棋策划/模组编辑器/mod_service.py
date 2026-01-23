@@ -1,26 +1,9 @@
 import mod_dao as dao
-from mod_dao import t
-from utils import effect_parser
+from utils import effect_parser, parse_data_id, t, translate_data
 import re, shutil
 from pathlib import Path
 
 BASE_PATH = Path(__file__).resolve().parent
-
-def translate_data(modid, data_dict):
-    for key, value in data_dict.items():
-        if isinstance(value, str):
-            if '.' in value:
-                data_dict[key] = t(modid, dao.get_default_language(modid), value)
-    return data_dict
-
-def parse_data_id(data_id):
-    if ':' in data_id:
-        modid, data_info = data_id.split(':')
-        data_type, data_id = data_info.split('/')
-        data_type = data_type.lower() + 's'
-    else:
-        raise ValueError("Id 格式错误，必须以 'modid:' 开头")
-    return modid, data_type, data_id
 
 def get_id_path(data_id):
     modid, data_type, data_id = parse_data_id(data_id)
@@ -204,8 +187,8 @@ class FactionService:
         return res
 
     def save_faction(self, faction_dict):
-        faction_id, _ = gen_data_id(faction_dict.get('id'), data_type='faction', modid=self.modid)
-        path = self.mod_service.dao.mod_path / get_id_path(faction_id)
+        _, full_id = gen_data_id(faction_dict.get('id'), data_type='faction', modid=self.modid)
+        path = self.mod_service.dao.mod_path / get_id_path(full_id)
         if dao.has_file(path):
             return self.update_faction(faction_dict)
         else:

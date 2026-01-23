@@ -119,6 +119,47 @@ def show_effect_editor(parent: Optional[tk.Tk] = None, initial: Optional[Dict] =
     ttk.Label(frm, text='类型 (type)').grid(row=0, column=0, sticky='w')
     cb_type = ttk.Combobox(frm, values=EFFECT_TYPES, textvariable=var_type, state='readonly', width=30)
     cb_type.grid(row=0, column=1, sticky='ew', padx=6, pady=4)
+    
+    def _on_type_changed(event=None):
+        """在类型变更时调用：更新 param 控件并强制刷新 UI，保证选择按钮可见"""
+        try:
+            # 根据当前 type 更新 param 区域控件（Entry 或 Button+Label）
+            try:
+                update_param_widget_by_type(var_type.get())
+            except Exception:
+                # 兼容老逻辑或未定义函数的情况
+                try:
+                    update_param_widget_by_type()
+                except Exception:
+                    pass
+            # 强制刷新容器与对话框，解决某些平台上控件未立即显示的问题
+            try:
+                param_container.update_idletasks()
+                dlg.update_idletasks()
+                dlg.update()
+            except Exception:
+                pass
+            # 更新实时预览
+            try:
+                update_preview()
+            except Exception:
+                pass
+        except Exception as e:
+            try:
+                log.console(f'_on_type_changed 异常: {e}', 'ERROR')
+            except Exception:
+                pass
+
+    # 绑定 combobox 的选择事件，确保类型切换时立即更新 param 控件（某些平台上 StringVar trace 可能不及时）
+    def _combobox_selected(event=None):
+        try:
+            _on_type_changed()
+        except Exception:
+            try:
+                update_param_widget_by_type()
+            except Exception:
+                pass
+    cb_type.bind('<<ComboboxSelected>>', _combobox_selected)
 
     ttk.Label(frm, text='参数 (param)').grid(row=1, column=0, sticky='w')
     # param 区域为可替换容器：默认是 Entry，也可能是 选择 按钮 + 预览标签
@@ -361,22 +402,43 @@ def show_effect_editor(parent: Optional[tk.Tk] = None, initial: Optional[Dict] =
             picker = _SimpleChoiceDialog(dlg_owner=dlg, title='选择技能', items=choices)
             return picker.result
         else:
-            # buffs / statuses: 尝试从文件夹读取
+            # buffs / statuses: 首先尝试使用 ui_buff 中的 BuffChooserDialog（统一 UI），仅用于 buff
+            kind = 'buffs' if kind_key == 'buffs' else 'statuses'
+            if kind == 'buffs':
+                try:
+                    from ui_buff import BuffChooserDialog
+                    chooser = BuffChooserDialog(dlg, mid)
+                    return chooser.result
+                except Exception as e:
+                    log.console(f"使用 BuffChooserDialog 失败，回退到后端/文件扫描: {e}", 'WARN')
+
+            # 回退逻辑：优先通过后端获取列表，失败再回退到本地文件读取，最后回退到跨模组扫描
             choices = []
             if mid:
-                base = Path(__file__).resolve().parent / 'mods' / mid / 'data' / mid
-                folder = base / ('buffs' if kind_key == 'buffs' else 'statuses')
-                if folder.exists():
-                    for f in sorted(folder.glob('*.json')):
-                        try:
-                            with open(f, 'r', encoding='utf-8') as fh:
-                                data = json.load(fh)
-                            choices.append((data.get('id') or f.stem, data.get('name','')))
-                        except Exception:
-                            choices.append((f.stem, ''))
+                try:
+                    from mod_controller import BuffController
+                    bc = BuffController(mid)
+                    items = bc.get_all_buffs() or []
+                    for b in items:
+                        choices.append((b.get('id') or '', b.get('name','')))
+                except Exception:
+                    # 后端失败，回退到本地读取
+                    try:
+                        base = Path(__file__).resolve().parent / 'mods' / mid / 'data' / mid
+                        folder = base / kind
+                        if folder.exists():
+                            for f in sorted(folder.glob('*.json')):
+                                try:
+                                    with open(f, 'r', encoding='utf-8') as fh:
+                                        data = json.load(fh)
+                                    choices.append((data.get('id') or f.stem, data.get('name','')))
+                                except Exception:
+                                    choices.append((f.stem, ''))
+                    except Exception:
+                        pass
             # fallback: scan all mods
             if not choices:
-                choices = scan_all('buffs' if kind_key == 'buffs' else 'statuses')
+                choices = scan_all(kind)
             picker = _SimpleChoiceDialog(dlg_owner=dlg, title='选择', items=choices)
             return picker.result
 
@@ -399,16 +461,8 @@ def show_effect_editor(parent: Optional[tk.Tk] = None, initial: Optional[Dict] =
     # 初始化预览
     update_preview()
 
-    # 当 type 变化时，切换 param 控件并更新预览
-    def _on_type_changed(*_):
-        update_param_widget_by_type()
-        update_preview()
-    var_type.trace_add('write', _on_type_changed)
-
-    # 确保窗口更新并可见
+    # 当 type 变化时
     try:
-        dlg.update_idletasks()
-        dlg.minsize(460, 260)
         dlg.lift()
         dlg.attributes('-topmost', True)
         dlg.after(120, lambda: dlg.attributes('-topmost', False))
@@ -485,6 +539,6 @@ class _SimpleChoiceDialog:
 if __name__ == '__main__':
     # 简单的运行示例
     def _test():
-        res = show_effect_editor(modid='test')
+        res = show_effect_editor(modid='YunYuanHanHai')
         print('结果:', res)
     _test()

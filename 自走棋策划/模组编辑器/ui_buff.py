@@ -373,6 +373,87 @@ class SimpleBuffDialog:
         self.dialog.destroy()
 
 
+class BuffChooserDialog:
+    """
+    弹出对话框选择 Buff：列出当前模组下的 Buff（id - name），双击或选择后点击确定返回 id。
+    使用方式：chooser = BuffChooserDialog(parent, modid); 选择结果保存在 chooser.result
+    """
+    def __init__(self, parent, modid):
+        self.result = None
+        self.dialog = tk.Toplevel(parent)
+        self.dialog.title('选择 Buff')
+        self.dialog.geometry('420x380')
+        self.dialog.transient(parent)
+        self.dialog.grab_set()
+        frame = ttk.Frame(self.dialog, padding=8)
+        frame.pack(fill=tk.BOTH, expand=True)
+
+        self.listbox = tk.Listbox(frame)
+        self.listbox.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+        self.listbox.bind('<Double-1>', self._on_double)
+        sb = ttk.Scrollbar(frame, orient=tk.VERTICAL, command=self.listbox.yview)
+        sb.pack(side=tk.LEFT, fill=tk.Y)
+        self.listbox.config(yscrollcommand=sb.set)
+
+        btnf = ttk.Frame(self.dialog, padding=6)
+        btnf.pack(fill=tk.X)
+        ttk.Button(btnf, text='确定', command=self._on_ok).pack(side=tk.RIGHT, padx=6)
+        ttk.Button(btnf, text='取消', command=self._on_cancel).pack(side=tk.RIGHT)
+
+        items = []
+        # 优先使用后端获取列表
+        try:
+            ctrl = BuffController(modid)
+            buffs = ctrl.get_all_buffs() or []
+            for b in buffs:
+                bid = b.get('id') or ''
+                name = b.get('name') or ''
+                label = f"{bid} - {name}" if bid else name
+                items.append((bid or name, label))
+        except Exception:
+            # 回退到直接读取文件
+            buffs_path = Path(__file__).resolve().parent / 'mods' / modid / 'data' / modid / 'buffs'
+            if buffs_path.exists():
+                for f in sorted(buffs_path.glob('*.json')):
+                    try:
+                        with open(f, 'r', encoding='utf-8') as fh:
+                            data = json.load(fh)
+                        bid = data.get('id') or f.stem
+                        name = data.get('name', '')
+                        label = f"{bid} - {name}"
+                    except Exception:
+                        label = f.stem
+                        bid = f.stem
+                    items.append((bid, label))
+
+        for bid, label in items:
+            self.listbox.insert(tk.END, label)
+
+        self.dialog.wait_window()
+
+    def _on_double(self, _ev=None):
+        sel = self.listbox.curselection()
+        if not sel:
+            return
+        label = self.listbox.get(sel[0])
+        bid = label.split(' - ')[0]
+        self.result = bid
+        self.dialog.destroy()
+
+    def _on_ok(self):
+        sel = self.listbox.curselection()
+        if not sel:
+            messagebox.showwarning('警告', '请先选择一个 Buff')
+            return
+        label = self.listbox.get(sel[0])
+        bid = label.split(' - ')[0]
+        self.result = bid
+        self.dialog.destroy()
+
+    def _on_cancel(self):
+        self.dialog.destroy()
+
+
 if __name__ == '__main__':
     root = tk.Tk()
     app = BuffManagerUI(root, 'test')

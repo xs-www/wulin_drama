@@ -216,9 +216,9 @@ class BuffController:
         self.modid = modid
         self.service = service.BuffService(modid)
 
-    def get_all_buffs(self):
+    def get_all_buffs(self, is_self_mod=False):
         try:
-            res = self.service.get_all_buffs()
+            res = self.service.get_all_buffs(is_self_mod=is_self_mod)
         except Exception as e:
             print(f"获取增益列表失败: {e}")
             res = []

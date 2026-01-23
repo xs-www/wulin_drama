@@ -9,9 +9,15 @@ from pathlib import Path
 # 当前正在执行的 .py 文件绝对目录
 BASE_DIR = Path(__file__).resolve().parent
 
+MODID = None # 当前操作的模组ID，全局变量，由starter.py设置
+
 class ParseError(Exception):
     """自定义解析错误异常类"""
     pass
+
+def load_json(file_path):
+    with open(file_path, 'r', encoding='utf-8') as f:
+        return json.load(f)
 
 def timestampDate():
     """
@@ -108,16 +114,25 @@ ATTRS = {
 
 def load_by_id(fid: str):
     # modid:character/id
-    modid, path = fid.split(':')
-    id_type, file_name = path.split('/')
-    full_path = BASE_DIR / 'mods' / modid / 'data' / modid / f"{id_type}s" / f"{file_name}.json"
+    mid, id_type, data_id = parse_data_id(fid)
+    full_path = BASE_DIR / 'mods' / MODID / 'data' / mid / f"{id_type}" / f"{data_id}.json"
     if not full_path.exists():
         log.console(f"未找到文件: {full_path}", "WARN")
         return None
 
     with open(full_path, 'r', encoding='utf-8') as f:
         data = json.load(f)
+    data = translate_data(MODID, data)
     return data
+
+def parse_data_id(data_id):
+    if ':' in data_id:
+        modid, data_info = data_id.split(':')
+        data_type, data_id = data_info.split('/')
+        data_type = data_type.lower() + 's'
+    else:
+        raise ValueError("Id 格式错误，必须以 'modid:' 开头")
+    return modid, data_type, data_id
 
 def effect_parser(effect_dict: dict, highlight_num = False) -> str:
     """
@@ -166,13 +181,29 @@ def effect_parser(effect_dict: dict, highlight_num = False) -> str:
                 parsed_mode = parse_mode("remove_skill", mode, highlight_num)
                 return f"为{parsed_mode}移除技能 {parsed_param}"
             case "add_buff":
-                pass
+                param = effect_dict.get("param", "")
+                parsed_param = parse_param("add_buff", param, highlight_num)
+                mode = effect_dict.get("mode", "")
+                parsed_mode = parse_mode("add_buff", mode, highlight_num)
+                return f"为{parsed_mode}添加增益 {parsed_param}"
             case "remove_buff":
-                pass
+                param = effect_dict.get("param", "")
+                parsed_param = parse_param("remove_buff", param, highlight_num)
+                mode = effect_dict.get("mode", "")
+                parsed_mode = parse_mode("remove_buff", mode, highlight_num)
+                return f"为{parsed_mode}移除增益 {parsed_param}"
             case "add_status":
-                pass
+                param = effect_dict.get("param", "")
+                parsed_param = parse_param("add_status", param, highlight_num)
+                mode = effect_dict.get("mode", "")
+                parsed_mode = parse_mode("add_status", mode, highlight_num)
+                return f"为{parsed_mode}添加状态 {parsed_param}"
             case "remove_status":
-                pass
+                param = effect_dict.get("param", "")
+                parsed_param = parse_param("remove_status", param, highlight_num)
+                mode = effect_dict.get("mode", "")
+                parsed_mode = parse_mode("remove_status", mode, highlight_num)
+                return f"为{parsed_mode}移除状态 {parsed_param}"
             case "emit_event":
                 param = effect_dict.get("param", "")
                 parsed_param = parse_param("emit_event", param, highlight_num)
@@ -286,12 +317,18 @@ def parse_param(effect_type: str, param: str, highlight_num = False) -> dict:
                 res += '点'
             return res
         case "add_buff":
-            pass
+            buff = load_by_id(param)
+            if buff is None:
+                raise ParseError(f"增益加载失败: 未找到增益 {param}")
+            return buff.get('name', param)
         case "remove_buff":
             pass
-        case "add_statu":
-            pass
-        case "remove_statu":
+        case "add_status":
+            status = load_by_id(param)
+            if status is None:
+                raise ParseError(f"状态加载失败: 未找到状态 {param}")
+            return status.get('name', param)
+        case "remove_status":
             pass
         case "add_skill":
             skill = load_by_id(param)
@@ -364,16 +401,34 @@ def parse_mode(effect_type: str, mode: str, highlight_num: bool = False) -> str:
         res = target_map.get(mode, "未知目标")
 
 
-
-
-
     match effect_type:
         case "modify_attr":
             return res
         case "cause_damage":
             return res
         case _:
-            return "未知目标"
+            return res
+
+def t(modid, lang, key):
+    """
+    根据 modid 和 lang 加载对应的语言文件，返回 key 对应的翻译文本。
+    如果找不到对应的翻译，则返回 key 本身。
+    :param modid: 模组ID
+    :param lang: 语言代码，如 'zh_cn'
+    :param key: 需要翻译的文本键
+    :return: 翻译后的文本或原始键
+    """
+    file_path = BASE_DIR / "mods" / modid / 'assets' / modid / f'lang/{lang}.json'
+    lang_data = load_json(file_path)
+    return lang_data.get(key, key)
+
+def translate_data(modid, data_dict):
+    default_language = load_json(BASE_DIR / "mods" / modid / 'manifest.json').get('default_language', 'zh_cn')
+    for key, value in data_dict.items():
+        if isinstance(value, str):
+            if '.' in value:
+                data_dict[key] = t(modid, default_language, value)
+    return data_dict
 
 if __name__ == "__main__":
     # effect_str = '{"type": "modify_attr", "param": "MHP+10", "mode": "all_ally"}'

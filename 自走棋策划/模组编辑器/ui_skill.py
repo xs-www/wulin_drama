@@ -11,7 +11,7 @@ from pathlib import Path
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from mod_controller import SkillController
-
+from utils import effect_parser, ParseError, log
 
 class SkillManagerUI:
     def __init__(self, root, modid):
@@ -53,12 +53,14 @@ class SkillManagerUI:
         ttk.Button(button_frame, text='创建技能', command=self.create_skill).pack(side=tk.LEFT, padx=2)
         ttk.Button(button_frame, text='删除技能', command=self.delete_skill).pack(side=tk.LEFT, padx=2)
         ttk.Button(button_frame, text='刷新', command=self.refresh_list).pack(side=tk.LEFT, padx=2)
+        ttk.Button(button_frame, text='保存详情', command=self.save_detail).pack(side=tk.LEFT, padx=6)
 
         # 右侧详情
         detail_frame = ttk.LabelFrame(main_frame, text='Skill 详情', padding=5)
         detail_frame.grid(row=1, column=1, sticky=(tk.W, tk.E, tk.N, tk.S))
         detail_frame.columnconfigure(1, weight=1)
         detail_frame.rowconfigure(6, weight=1)
+        detail_frame.rowconfigure(7, weight=1)
 
         # 基本字段
         ttk.Label(detail_frame, text='ID:').grid(row=0, column=0, sticky=tk.W)
@@ -66,8 +68,8 @@ class SkillManagerUI:
         self.id_label.grid(row=0, column=1, sticky=(tk.W, tk.E))
 
         ttk.Label(detail_frame, text='名称:').grid(row=1, column=0, sticky=tk.W)
-        self.name_label = ttk.Label(detail_frame, text='')
-        self.name_label.grid(row=1, column=1, sticky=(tk.W, tk.E))
+        self.name_entry = ttk.Entry(detail_frame)
+        self.name_entry.grid(row=1, column=1, sticky=(tk.W, tk.E))
 
         ttk.Label(detail_frame, text='类型:').grid(row=2, column=0, sticky=tk.W)
         self.type_var = tk.StringVar()
@@ -107,7 +109,6 @@ class SkillManagerUI:
         ttk.Label(detail_frame, text='描述:').grid(row=4, column=0, sticky=tk.NW)
         self.desc_text = tk.Text(detail_frame, height=4, wrap=tk.WORD)
         self.desc_text.grid(row=4, column=1, sticky=(tk.W, tk.E))
-        self.desc_text.config(state='disabled')
 
         # 条件与效果显示
         cond_frame = ttk.LabelFrame(detail_frame, text='条件 (condition)', padding=4)
@@ -130,6 +131,16 @@ class SkillManagerUI:
         ttk.Button(eff_btn_frame, text='添加效果', command=lambda: self.on_add_effect_button()).pack(fill=tk.X, pady=2)
         ttk.Button(eff_btn_frame, text='修改效果', command=lambda: self.on_edit_effect_button()).pack(fill=tk.X, pady=2)
         ttk.Button(eff_btn_frame, text='删除效果', command=lambda: self.on_delete_effect_button()).pack(fill=tk.X, pady=2)
+
+        # 绑定效果列表选择事件用于预览
+        self.eff_listbox.bind('<<ListboxSelect>>', self.on_effect_select)
+
+        # 效果预览区域（位于详情最下方）
+        preview_frame = ttk.LabelFrame(detail_frame, text='效果预览', padding=4)
+        preview_frame.grid(row=7, column=0, columnspan=2, sticky=(tk.W, tk.E, tk.N, tk.S), pady=(4,0))
+        self.preview_text = tk.Text(preview_frame, height=8)
+        self.preview_text.pack(fill=tk.BOTH, expand=True)
+        self.preview_text.config(state='disabled')
 
         list_frame.columnconfigure(0, weight=1)
         list_frame.rowconfigure(0, weight=1)
@@ -164,21 +175,25 @@ class SkillManagerUI:
 
     def populate_detail(self, skill):
         self.id_label.config(text=str(skill.get('id','')))
-        self.name_label.config(text=str(skill.get('name','')))
-        # 类型下拉显示
+        # 填充可编辑名称
+        try:
+            self.name_entry.delete(0, tk.END)
+            self.name_entry.insert(0, str(skill.get('name','')))
+        except Exception:
+            pass
+
+        # 根据类型展示触发器 UI
         typ = skill.get('type','')
         self.type_var.set(str(typ))
-        # 根据类型展示触发器 UI
         self.update_trigger_ui_by_type(typ, skill)
         self.trigger_label.config(text=str(skill.get('trigger','')))
-        self.desc_text.config(state='normal')
+        # 描述可编辑
         self.desc_text.delete(1.0, tk.END)
         desc = skill.get('decription') or skill.get('description') or skill.get('desc') or ''
         if isinstance(desc, (dict,list)):
             self.desc_text.insert(1.0, json.dumps(desc, ensure_ascii=False, indent=2))
         else:
             self.desc_text.insert(1.0, str(desc))
-        self.desc_text.config(state='disabled')
 
         self.cond_text.config(state='normal')
         self.cond_text.delete(1.0, tk.END)
@@ -206,6 +221,12 @@ class SkillManagerUI:
             self.eff_listbox.insert(tk.END, label)
         # 保留当前 skill
         self.current_skill = skill
+        # 如果有效果则选中首项并展示预览
+        if self.eff_listbox.size() > 0:
+            self.eff_listbox.select_set(0)
+            self.on_effect_select(None)
+        else:
+            self.update_preview(None)
 
     def create_skill(self):
         dialog = SimpleSkillDialog(self.root, '新建 Skill')
@@ -273,6 +294,30 @@ class SkillManagerUI:
             messagebox.showerror('错误', f'保存技能失败：{e}')
         return False
 
+    def save_detail(self):
+        """保存名称和描述到当前技能并提交到后端"""
+        if not getattr(self, 'current_skill', None):
+            messagebox.showwarning('警告', '请先选择一个技能')
+            return
+        name = self.name_entry.get().strip()
+        desc_raw = self.desc_text.get(1.0, tk.END).strip()
+        # 尝试把描述解析为 JSON，否则保留字符串
+        desc_val = desc_raw
+        try:
+            desc_val = json.loads(desc_raw)
+        except Exception:
+            desc_val = desc_raw
+        self.current_skill['name'] = name
+        # 使用现有字段名保持兼容
+        self.current_skill['decription'] = desc_val
+        self.current_skill['description'] = desc_val
+        ok = self.save_current_skill()
+        if ok:
+            messagebox.showinfo('成功', '详情已保存')
+            self.refresh_list()
+        else:
+            messagebox.showerror('失败', '保存失败')
+
     def on_type_change(self):
         typ = self.type_var.get()
         # 更新当前技能数据结构
@@ -283,7 +328,7 @@ class SkillManagerUI:
             # active 默认为无触发器
             if 'triggers' in self.current_skill:
                 self.current_skill.pop('triggers', None)
-            self.current_skill['trigger'] = self.current_skill.get('trigger','') or ''
+            self.current_skill['trigger'] = []
         else:
             # passive 使用 triggers 列表
             if 'trigger' in self.current_skill and self.current_skill.get('trigger'):
@@ -439,6 +484,12 @@ class SkillManagerUI:
         except Exception:
             label = str(new_eff)
         self.eff_listbox.insert(tk.END, label)
+        # 选中新添加项并更新预览
+        last_index = self.eff_listbox.size() - 1
+        if last_index >= 0:
+            self.eff_listbox.select_clear(0, tk.END)
+            self.eff_listbox.select_set(last_index)
+            self.on_effect_select(None)
         # 保存
         if self.save_current_skill():
             messagebox.showinfo('成功', '效果已添加并保存')
@@ -476,6 +527,10 @@ class SkillManagerUI:
             label = str(new)
         self.eff_listbox.delete(idx)
         self.eff_listbox.insert(idx, label)
+        # 重新选中并更新预览
+        self.eff_listbox.select_clear(0, tk.END)
+        self.eff_listbox.select_set(idx)
+        self.on_effect_select(None)
         # 保存
         if self.save_current_skill():
             messagebox.showinfo('成功', '效果已更新并保存')
@@ -504,11 +559,81 @@ class SkillManagerUI:
             return
         self.current_skill['effect'] = effs
         self.eff_listbox.delete(idx)
+        # 更新预览：选中下一个可用项或清空
+        if self.eff_listbox.size() > 0:
+            new_idx = min(idx, self.eff_listbox.size() - 1)
+            self.eff_listbox.select_set(new_idx)
+            self.on_effect_select(None)
+        else:
+            self.update_preview(None)
         if self.save_current_skill():
             messagebox.showinfo('成功', '已删除并保存')
         else:
             messagebox.showerror('失败', '删除后保存失败')
 
+    def on_effect_select(self, event=None):
+        """当用户在效果列表选择某项时，展示预览"""
+        if not getattr(self, 'current_skill', None):
+            self.update_preview(None)
+            return
+        sel = self.eff_listbox.curselection()
+        if not sel:
+            self.update_preview(None)
+            return
+        idx = sel[0]
+        effs = self.current_skill.get('effect') or self.current_skill.get('effects') or []
+        if not isinstance(effs, list):
+            effs = [effs]
+        try:
+            eff = effs[idx]
+        except Exception:
+            eff = None
+        self.update_preview(eff)
+
+    def update_preview(self, eff):
+        """把效果对象格式化并显示在预览框中，使用 utils.effect_parser 生成自然语言描述"""
+        try:
+            self.preview_text.config(state='normal')
+            self.preview_text.delete(1.0, tk.END)
+            if eff is None:
+                self.preview_text.insert(1.0, '未选择效果')
+            else:
+                # 如果是字串尝试解析为 json 对象
+                parsed = None
+                if isinstance(eff, str):
+                    try:
+                        parsed = json.loads(eff)
+                    except Exception:
+                        parsed = eff
+                else:
+                    parsed = eff
+
+                # 优先使用 effect_parser 输出自然语言描述
+                try:
+                    if isinstance(parsed, dict):
+                        desc = effect_parser(parsed, highlight_num=True)
+                        self.preview_text.insert(1.0, desc)
+                    else:
+                        # 非字典则直接显示其字符串形式
+                        try:
+                            self.preview_text.insert(1.0, json.dumps(parsed, ensure_ascii=False, indent=2))
+                        except Exception:
+                            self.preview_text.insert(1.0, str(parsed))
+                except ParseError as pe:
+                    # 解析失败，显示友好错误并回退到 JSON
+                    self.preview_text.insert(1.0, f"解析效果失败: {pe}\n\n原始数据:\n")
+                    try:
+                        self.preview_text.insert(tk.END, json.dumps(eff, ensure_ascii=False, indent=2))
+                    except Exception:
+                        self.preview_text.insert(tk.END, str(eff))
+                except Exception as e:
+                    # 其它异常，记录并显示原始
+                    try:
+                        self.preview_text.insert(1.0, json.dumps(eff, ensure_ascii=False, indent=2))
+                    except Exception:
+                        self.preview_text.insert(1.0, str(eff))
+        finally:
+            self.preview_text.config(state='disabled')
 
 class SkillDialog:
     def __init__(self, parent, title, skill: dict = None):
@@ -699,20 +824,33 @@ class EventChooserDialog:
         ttk.Button(btnf, text='取消', command=self._on_cancel).pack(side=tk.RIGHT)
 
         # 加载事件文件列表
-        events_path = Path(__file__).resolve().parent / 'mods' / modid / 'data' / modid / 'events'
+        # 优先通过后端获取事件列表，若失败回退到文件读取
         items = []
-        if events_path.exists():
-            for f in sorted(events_path.glob('*.json')):
-                try:
-                    with open(f, 'r', encoding='utf-8') as fh:
-                        data = json.load(fh)
-                    eid = data.get('id') or f.stem
-                    name = data.get('name', '')
-                    label = f"{eid} - {name}"
-                except Exception:
-                    label = f.stem
-                    eid = f.stem
-                items.append((eid, label))
+        try:
+            from mod_controller import EventController
+            evc = EventController(modid)
+            events = evc.get_all_events(is_self_mod=False) or []
+            for ev in events:
+                eid = ev.get('id') or ev.get('file') or ''
+                name = ev.get('name', '')
+                label = f"{eid} - {name}" if eid else name
+                items.append((eid or name, label))
+        except Exception as e:
+            # 后端获取失败，回退到直接读取文件
+            log.console(f"从后端加载事件失败，回退到文件读取: {e}", "WARN")
+            events_path = Path(__file__).resolve().parent / 'mods' / modid / 'data' / modid / 'events'
+            if events_path.exists():
+                for f in sorted(events_path.glob('*.json')):
+                    try:
+                        with open(f, 'r', encoding='utf-8') as fh:
+                            data = json.load(fh)
+                        eid = data.get('id') or f.stem
+                        name = data.get('name', '')
+                        label = f"{eid} - {name}"
+                    except Exception:
+                        label = f.stem
+                        eid = f.stem
+                    items.append((eid, label))
         for eid, label in items:
             self.listbox.insert(tk.END, label)
 
