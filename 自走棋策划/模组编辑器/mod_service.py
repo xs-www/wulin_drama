@@ -298,57 +298,57 @@ class SkillService:
             dao.LangDao.remove_lang_key(self.modid, lang_keys)
         return res
     
-class EventService:
+class TriggerService:
     def __init__(self, modid):
         self.modid = modid
         #self.dao = dao.EventDao(modid)
         self.mod_service = ModService(modid)
 
-    def get_all_events(self, is_self_mod=False) -> list[dict]:
-        events = self.mod_service.load_all_data('event', is_self_mod=is_self_mod)
-        for i, event in enumerate(events):
-            events[i] = translate_data(self.modid, event)
-        return events
+    def get_all_triggers(self, is_self_mod=False) -> list[dict]:
+        triggers = self.mod_service.load_all_data('trigger', is_self_mod=is_self_mod)
+        for i, trigger in enumerate(triggers):
+            triggers[i] = translate_data(self.modid, trigger)
+        return triggers
 
-    def get_event_by_id(self, event_id):
-        _, event_id = gen_data_id(event_id, data_type='event', modid=self.modid)
-        event_data = self.mod_service.load_data_by_id(event_id)
-        event_data = translate_data(self.modid, event_data)
-        return event_data
+    def get_trigger_by_id(self, trigger_id):
+        _, trigger_id = gen_data_id(trigger_id, data_type='trigger', modid=self.modid)
+        trigger_data = self.mod_service.load_data_by_id(trigger_id)
+        trigger_data = translate_data(self.modid, trigger_data)
+        return trigger_data
 
-    def create_event(self, event_data):
-        event_id, event_data['id'] = gen_data_id(event_data.get('id'), data_type='event', modid=self.modid)
+    def create_trigger(self, trigger_data):
+        trigger_id, trigger_data['id'] = gen_data_id(trigger_data.get('id'), data_type='trigger', modid=self.modid)
         trans = {}
         for key in ['name', 'description']:
-            lang_key = f"{self.modid}.event.{event_id}.{key}"
-            trans[lang_key] = event_data.get(key, '')
-            event_data[key] = lang_key
-        res = self.mod_service.save_data(event_data)
+            lang_key = f"{self.modid}.trigger.{trigger_id}.{key}"
+            trans[lang_key] = trigger_data.get(key, '')
+            trigger_data[key] = lang_key
+        res = self.mod_service.save_data(trigger_data)
         if res:
             for lang_key, value in trans.items():
                 dao.LangDao.set_lang(self.modid, lang_key, value)
             dao.LangDao.add_lang_key(self.modid, list(trans.keys()))
         return res
 
-    def update_event(self, event_data):
-        event_id, event_data['id'] = gen_data_id(event_data.get('id'), data_type='event', modid=self.modid)
+    def update_trigger(self, trigger_data):
+        trigger_id, trigger_data['id'] = gen_data_id(trigger_data.get('id'), data_type='trigger', modid=self.modid)
         trans = {}
         for key in ['name', 'description']:
-            lang_key = f"{self.modid}.event.{event_id}.{key}"
-            trans[lang_key] = event_data.get(key, '')
-            event_data[key] = lang_key
-        res = self.mod_service.save_data(event_data)
+            lang_key = f"{self.modid}.trigger.{trigger_id}.{key}"
+            trans[lang_key] = trigger_data.get(key, '')
+            trigger_data[key] = lang_key
+        res = self.mod_service.save_data(trigger_data)
         if res:
             for lang_key, value in trans.items():
                 dao.LangDao.set_lang(self.modid, lang_key, value)
         return res
 
-    def delete_event(self, event_id):
-        _, event_id = gen_data_id(event_id, data_type='event', modid=self.modid)
-        res = self.dao.delete_event(event_id)
+    def delete_trigger(self, trigger_id):
+        _, trigger_id = gen_data_id(trigger_id, data_type='trigger', modid=self.modid)
+        res = self.mod_service.delete_data(trigger_id)
         if res:
             lang_keys = [
-                f"{self.modid}.event.{event_id}.{key}"
+                f"{self.modid}.trigger.{trigger_id}.{key}"
                 for key in ['name', 'description']
             ]
             dao.LangDao.del_lang(self.modid, lang_keys)
@@ -401,7 +401,7 @@ class BuffService:
 
     def delete_buff(self, buff_id):
         _, buff_id = gen_data_id(buff_id, data_type='buff', modid=self.modid)
-        res = self.dao.delete_buff(buff_id)
+        res = self.mod_service.delete_data(buff_id)
         if res:
             lang_keys = [
                 f"{self.modid}.buff.{buff_id}.{key}"

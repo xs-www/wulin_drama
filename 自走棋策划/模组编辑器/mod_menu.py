@@ -10,7 +10,7 @@ import json
 from ui_character import CharacterManagerUI
 from ui_faction import FactionManagerUI
 from ui_skill import SkillManagerUI
-from ui_event import EventManagerUI
+from ui_trigger import TriggerManagerUI
 from mod_controller import ModController
 
 # 引入项目日志工具（若不存在则静默）
@@ -149,19 +149,19 @@ class ModMenuUI:
         right = ttk.Frame(main, width=220)
         right.pack(side='right', fill='y')
 
-        btn_role = ttk.Button(right, text='编辑角色', command=self.open_character_editor)
+        btn_role = ttk.Button(right, text='管理角色', command=self.open_character_editor)
         btn_role.pack(fill='x', pady=6)
 
-        btn_faction = ttk.Button(right, text='编辑羁绊', command=self.open_faction_editor)
+        btn_faction = ttk.Button(right, text='管理羁绊', command=self.open_faction_editor)
         btn_faction.pack(fill='x', pady=6)
 
-        btn_skills = ttk.Button(right, text='编辑技能', command=self.open_skills_editor)
+        btn_skills = ttk.Button(right, text='管理技能', command=self.open_skills_editor)
         btn_skills.pack(fill='x', pady=6)
 
-        btn_events = ttk.Button(right, text='管理事件注册', command=self.open_event_manager)
+        btn_events = ttk.Button(right, text='管理触发器事件', command=self.open_trigger_manager)
         btn_events.pack(fill='x', pady=6)
 
-        btn_buff = ttk.Button(right, text='编辑buff', command=self.open_buff_editor)
+        btn_buff = ttk.Button(right, text='管理 Buff', command=self.open_buff_editor)
         btn_buff.pack(fill='x', pady=6)
 
         btn_cfg = ttk.Button(right, text='打开 manifest 文件夹', command=self.open_manifest_folder)
@@ -283,9 +283,9 @@ class ModMenuUI:
         win = tk.Toplevel(self.root)
         SkillManagerUI(win, modid=self.modid)
 
-    def open_event_manager(self):
+    def open_trigger_manager(self):
         win = tk.Toplevel(self.root)
-        EventManagerUI(win, modid=self.modid)
+        TriggerManagerUI(win, modid=self.modid)
 
     def open_buff_editor(self):
         from ui_buff import BuffManagerUI

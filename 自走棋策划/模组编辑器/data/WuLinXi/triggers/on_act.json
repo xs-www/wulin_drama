@@ -1,5 +1,5 @@
 {
-  "id": "WuLinXi:event/on_act",
+  "id": "WuLinXi:trigger/on_act",
   "name": "当行动时",
   "description": "",
   "enabled": true

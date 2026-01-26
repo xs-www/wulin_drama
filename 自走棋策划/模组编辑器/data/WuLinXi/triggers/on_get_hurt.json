@@ -1,5 +1,5 @@
 {
-  "id": "WuLinXi:event/on_get_hurt",
+  "id": "WuLinXi:trigger/on_get_hurt",
   "name": "当受伤时",
   "description": "",
   "enabled": true

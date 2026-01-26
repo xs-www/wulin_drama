@@ -1,5 +1,5 @@
 {
-  "id": "WuLinXi:event/on_attack",
+  "id": "WuLinXi:trigger/on_attack",
   "name": "当攻击时",
   "description": "",
   "enabled": true

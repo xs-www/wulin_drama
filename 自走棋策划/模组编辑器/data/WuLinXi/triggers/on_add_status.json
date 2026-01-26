@@ -1,5 +1,5 @@
 {
-  "id": "WuLinXi:event/on_add_status",
+  "id": "WuLinXi:trigger/on_add_status",
   "name": "当施加状态时",
   "description": "",
   "enabled": true

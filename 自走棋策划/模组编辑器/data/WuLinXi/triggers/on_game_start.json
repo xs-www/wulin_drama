@@ -1,5 +1,5 @@
 {
-  "id": "WuLinXi:event/on_game_start",
+  "id": "WuLinXi:trigger/on_game_start",
   "name": "当游戏开始时",
   "description": "",
   "enabled": true

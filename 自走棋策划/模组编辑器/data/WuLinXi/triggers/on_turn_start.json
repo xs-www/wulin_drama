@@ -1,5 +1,5 @@
 {
-  "id": "WuLinXi:event/on_turn_start",
+  "id": "WuLinXi:trigger/on_turn_start",
   "name": "当回合开始时",
   "description": "",
   "enabled": true

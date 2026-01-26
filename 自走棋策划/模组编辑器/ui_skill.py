@@ -371,14 +371,14 @@ class SkillManagerUI:
         except Exception:
             pass
         try:
-            from ui_skill import EventChooserDialog
+            from ui_skill import TriggerChooserDialog
         except Exception:
             try:
-                from ui_event import EventChooserDialog
+                from ui_trigger import TriggerChooserDialog
             except Exception as e:
                 messagebox.showerror('错误', f'无法加载事件选择器：{e}')
                 return
-        chooser = EventChooserDialog(self.root, self.modid)
+        chooser = TriggerChooserDialog(self.root, self.modid)
         selected = chooser.result
         if not selected:
             return
@@ -418,8 +418,8 @@ class SkillManagerUI:
         idx = sel[0]
         old = self.triggers_listbox.get(idx)
         try:
-            from ui_event import EventChooserDialog
-            chooser = EventChooserDialog(self.root, self.modid)
+            from ui_trigger import TriggerChooserDialog
+            chooser = TriggerChooserDialog(self.root, self.modid)
             new = chooser.result
         except Exception as e:
             messagebox.showerror('错误', f'打开选择器失败：{e}')
@@ -428,13 +428,13 @@ class SkillManagerUI:
             return
         trigs = self.current_skill.get('triggers') or []
         if new in trigs and new != old:
-            messagebox.showwarning('警告', '该事件已存在，不能重复')
+            messagebox.showwarning('警告', '该触发器已存在，不能重复')
             return
         trigs[idx] = new
         self.current_skill['triggers'] = trigs
         if self.save_current_skill():
             self.update_trigger_ui_by_type('passive', self.current_skill)
-            messagebox.showinfo('成功', '事件已更新')
+            messagebox.showinfo('成功', '触发器已更新')
         else:
             messagebox.showerror('失败', '保存失败')
 
@@ -796,7 +796,7 @@ class SimpleSkillDialog:
         self.dialog.destroy()
 
 
-class EventChooserDialog:
+class TriggerChooserDialog:
     """
     简单的事件选择器对话框：列出 mods/{modid}/data/{modid}/events/*.json 中的事件文件，显示 "id - name"，双击或选择后点击确定返回 id。
     返回结果保存在 self.result（字符串或 None）。

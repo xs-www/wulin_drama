@@ -1,5 +1,5 @@
 {
-  "id": "WuLinXi:event/on_remove_status",
+  "id": "WuLinXi:trigger/on_remove_status",
   "name": "当移除状态时",
   "description": "",
   "enabled": true

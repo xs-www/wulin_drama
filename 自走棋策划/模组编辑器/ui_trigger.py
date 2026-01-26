@@ -6,16 +6,16 @@ from pathlib import Path
 # 添加当前目录到路径，确保能导入本工程的模块（如需要）
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from mod_controller import EventController
+from mod_controller import TriggerController
 
-class EventManagerUI:
+class TriggerManagerUI:
     def __init__(self, root, modid):
         self.root = root
         self.modid = modid
-        self.root.title('事件注册管理')
+        self.root.title('触发器注册管理')
         self.root.geometry('640x360')
-        # 使用 EventController 处理后端操作
-        self.ctrl = EventController(modid)
+        # 使用 TriggerController 处理后端操作
+        self.ctrl = TriggerController(modid)
         self.current = None
         self.create_widgets()
         self.refresh_list()
@@ -38,8 +38,8 @@ class EventManagerUI:
 
         btn_frame = ttk.Frame(left)
         btn_frame.pack(fill=tk.X, pady=6)
-        ttk.Button(btn_frame, text='新建', command=self.new_event).pack(side=tk.LEFT, padx=4)
-        ttk.Button(btn_frame, text='删除', command=self.delete_event).pack(side=tk.LEFT, padx=4)
+        ttk.Button(btn_frame, text='新建', command=self.new_trigger).pack(side=tk.LEFT, padx=4)
+        ttk.Button(btn_frame, text='删除', command=self.delete_trigger).pack(side=tk.LEFT, padx=4)
         ttk.Button(btn_frame, text='刷新', command=self.refresh_list).pack(side=tk.LEFT, padx=4)
         # 仅显示本模组选项
         self.only_self_var = tk.BooleanVar(value=False)
@@ -69,7 +69,7 @@ class EventManagerUI:
 
         action_btn_frame = ttk.Frame(right)
         action_btn_frame.grid(row=4, column=1, sticky=tk.EW, pady=(8,0), padx=4)
-        ttk.Button(action_btn_frame, text='保存', command=self.save_event).pack(side=tk.RIGHT, padx=4)
+        ttk.Button(action_btn_frame, text='保存', command=self.save_trigger).pack(side=tk.RIGHT, padx=4)
 
     def refresh_list(self):
         self.listbox.delete(0, tk.END)
@@ -79,42 +79,42 @@ class EventManagerUI:
         try:
             # 尝试将 is_self 传给 controller；若不支持该参数则回退到无参数调用
             try:
-                events = self.ctrl.get_all_events(is_self) or []
+                triggers = self.ctrl.get_all_triggers(is_self) or []
             except TypeError:
-                events = self.ctrl.get_all_events() or []
+                triggers = self.ctrl.get_all_triggers() or []
         except Exception:
-            events = []
-        for e in events:
-            full_id = str(e.get('id') or '')
+            triggers = []
+        for trig in triggers:
+            full_id = str(trig.get('id') or '')
             short = full_id.split('/')[-1] if full_id else ''
-            label = f"{short} - {e.get('name','') }"
+            label = f"{short} - {trig.get('name','') }"
             self.listbox.insert(tk.END, label)
             self.list_ids.append(full_id)
 
     def on_select(self, event):
-        sel = self.listbox.curselection()
-        if not sel:
+         sel = self.listbox.curselection()
+         if not sel:
             return
-        idx = sel[0]
-        # use stored full id for lookup
-        try:
+         idx = sel[0]
+         # use stored full id for lookup
+         try:
             full_id = self.list_ids[idx]
-        except Exception:
+         except Exception:
             full_id = None
-        if not full_id:
-            messagebox.showerror('错误', '无法获取对应的事件 ID')
+         if not full_id:
+            messagebox.showerror('错误', '无法获取对应的触发器 ID')
             return
-        try:
-            data = self.ctrl.get_event_by_id(full_id)
-        except Exception:
+         try:
+            data = self.ctrl.get_trigger_by_id(full_id)
+         except Exception:
             data = None
-        if not data:
+         if not data:
             short = full_id.split('/')[-1]
-            messagebox.showerror('错误', f'无法加载事件 {short}')
+            messagebox.showerror('错误', f'无法加载触发器 {short}')
             return
-        self.load_into_form(data)
-        # keep current as short id for UI purposes
-        self.current = full_id.split('/')[-1]
+         self.load_into_form(data)
+         # keep current as short id for UI purposes
+         self.current = full_id.split('/')[-1]
 
     def load_into_form(self, data: dict):
         # 在界面中仅显示短 ID（不含 mod 前缀），保存时使用完整 ID
@@ -139,7 +139,7 @@ class EventManagerUI:
             self.desc_text.insert(1.0, '')
         self.enabled_var.set(bool(data.get('enabled', True)))
 
-    def new_event(self):
+    def new_trigger(self):
         # 清空表单，允许输入新 ID
         self.current = None
         try:
@@ -156,23 +156,23 @@ class EventManagerUI:
         self.desc_text.delete(1.0, tk.END)
         self.enabled_var.set(True)
 
-    def delete_event(self):
+    def delete_trigger(self):
         sel = self.listbox.curselection()
         if not sel:
-            messagebox.showwarning('警告', '请先选择要删除的事件注册')
+            messagebox.showwarning('警告', '请先选择要删除的触发器')
             return
         idx = sel[0]
         # use stored full id
         try:
             full_id = self.list_ids[idx]
         except Exception:
-            messagebox.showerror('错误', '无法获取对应的事件 ID')
+            messagebox.showerror('错误', '无法获取对应的触发器 ID')
             return
         short = full_id.split('/')[-1]
-        if not messagebox.askyesno('确认', f'确定删除事件注册 {short} ?'):
+        if not messagebox.askyesno('确认', f'确定删除触发器 {short} ?'):
             return
         try:
-            ok = self.ctrl.delete_event(full_id)
+            ok = self.ctrl.delete_trigger(full_id)
         except Exception as e:
             ok = False
         if ok:
@@ -181,16 +181,16 @@ class EventManagerUI:
         else:
             messagebox.showerror('失败', '删除失败')
 
-    def save_event(self):
+    def save_trigger(self):
         entered = self.id_var.get().strip()
         if not entered:
             messagebox.showerror('错误', 'ID 不能为空')
             return
-        # 生成完整 ID（modid: event/id），如果用户已经输入完整 ID 则保持不变
-        if entered.startswith(f"{self.modid}:event/") or (':' in entered and '/' in entered):
+        # 生成完整 ID（modid: Trigger/id），如果用户已经输入完整 ID 则保持不变
+        if entered.startswith(f"{self.modid}:Trigger/") or (':' in entered and '/' in entered):
             full_id = entered
         else:
-            full_id = f"{self.modid}:event/{entered}"
+            full_id = f"{self.modid}:Trigger/{entered}"
         eid = full_id
         name = self.name_var.get().strip()
         desc_raw = self.desc_text.get(1.0, tk.END).strip()
@@ -210,7 +210,7 @@ class EventManagerUI:
         }
 
         try:
-            exists = self.ctrl.get_event_by_id(eid)
+            exists = self.ctrl.get_trigger_by_id(eid)
         except Exception:
             exists = None
         # 注意：self.current 在 UI 中保留短 id（不含 mod 前缀），因此比较时用短 id
@@ -221,9 +221,9 @@ class EventManagerUI:
                 return
         try:
             if exists:
-                ok = self.ctrl.update_event(rec)
+                ok = self.ctrl.update_trigger(rec)
             else:
-                ok = self.ctrl.create_event(rec)
+                ok = self.ctrl.create_trigger(rec)
         except Exception:
             ok = False
         if ok:
@@ -237,5 +237,5 @@ class EventManagerUI:
 
 if __name__ == '__main__':
     root = tk.Tk()
-    app = EventManagerUI(root, 'test')
+    app = TriggerManagerUI(root, 'test')
     root.mainloop()

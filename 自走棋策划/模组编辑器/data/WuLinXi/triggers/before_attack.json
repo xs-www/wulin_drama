@@ -1,5 +1,5 @@
 {
-  "id": "WuLinXi:event/before_attack",
+  "id": "WuLinXi:trigger/before_attack",
   "name": "当攻击前",
   "description": "",
   "enabled": true

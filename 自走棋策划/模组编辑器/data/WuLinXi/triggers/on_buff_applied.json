@@ -1,5 +1,5 @@
 {
-  "id": "WuLinXi:event/on_buff_applied",
+  "id": "WuLinXi:trigger/on_buff_applied",
   "name": "当buff施加时",
   "description": "",
   "enabled": true

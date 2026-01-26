@@ -1,5 +1,5 @@
 {
-  "id": "WuLinXi:event/after_attack",
+  "id": "WuLinXi:trigger/after_attack",
   "name": "当攻击后",
   "description": "",
   "enabled": true

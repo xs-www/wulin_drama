@@ -1,5 +1,5 @@
 {
-  "id": "WuLinXi:event/on_skill_realeasd",
+  "id": "WuLinXi:trigger/on_skill_released",
   "name": "当技能释放时",
   "description": "",
   "enabled": true

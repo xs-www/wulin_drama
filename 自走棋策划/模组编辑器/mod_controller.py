@@ -170,45 +170,45 @@ class SkillController:
             print(f"删除技能 {skill_id} 失败: {e}")
             return False
 
-class EventController:
+class TriggerController:
     def __init__(self, modid):
         self.modid = modid
-        self.service = service.EventService(modid)
+        self.service = service.TriggerService(modid)
 
-    def get_all_events(self, is_self_mod=False):
+    def get_all_triggers(self, is_self_mod=False):
         try:
-            res = self.service.get_all_events(is_self_mod=is_self_mod)
+            res = self.service.get_all_triggers(is_self_mod=is_self_mod)
         except Exception as e:
-            print(f"获取事件列表失败: {e}")
+            print(f"获取触发器列表失败: {e}")
             res = []
         return res
 
-    def get_event_by_id(self, event_id):
+    def get_trigger_by_id(self, trigger_id):
         try:
-            return self.service.get_event_by_id(event_id)
+            return self.service.get_trigger_by_id(trigger_id)
         except Exception as e:
-            print(f"获取事件 {event_id} 失败: {e}")
+            print(f"获取触发器 {trigger_id} 失败: {e}")
             return None
 
-    def create_event(self, event_data):
+    def create_trigger(self, trigger_data):
         try:
-            return self.service.create_event(event_data.copy())
+            return self.service.create_trigger(trigger_data.copy())
         except Exception as e:
-            print(f"创建事件失败: {e}")
+            print(f"创建触发器失败: {e}")
             return False
 
-    def update_event(self, event_data):
+    def update_trigger(self, trigger_data):
         try:
-            return self.service.update_event(event_data.copy())
+            return self.service.update_trigger(trigger_data.copy())
         except Exception as e:
-            print(f"更新事件失败: {e}")
+            print(f"更新触发器失败: {e}")
             return False
 
-    def delete_event(self, event_id):
+    def delete_trigger(self, trigger_id):
         try:
-            return self.service.delete_event(event_id)
+            return self.service.delete_trigger(trigger_id)
         except Exception as e:
-            print(f"删除事件 {event_id} 失败: {e}")
+            print(f"删除触发器 {trigger_id} 失败: {e}")
             return False
         
 class BuffController:
