@@ -1,0 +1,57 @@
+{
+    "id": "WuLinXi:plots/public/10001",
+    "type": "event_plot",
+    "name": "斗之力测试",
+    "story":[ 
+        "narrate|又到了一年一度的斗气测试时间，六岁的你怀着激动的心情来到了测试场地。",
+        "narrate|随着时间不断流逝，前面的人越来越少。",
+        "narrate|终于轮到你上场了，你深吸一口气，开始运转体内的斗之力，将手放在了场地中间的黑色石碑上。",
+        "narrate|石碑突然发出光芒："
+    ],
+    "options":[
+        {
+            "id": "1",
+            "text": "斗之力，三段！",
+            "effects": [
+                {
+                    "type": "add_plot",
+                    "param": "WuLinXi:plots/public/10002"
+                },
+                {
+                    "type": "add_status",
+                    "param": "WuLinXi:status/FeiFu",
+                    "mode": "player"
+                }
+            ]
+        },
+        {
+            "id": "2",
+            "text": "斗之力，七段！",
+            "conditions": [
+                {
+                    "type": "check_attr",
+                    "param": "potential>=80",
+                    "mode": "player"
+                }
+            ],
+            "effects": [
+                {
+                    "type": "add_plot",
+                    "param": "WuLinXi:plots/public/10003"
+                },
+                {
+                    "type": "add_status",
+                    "param": "WuLinXi:status/TianJiao",
+                    "mode": "player"
+                }
+            ]
+        }
+    ],
+    "next_plots_info": {
+        "count": {
+            "2": 60,
+            "3": 40
+        },
+        "type": []
+    }
+}

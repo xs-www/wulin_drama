@@ -1,0 +1,11 @@
+{
+    "id": "WuLinXi:play/WuLinDaHui",
+    "name": "武林大会",
+    "description": "元和四年，13岁的你听闻太原要举办武林大会，决定前往一试身手。",
+    "author": "SiWuXie",
+    "version": "1.0.0",
+    "initial_plot": "WuLinXi:plot/WuLinDaHui/10001",
+    "plot_pool": [
+        "WuLinXi:plot/public/*"
+    ]
+}
